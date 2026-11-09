@@ -46,7 +46,7 @@ export const de = {
   page: {
     title: 'ichbinhier lebt vom Mitmachen.',
     subtitle:
-      'Sag uns in zwei Minuten, wie du dabei sein möchtest. Deine Bestätigung mit allen weiteren Infos kommt sofort per E-Mail — kein „wir melden uns“.',
+      'Sag uns in zwei Minuten, wie du dabei sein möchtest. Deine Bestätigung mit allen weiteren Infos kommt sofort per E-Mail, kein „wir melden uns“.',
   },
 
   /** DESIGN.md section 17 */
@@ -106,8 +106,8 @@ export const de = {
 
   /** DESIGN.md section 21 */
   weeklyTimeLabels: {
-    HOURS_1_2: '1–2 Stunden',
-    HOURS_3_5: '3–5 Stunden',
+    HOURS_1_2: '1 bis 2 Stunden',
+    HOURS_3_5: '3 bis 5 Stunden',
     HOURS_5_PLUS: 'mehr als 5 Stunden',
     IRREGULAR: 'unregelmäßig, projektweise',
   } satisfies Record<WeeklyTime, string>,
@@ -157,7 +157,7 @@ export const de = {
     ROUTE_REQUIRED: 'Bitte wähle aus, wie du uns helfen möchtest',
     CATEGORY_REQUIRED: 'Bitte wähle aus, wie du uns helfen möchtest',
     CATEGORY_UNKNOWN:
-      'Diese Auswahl kennen wir nicht — bitte wähle einen der Punkte aus der Liste',
+      'Diese Auswahl kennen wir nicht. Bitte wähle einen der Punkte aus der Liste',
     CATEGORY_UNAVAILABLE:
       'Dieser Bereich ist inzwischen nicht mehr verfügbar. Bitte wähle einen anderen Punkt aus der aktualisierten Liste.',
     NAME_REQUIRED: 'Bitte sag uns, wie wir dich ansprechen sollen',
@@ -167,23 +167,23 @@ export const de = {
     EMAIL_INVALID:
       'Bitte gib eine E-Mail-Adresse ein, an die wir dir antworten können',
     EMAIL_TOO_LONG:
-      'Diese E-Mail-Adresse ist zu lang — bitte prüfe sie noch einmal',
+      'Diese E-Mail-Adresse ist zu lang. Bitte prüfe sie noch einmal',
     WEEKLY_TIME_REQUIRED:
       'Bitte wähle aus, wie viel Zeit du pro Woche einbringen kannst',
     WEEKLY_TIME_UNKNOWN:
-      'Diese Auswahl kennen wir nicht — bitte wähle einen der Punkte aus der Liste',
+      'Diese Auswahl kennen wir nicht. Bitte wähle einen der Punkte aus der Liste',
     ABOUT_TOO_LONG: 'Bitte kürze deinen Text auf 2000 Zeichen',
     CONSENT_REQUIRED:
       'Ohne deine Einwilligung können wir deine Bewerbung nicht speichern',
     RATE_LIMITED:
-      'Es kamen gerade sehr viele Bewerbungen an. Bitte versuche es in einer Minute noch einmal — deine Angaben bleiben stehen.',
+      'Es kamen gerade sehr viele Bewerbungen an. Bitte versuche es in einer Minute noch einmal. Deine Angaben bleiben stehen.',
     INTERNAL_ERROR:
-      'Das Abschicken hat gerade nicht funktioniert. Bitte versuche es noch einmal — deine Angaben bleiben stehen.',
+      'Das Abschicken hat gerade nicht funktioniert. Bitte versuche es noch einmal. Deine Angaben bleiben stehen.',
   } satisfies Record<ErrorCode, string>,
 
   /** Shown for any error code the frontend does not know (see API.md) */
   unknownError:
-    'Das Abschicken hat gerade nicht funktioniert. Bitte versuche es noch einmal — deine Angaben bleiben stehen.',
+    'Das Abschicken hat gerade nicht funktioniert. Bitte versuche es noch einmal. Deine Angaben bleiben stehen.',
 
   a11y: {
     /** Announced via role="status" while the submit request is in flight */
@@ -215,7 +215,7 @@ export const de = {
       bluesky: 'Bluesky',
       tiktok: 'TikTok',
     },
-    copyright: 'Copyright 2026 ichbinhier e.V. – Alle Rechte vorbehalten.',
+    copyright: 'Copyright 2026 ichbinhier e.V. Alle Rechte vorbehalten.',
     backToTopLabel: 'Nach oben',
   },
 } as const satisfies Content;

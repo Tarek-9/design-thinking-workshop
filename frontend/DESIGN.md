@@ -421,7 +421,7 @@ Use generous whitespace without making the page feel empty.
 
 ## Subheading
 
-**Sag uns in zwei Minuten, wie du dabei sein möchtest. Deine Bestätigung mit allen weiteren Infos kommt sofort per E-Mail — kein „wir melden uns“.**
+**Sag uns in zwei Minuten, wie du dabei sein möchtest. Deine Bestätigung mit allen weiteren Infos kommt sofort per E-Mail, kein „wir melden uns“.**
 
 The two-minute promise is part of the UX value proposition and must remain visually prominent.
 
@@ -576,8 +576,8 @@ Label:
 Options:
 
 ```text
-1–2 Stunden
-3–5 Stunden
+1 bis 2 Stunden
+3 bis 5 Stunden
 mehr als 5 Stunden
 unregelmäßig, projektweise
 ```

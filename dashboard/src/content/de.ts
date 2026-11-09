@@ -296,7 +296,7 @@ export const de = {
      */
     empty: 'Noch keine Anfrage eingegangen.',
     emptyHint:
-      'Sobald jemand das Formular abschickt, erscheint die Anfrage hier — ohne Neuladen.',
+      'Sobald jemand das Formular abschickt, erscheint die Anfrage hier, ohne Neuladen.',
     /** Applications exist, but none in this view, search or filter. */
     noMatches: 'Keine Anfrage in dieser Ansicht.',
     noMatchesHint:
@@ -336,7 +336,7 @@ export const de = {
         ? '1 markierte Anfrage endgültig löschen?'
         : `${String(count)} markierte Anfragen endgültig löschen?`,
     eraseWarning:
-      'Das Geschriebene wird gelöscht — mit Status, Zuständigkeit und Notizen. Das lässt sich nicht rückgängig machen.',
+      'Das Geschriebene wird gelöscht, mit Status, Zuständigkeit und Notizen. Das lässt sich nicht rückgängig machen.',
 
     empty: 'Nichts aussortiert.',
     emptyHint:
@@ -393,7 +393,7 @@ export const de = {
      * in the form, which would have to be written again.
      */
     confirmDeleteHint:
-      'Die Kategorie verschwindet aus dem Formular. Das lässt sich nicht rückgängig machen — sie müsste neu angelegt werden.',
+      'Die Kategorie verschwindet aus dem Formular. Das lässt sich nicht rückgängig machen. Sie müsste neu angelegt werden.',
 
     moveUp: 'Nach oben',
     moveDown: 'Nach unten',
@@ -438,7 +438,7 @@ export const de = {
       activeHint:
         'Inaktive Kategorien bleiben erhalten, sind aber nicht wählbar.',
       preview: 'So sieht es im Formular aus',
-      previewInactive: 'Inaktiv — im Formular derzeit ausgeblendet.',
+      previewInactive: 'Inaktiv, im Formular derzeit ausgeblendet.',
       create: 'Anlegen',
       save: 'Speichern',
       cancel: 'Abbrechen',
@@ -516,8 +516,8 @@ export const de = {
    * question these answer.
    */
   weeklyTimes: {
-    HOURS_1_2: '1–2 Stunden',
-    HOURS_3_5: '3–5 Stunden',
+    HOURS_1_2: '1 bis 2 Stunden',
+    HOURS_3_5: '3 bis 5 Stunden',
     HOURS_5_PLUS: 'mehr als 5 Stunden',
     IRREGULAR: 'unregelmäßig, projektweise',
   } satisfies Record<WeeklyTime, string>,
