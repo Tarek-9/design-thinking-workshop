@@ -5,18 +5,7 @@ import type {
 } from '../features/application-form/routes';
 import type { Content } from './types';
 
-/**
- * Every German string the applicant can read. Nothing outside this file may
- * hold applicant-facing copy — that is what makes the copy reviewable against
- * DESIGN.md in one place.
- *
- * Wording marked "DESIGN.md" is specified and must not be edited without
- * editing DESIGN.md in the same commit (section 49). Wording marked "not yet
- * in DESIGN.md" was written for this implementation and still needs a copy
- * review.
- */
 export const de = {
-  /** DESIGN.md section 12 */
   nav: {
     items: [
       'Über uns',
@@ -33,42 +22,27 @@ export const de = {
     logoAlt: 'ichbinhier e.V.',
   },
 
-  /**
-   * Not yet in DESIGN.md — the brand-strip tagline from the Figma Hero
-   * Section (section 13), distinct from the page.title heading below it.
-   * Needs a copy review.
-   */
   hero: {
     tagline: 'ichbinhier, damit Liebe lauter ist',
   },
 
-  /** DESIGN.md section 15 */
   page: {
     title: 'ichbinhier lebt vom Mitmachen.',
     subtitle:
       'Sag uns in zwei Minuten, wie du dabei sein möchtest. Deine Bestätigung mit allen weiteren Infos kommt sofort per E-Mail, kein „wir melden uns“.',
   },
 
-  /** DESIGN.md section 17 */
   routeField: {
     label: 'Wie möchtest du uns helfen?',
     placeholder: 'Bitte wählen …',
     hint: 'Danach zeigen wir dir nur, was für deinen Weg wirklich nötig ist.',
   },
 
-  /**
-   * DESIGN.md section 17 — the two fixed routes only. The four Vereinsarbeit
-   * categories in between are backend-owned data (`A12`), returned by
-   * GET /api/v1/categories, not held here (see API.md and CONTEXT.md,
-   * "Category").
-   */
   routeLabels: {
     COMMUNITY: 'Bei #ichbinhier mitmachen (Aktionsgruppe)',
     SUPPORTING_MEMBER: 'Fördermitglied werden',
   } satisfies Record<FixedRoute, string>,
 
-  /** Not yet in DESIGN.md — loading/error/empty states for field 1's
-   *  backend-owned categories. Needs a copy review. */
   categoriesField: {
     loadingOption: 'Lädt …',
     errorOption: 'Nicht verfügbar',
@@ -78,7 +52,6 @@ export const de = {
     empty: 'Aktuell keine offenen Bereiche für Vereinsarbeit.',
   },
 
-  /** DESIGN.md sections 19 to 23 */
   fields: {
     name: {
       label: 'Name',
@@ -96,7 +69,6 @@ export const de = {
       hint: 'Vier Sätze reichen. Wir lesen jede Bewerbung.',
     },
     consent: {
-      /** Split so the link is a real anchor rather than parsed out of a string */
       before:
         'Ich bin damit einverstanden, dass ichbinhier e.V. meine Angaben zur Bearbeitung meiner Bewerbung speichert. ',
       linkLabel: 'Datenschutzerklärung',
@@ -104,7 +76,6 @@ export const de = {
     },
   },
 
-  /** DESIGN.md section 21 */
   weeklyTimeLabels: {
     HOURS_1_2: '1 bis 2 Stunden',
     HOURS_3_5: '3 bis 5 Stunden',
@@ -112,7 +83,6 @@ export const de = {
     IRREGULAR: 'unregelmäßig, projektweise',
   } satisfies Record<WeeklyTime, string>,
 
-  /** DESIGN.md sections 24 and 33 */
   submit: {
     label: 'Bewerbung abschicken',
     loadingLabel: 'Wird abgeschickt …',
@@ -124,21 +94,18 @@ export const de = {
     next: 'Weiter',
   },
 
-  /** DESIGN.md section 28 */
   communityPanel: {
     title: 'Du bist sofort dabei.',
     body: 'Kein Warten und keine Rückmeldung nötig: Tritt der Aktionsgruppe bei, lies die Regeln und wähle deinen ersten Thread. Beim ersten Mal antwortest du gemeinsam mit anderen, nie allein.',
     cta: 'Zur Aktionsgruppe',
   },
 
-  /** DESIGN.md section 35 */
   supportingMemberPanel: {
     title: 'Du unterstützt uns direkt.',
     body: 'Ohne Bewerbung und ohne Wartezeit: Wenn du Fördermitglied werden möchtest, findest du hier alle Informationen und den kurzen Antrag. So hilfst du, digitale Zivilcourage langfristig möglich zu machen.',
     cta: 'Zum Fördermitgliedsantrag',
   },
 
-  /** DESIGN.md section 30 */
   confirmation: {
     title: 'Deine Bewerbung ist da!',
     bodyBefore:
@@ -147,12 +114,6 @@ export const de = {
     closing: 'Vielen Dank für dein Interesse!',
   },
 
-  /**
-   * Field errors. Only EMAIL_REQUIRED and EMAIL_INVALID are specified
-   * (DESIGN.md section 20); the rest are not yet in DESIGN.md and need a copy
-   * review. Each one names what to do, never just that something is wrong
-   * (section 32 forbids relying on colour alone).
-   */
   errors: {
     ROUTE_REQUIRED: 'Bitte wähle aus, wie du uns helfen möchtest',
     CATEGORY_REQUIRED: 'Bitte wähle aus, wie du uns helfen möchtest',
@@ -181,21 +142,14 @@ export const de = {
       'Das Abschicken hat gerade nicht funktioniert. Bitte versuche es noch einmal. Deine Angaben bleiben stehen.',
   } satisfies Record<ErrorCode, string>,
 
-  /** Shown for any error code the frontend does not know (see API.md) */
   unknownError:
     'Das Abschicken hat gerade nicht funktioniert. Bitte versuche es noch einmal. Deine Angaben bleiben stehen.',
 
   a11y: {
-    /** Announced via role="status" while the submit request is in flight */
     submitting: 'Deine Bewerbung wird abgeschickt.',
     honeypotLabel: 'Dieses Feld bitte leer lassen',
   },
 
-  /**
-   * Not yet in DESIGN.md — section 11 only names the footer as "existing site
-   * continuation" without wording. Ported from the live site's footer, needs
-   * a copy review.
-   */
   footer: {
     kontakt: {
       title: 'Kontakt',
