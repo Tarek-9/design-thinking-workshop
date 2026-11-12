@@ -14,7 +14,7 @@ describe('Select', () => {
             <option disabled value="">
               Bitte wählen …
             </option>
-            <option value="one-to-two">1–2 Stunden</option>
+            <option value="one-to-two">1 bis 2 Stunden</option>
           </Select>
         )}
       </Field>,
@@ -48,7 +48,7 @@ describe('Select', () => {
             <option disabled value="">
               Bitte wählen …
             </option>
-            <option value="one-to-two">1–2 Stunden</option>
+            <option value="one-to-two">1 bis 2 Stunden</option>
           </Select>
         )}
       </Field>,

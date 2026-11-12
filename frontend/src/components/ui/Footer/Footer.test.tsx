@@ -23,7 +23,7 @@ function renderFooter(onBackToTop = vi.fn()) {
     <Footer
       content={{
         backToTopLabel: 'Nach oben',
-        copyright: 'Copyright 2026 ichbinhier e.V. – Alle Rechte vorbehalten.',
+        copyright: 'Copyright 2026 ichbinhier e.V. Alle Rechte vorbehalten.',
         donateHref: 'https://example.org/spende',
         donateLabel: 'SPENDE HIER',
         kontakt: {

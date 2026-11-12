@@ -178,7 +178,7 @@ public class DemoSeeder implements ApplicationRunner {
                     LEGAL,
                     WeeklyTime.HOURS_1_2,
                     "Ich hätte Interesse an einer bezahlten Stelle in der Rechtsberatung.",
-                    "Kein Ehrenamt gesucht — abgelehnt und weiterverwiesen.",
+                    "Kein Ehrenamt gesucht, abgelehnt und weiterverwiesen.",
                     ago(14, 6),
                     List.of(
                             owner(13, 7, 4),
@@ -189,7 +189,7 @@ public class DemoSeeder implements ApplicationRunner {
                     "aylin.demir@example.org",
                     SOMETHING_ELSE,
                     WeeklyTime.IRREGULAR,
-                    "Ich weiß noch nicht, wo ich helfen kann — schreibt mir gern.",
+                    "Ich weiß noch nicht, wo ich helfen kann. Schreibt mir gern.",
                     "",
                     ago(8, 5),
                     // Untouched since it arrived: no rows at all, which `API.md`
@@ -213,7 +213,7 @@ public class DemoSeeder implements ApplicationRunner {
                     EDITORIAL,
                     WeeklyTime.HOURS_1_2,
                     "Ich suche eine Festanstellung im Bereich Kommunikation.",
-                    "Bewerbung auf eine Stelle, kein Ehrenamt — verworfen.",
+                    "Bewerbung auf eine Stelle, kein Ehrenamt. Verworfen.",
                     ago(6, 9),
                     List.of(discarded(4, 8, true))),
             new Seed(
@@ -223,7 +223,7 @@ public class DemoSeeder implements ApplicationRunner {
                     WeeklyTime.IRREGULAR,
                     "Ich könnte bei der Technik und beim Newsletter helfen, aber nur"
                             + " unregelmäßig.",
-                    "Erst verworfen, dann zurückgeholt — Technik fehlt uns.",
+                    "Erst verworfen, dann zurückgeholt. Technik fehlt uns.",
                     ago(11, 5),
                     List.of(
                             discarded(10, 7, true),
@@ -237,7 +237,7 @@ public class DemoSeeder implements ApplicationRunner {
                     WeeklyTime.HOURS_1_2,
                     "Ich möchte über euch Strafanzeigen gegen einzelne Nutzer stellen"
                             + " lassen.",
-                    "Kein Anliegen für das Ehrenamt — verworfen.",
+                    "Kein Anliegen für das Ehrenamt, verworfen.",
                     ago(4, 7),
                     List.of(discarded(3, 6, true))));
 

@@ -14,7 +14,7 @@ export const en = {
   page: {
     title: 'ichbinhier thrives on participation.',
     subtitle:
-      'Tell us in two minutes how you would like to get involved. Your confirmation with all further information will arrive straight away by email — no “we will get back to you”.',
+      'Tell us in two minutes how you would like to get involved. Your confirmation with all further information will arrive straight away by email, no “we will get back to you”.',
   },
   routeField: {
     label: 'How would you like to help?',
@@ -50,8 +50,8 @@ export const en = {
     },
   },
   weeklyTimeLabels: {
-    HOURS_1_2: '1–2 hours',
-    HOURS_3_5: '3–5 hours',
+    HOURS_1_2: '1 to 2 hours',
+    HOURS_3_5: '3 to 5 hours',
     HOURS_5_PLUS: 'more than 5 hours',
     IRREGULAR: 'irregularly, project by project',
   },
@@ -64,7 +64,7 @@ export const en = {
   actions: { next: 'Next' },
   communityPanel: {
     title: 'You can join straight away.',
-    body: 'No waiting and no reply required: join the action group, read the rules and choose your first thread. The first time, you reply together with others — never alone.',
+    body: 'No waiting and no reply required: join the action group, read the rules and choose your first thread. The first time, you reply together with others, never alone.',
     cta: 'Go to the action group',
   },
   supportingMemberPanel: {
@@ -83,27 +83,27 @@ export const en = {
     ROUTE_REQUIRED: 'Please choose how you would like to help',
     CATEGORY_REQUIRED: 'Please choose how you would like to help',
     CATEGORY_UNKNOWN:
-      'We do not recognise this choice — please choose an item from the list',
+      'We do not recognise this choice. Please choose an item from the list',
     CATEGORY_UNAVAILABLE:
       'This area is no longer available. Please choose another item from the updated list.',
     NAME_REQUIRED: 'Please tell us how we should address you',
     NAME_TOO_LONG: 'Please shorten your name to 120 characters',
     EMAIL_REQUIRED: 'Please enter an email address where we can reach you',
     EMAIL_INVALID: 'Please enter an email address where we can reach you',
-    EMAIL_TOO_LONG: 'This email address is too long — please check it again',
+    EMAIL_TOO_LONG: 'This email address is too long. Please check it again',
     WEEKLY_TIME_REQUIRED:
       'Please choose how much time you can contribute each week',
     WEEKLY_TIME_UNKNOWN:
-      'We do not recognise this choice — please choose an item from the list',
+      'We do not recognise this choice. Please choose an item from the list',
     ABOUT_TOO_LONG: 'Please shorten your text to 2000 characters',
     CONSENT_REQUIRED: 'We cannot store your application without your consent',
     RATE_LIMITED:
-      'We are receiving many applications right now. Please try again in a minute — your details will remain here.',
+      'We are receiving many applications right now. Please try again in a minute. Your details will remain here.',
     INTERNAL_ERROR:
-      'Sending did not work just now. Please try again — your details will remain here.',
+      'Sending did not work just now. Please try again. Your details will remain here.',
   },
   unknownError:
-    'Sending did not work just now. Please try again — your details will remain here.',
+    'Sending did not work just now. Please try again. Your details will remain here.',
   a11y: {
     submitting: 'Your application is being sent.',
     honeypotLabel: 'Please leave this field empty',
@@ -127,7 +127,7 @@ export const en = {
       bluesky: 'Bluesky',
       tiktok: 'TikTok',
     },
-    copyright: 'Copyright 2026 ichbinhier e.V. – All rights reserved.',
+    copyright: 'Copyright 2026 ichbinhier e.V. All rights reserved.',
     backToTopLabel: 'Back to top',
   },
 } as const satisfies Content;

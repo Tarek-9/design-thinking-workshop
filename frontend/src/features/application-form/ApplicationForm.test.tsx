@@ -23,7 +23,7 @@ async function fillValidApplication(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText('E-Mail'), 'anna@example.de');
   await user.selectOptions(
     screen.getByLabelText('Zeit pro Woche'),
-    '1–2 Stunden',
+    '1 bis 2 Stunden',
   );
   await user.click(
     screen.getByRole('checkbox', {
