@@ -1,0 +1,42 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "at-rule-no-unknown": [true, { "ignoreAtRules": ["theme", "utility"] }],
+    "import-notation": null,
+    "custom-property-pattern": null,
+    "color-no-hex": [
+      true,
+      {
+        "message": "Use a design token from src/styles/globals.css or a token file instead of a literal colour"
+      }
+    ],
+    "declaration-property-value-disallowed-list": {
+      "/^color$|^background|^border/": ["/^rgb\\(/", "/^rgba\\(/", "/^hsl/"]
+    },
+    "at-rule-no-vendor-prefix": true,
+    "property-no-vendor-prefix": true,
+    "no-descending-specificity": null,
+    "custom-property-empty-line-before": null
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/styles/globals.css",
+        "src/styles/untitledui-theme.css",
+        "src/styles/shadcn-ui-theme.css"
+      ],
+      "rules": {
+        "color-no-hex": null,
+        "color-hex-length": null,
+        "alpha-value-notation": null,
+        "declaration-property-value-disallowed-list": null
+      }
+    },
+    {
+      "files": ["src/styles/untitledui-theme.css"],
+      "rules": {
+        "nesting-selector-no-missing-scoping-root": null
+      }
+    }
+  ]
+}

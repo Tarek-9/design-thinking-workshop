@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import de.ichbinhier.volunteerformservice.FieldLimits;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -31,7 +33,7 @@ public class UpdateApplicationRequest {
     private String status;
     private UUID ownerId;
 
-    @Size(max = 4000, message = "NOTES_TOO_LONG")
+    @Size(max = FieldLimits.NOTES_MAX, message = "NOTES_TOO_LONG")
     private String internalNotes;
 
     private Boolean discarded;

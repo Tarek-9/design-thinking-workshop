@@ -35,6 +35,18 @@ export default tseslint.config(
 
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+
+      // A literal number is a named constant (see docs/CODE_STANDARDS.md).
+      '@typescript-eslint/no-magic-numbers': [
+        'error',
+        {
+          ignore: [-1, 0, 1],
+          ignoreArrayIndexes: true,
+          ignoreDefaultValues: true,
+          enforceConst: true,
+          detectObjects: true,
+        },
+      ],
     },
   },
 
@@ -54,6 +66,7 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-deprecated': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-magic-numbers': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
@@ -67,12 +80,15 @@ export default tseslint.config(
     },
   },
 
-  /** Tests may assert on internals and use non-null assertions. */
+  /** Tests may assert on internals and use non-null assertions. Fixtures and
+     test helpers spell out literal values on purpose, so a test reads as the
+     data it runs against. */
   {
-    files: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
+    files: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/data/**'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-magic-numbers': 'off',
     },
   },
 

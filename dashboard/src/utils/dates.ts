@@ -5,7 +5,16 @@
  * n Tagen" line under a row's date.
  */
 
-export const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+const MILLISECONDS_PER_SECOND = 1000;
+const SECONDS_PER_MINUTE = 60;
+const MINUTES_PER_HOUR = 60;
+const HOURS_PER_DAY = 24;
+
+export const MILLISECONDS_PER_DAY =
+  HOURS_PER_DAY *
+  MINUTES_PER_HOUR *
+  SECONDS_PER_MINUTE *
+  MILLISECONDS_PER_SECOND;
 
 /**
  * Whole days between an ISO timestamp and a reference date. Never negative:

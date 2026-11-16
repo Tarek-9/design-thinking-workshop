@@ -18,6 +18,10 @@ const CATEGORIES_URL = `${BASE_URL}/api/v1/categories`;
 /** Category labels are 1–120 characters after trimming (`A6`, see API.md). */
 const LABEL_MAX = 120;
 
+const HTTP_CREATED = 201;
+const HTTP_BAD_REQUEST = 400;
+const HTTP_TOO_MANY_REQUESTS = 429;
+
 /**
  * A field of work the backend currently accepts applications for. The
  * backend owns this data (`A12`, see ../../../CONTEXT.md, "Category") — the
@@ -123,13 +127,13 @@ export async function submitApplication(
     return { status: 'failed', code: 'INTERNAL_ERROR' };
   }
 
-  if (response.status === 201) {
+  if (response.status === HTTP_CREATED) {
     const applicationId = readApplicationId(await readBody(response));
     if (applicationId !== null) return { status: 'success', applicationId };
     return { status: 'failed', code: 'INTERNAL_ERROR' };
   }
 
-  if (response.status === 400) {
+  if (response.status === HTTP_BAD_REQUEST) {
     const errors = readFieldErrors(await readBody(response));
     // A 400 the frontend cannot place under a field would leave the applicant
     // staring at an unchanged form, so it falls back to a general message.
@@ -137,7 +141,7 @@ export async function submitApplication(
     return { status: 'failed', code: 'INTERNAL_ERROR' };
   }
 
-  if (response.status === 429) {
+  if (response.status === HTTP_TOO_MANY_REQUESTS) {
     return { status: 'failed', code: 'RATE_LIMITED' };
   }
 

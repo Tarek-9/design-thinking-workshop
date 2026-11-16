@@ -22,6 +22,7 @@ import jakarta.validation.constraints.Size;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import de.ichbinhier.volunteerformservice.FieldLimits;
 import de.ichbinhier.volunteerformservice.category.Category;
 import de.ichbinhier.volunteerformservice.staff.Staff;
 
@@ -63,28 +64,28 @@ public class Application {
     private Category category;
 
     @NotBlank
-    @Size(max = 120)
-    @Column(name = "name", nullable = false, length = 120)
+    @Size(max = FieldLimits.NAME_MAX)
+    @Column(name = "name", nullable = false, length = FieldLimits.NAME_MAX)
     private String name;
 
     @NotBlank
     @Email
-    @Size(max = 254)
-    @Column(name = "email", nullable = false, length = 254)
+    @Size(max = FieldLimits.EMAIL_MAX)
+    @Column(name = "email", nullable = false, length = FieldLimits.EMAIL_MAX)
     private String email;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "weekly_time", nullable = false, length = 32)
+    @Column(name = "weekly_time", nullable = false, length = FieldLimits.CODE_MAX)
     private WeeklyTime weeklyTime;
 
-    @Size(max = 2000)
-    @Column(name = "about", length = 2000)
+    @Size(max = FieldLimits.ABOUT_MAX)
+    @Column(name = "about", length = FieldLimits.ABOUT_MAX)
     private String about;
 
     @NotBlank
-    @Size(max = 32)
-    @Column(name = "consent_text_version", nullable = false, length = 32)
+    @Size(max = FieldLimits.CODE_MAX)
+    @Column(name = "consent_text_version", nullable = false, length = FieldLimits.CODE_MAX)
     private String consentTextVersion;
 
     @NotNull
@@ -98,15 +99,15 @@ public class Application {
     @Builder.Default
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 32)
+    @Column(name = "status", nullable = false, length = FieldLimits.CODE_MAX)
     private ApplicationStatus status = ApplicationStatus.NEW;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "fk_applications_owner"))
     private Staff owner;
 
-    @Size(max = 4000)
-    @Column(name = "internal_notes", length = 4000)
+    @Size(max = FieldLimits.NOTES_MAX)
+    @Column(name = "internal_notes", length = FieldLimits.NOTES_MAX)
     private String internalNotes;
 
     @Column(name = "discarded_at")
