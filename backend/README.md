@@ -114,6 +114,10 @@ The confirmation email an applicant gets on submit (`A8` in
 [Resend](https://resend.com). `email/ResendEmailSender.java` calls their HTTP
 API directly — no SDK dependency, the API is one POST request.
 
+Every Status change sends the applicant one mail as well (`A23`): the German
+text per Status lives in `email/StatusChangeMailer.java`, it is sent after the
+change is stored, and a mail failure is logged and never fails the change.
+
 Without `RESEND_API_KEY` set, `email/NoopEmailSender.java` takes over
 automatically and logs the email instead of sending it. Local development and
 the test suite need nothing configured.

@@ -462,6 +462,25 @@ one file per document; the database keeps only the metadata and the stored name.
   too large, and the volume fills faster than planned. Each limit is one
   configured value in `DocumentProperties`.
 
+### A23 — Every Status change mails the applicant
+
+Each change of an Application's Status sends the applicant one mail, the
+rejection (`DECLINED`) included. The text names what the new Status means for
+them in plain German and what comes next. The mail is sent after the change is
+stored, and a failing mail never fails the change.
+
+- **Confidence:** low — our proposal, decided by the project team and not asked
+  of the client. It reverses the rule in `dashboard/API.md` that no status
+  change mails anyone, a rule written for exactly this worry about wording
+  nobody reviewed.
+- **Why it matters:** `A8` names silence as what loses applicants, and a status
+  change nobody hears about looks like no change at all.
+- **What breaks if wrong:** a rejection goes out in wording the association has
+  not reviewed, and a Status set by accident mails a real person. The "what
+  comes next" lines promise the staff member's follow-up (the appointment
+  details after `INTRO_BOOKED`, the next steps after `ACTIVE`), which nothing
+  checks. An applicant who chose the English form (`A22`) reads German mail.
+
 ---
 
 ## Open questions we cannot answer ourselves

@@ -28,6 +28,7 @@ import de.ichbinhier.volunteerformservice.application.StateChange;
 import de.ichbinhier.volunteerformservice.application.StateChangeField;
 import de.ichbinhier.volunteerformservice.application.StateChangeRepository;
 import de.ichbinhier.volunteerformservice.application.StoredInstant;
+import de.ichbinhier.volunteerformservice.email.StatusChangeMailer;
 import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.ApiException;
@@ -45,6 +46,7 @@ public class DashboardApplicationController {
     private final StateChangeRepository changeRepo;
     private final ApplicationDocumentService documents;
     private final ApplicationEventStream stream;
+    private final StatusChangeMailer statusMailer;
 
     @GetMapping
     ResponseEntity<ApplicationsResponse> list() {
@@ -86,12 +88,14 @@ public class DashboardApplicationController {
         var app = appRepo.findById(id)
             .orElseThrow(ApiException::notFound);
 
+        boolean statusChanged = false;
         if (req.getStatus() != null) {
             ApplicationStatus status = statusOf(req.getStatus());
             String oldStatus = app.getStatus().name();
             app.setStatus(status);
             if (!oldStatus.equals(req.getStatus())) {
                 recordChange(app, StateChangeField.STATUS, req.getStatus());
+                statusChanged = true;
             }
         }
 
@@ -118,6 +122,10 @@ public class DashboardApplicationController {
         }
 
         appRepo.save(app);
+
+        if (statusChanged) {
+            statusMailer.sendStatusChange(app);
+        }
 
         ApplicationDto updated = ApplicationDto.of(app);
         stream.updated(updated);

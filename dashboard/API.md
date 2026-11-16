@@ -305,13 +305,12 @@ the association has never confirmed.
 open-Applications panel excludes (`A13`). That rule lives in the dashboard; the
 backend needs no notion of it.
 
-**No status change sends anything to the applicant.** The only mail the platform
-sends is the confirmation on submission that
-[`../frontend/API.md`](../frontend/API.md) already requires. Everything after it
-is the staff member writing directly, from their own mail client. A dashboard
-that silently mails a rejection would put wording nobody in this team reviewed
-in front of an applicant, and would leave the staff member unsure whether it
-went out.
+**Every Status change sends the applicant one mail** (`A23`), the rejection
+(`DECLINED`) included. The backend builds it from a German text per Status
+(`email/StatusChangeMailer.java`) and sends it after the change is stored. A
+`PATCH` that keeps the Status it already has sends nothing. A mail failure is
+logged and never fails the `PATCH`, the same rule the confirmation on submission
+follows ([`../frontend/API.md`](../frontend/API.md)).
 
 ### PATCH /api/v1/staff/applications/{id}
 
