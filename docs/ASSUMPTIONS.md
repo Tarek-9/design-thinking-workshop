@@ -462,7 +462,7 @@ one file per document; the database keeps only the metadata and the stored name.
   too large, and the volume fills faster than planned. Each limit is one
   configured value in `DocumentProperties`.
 
-### A23 — Every Status change mails the applicant
+### A24 — Every Status change mails the applicant
 
 Each change of an Application's Status sends the applicant one mail, the
 rejection (`DECLINED`) included. The text names what the new Status means for

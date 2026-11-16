@@ -305,7 +305,7 @@ the association has never confirmed.
 open-Applications panel excludes (`A13`). That rule lives in the dashboard; the
 backend needs no notion of it.
 
-**Every Status change sends the applicant one mail** (`A23`), the rejection
+**Every Status change sends the applicant one mail** (`A24`), the rejection
 (`DECLINED`) included. The backend builds it from a German text per Status
 (`email/StatusChangeMailer.java`) and sends it after the change is stored. A
 `PATCH` that keeps the Status it already has sends nothing. A mail failure is

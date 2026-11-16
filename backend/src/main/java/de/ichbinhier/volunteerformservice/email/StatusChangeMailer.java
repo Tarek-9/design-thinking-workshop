@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /*
- * Tells an applicant that their Application moved to another Status (A23).
+ * Tells an applicant that their Application moved to another Status (A24).
  * Every change sends a mail, the rejection included: a status the applicant
  * never hears about is the silence A8 names as the thing that loses people.
  * Applicant-facing text is German (AGENTS.md, "Language split").
