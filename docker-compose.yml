@@ -39,6 +39,9 @@ services:
     build:
       context: ./frontend
     image: ichbinhier-form:local
+    environment:
+      BASIC_AUTH_USERNAME: ${BASIC_AUTH_USERNAME:-}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-}
     ports:
       - '8081:80'
     depends_on:
@@ -49,6 +52,9 @@ services:
     build:
       context: ./dashboard
     image: ichbinhier-dashboard:local
+    environment:
+      BASIC_AUTH_USERNAME: ${BASIC_AUTH_USERNAME:-}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-}
     ports:
       - '8082:80'
     depends_on:
