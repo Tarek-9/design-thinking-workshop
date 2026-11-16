@@ -28,13 +28,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import de.ichbinhier.volunteerformservice.application.Application;
 import de.ichbinhier.volunteerformservice.application.ApplicationDocument;
@@ -331,6 +335,26 @@ class DocumentUploadTests {
         assertThat(documents.findAll()).isEmpty();
         assertThat(storedFiles()).isEmpty();
         assertThat(applications.findById(application.getId())).isEmpty();
+    }
+
+    /**
+     * Variant: the handler called directly, not a request. MockMvc hands a
+     * {@code MockMultipartFile} over without the servlet container's size limit,
+     * so {@code spring.servlet.multipart.max-file-size} never fires here, and
+     * setting it lower for this class would not fire either. That the real
+     * server does raise it is shown by {@link DocumentUploadLimitTests}; this
+     * test pins the answer a refused request gets: 400, the body's {@code code},
+     * and {@code files}.
+     */
+    @Test
+    void anOversizedRequestAnswersDocumentTooLargeOnFiles() {
+        ResponseEntity<ProblemDetail> response = new ApiExceptionHandler()
+                .onOversizedUpload(new MaxUploadSizeExceededException(LIMIT_BYTES));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody().getProperties())
+                .containsEntry("code", "VALIDATION_FAILED")
+                .containsEntry("errors", List.of(new ApiFieldError("files", "DOCUMENT_TOO_LARGE")));
     }
 
     private List<String> storedFiles() throws IOException {
