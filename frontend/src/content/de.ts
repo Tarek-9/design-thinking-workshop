@@ -114,11 +114,7 @@ export const de = {
     closing: 'Vielen Dank für dein Interesse!',
   },
 
-  /**
-   * Not yet in DESIGN.md: the document step is an addition to the specified
-   * flow (see API.md, POST /api/v1/applications/{id}/documents). Copy review
-   * pending, like the other strings written for this implementation.
-   */
+  /** DESIGN.md section 31. */
   documents: {
     title: 'Möchtest du noch Unterlagen beifügen?',
     subtitle: 'Das ist freiwillig. Deine Bewerbung ist bereits gespeichert.',
