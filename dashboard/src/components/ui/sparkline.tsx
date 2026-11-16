@@ -62,7 +62,11 @@ function SparklineTooltipContent({
   return (
     <div className="border-sd-border bg-sd-popover text-sd-popover-foreground flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs shadow-md">
       {label && <span className="text-sd-muted-foreground">{label}</span>}
-      <span className="font-semibold tabular-nums" style={{ color }}>
+      <span
+        className="font-semibold tabular-nums"
+        // eslint-disable-next-line no-restricted-syntax -- the series colour arrives as a prop, so no class can name it
+        style={{ color }}
+      >
         {point.value}
       </span>
     </div>
@@ -133,10 +137,7 @@ export function Sparkline({
       >
         {flat ? (
           <div className="flex h-full w-full items-end">
-            <span
-              className="h-px w-full rounded-full"
-              style={{ backgroundColor: 'var(--color-border-secondary)' }}
-            />
+            <span className="bg-border-secondary h-px w-full rounded-full" />
           </div>
         ) : (
           <ResponsiveContainer>
