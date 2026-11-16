@@ -542,6 +542,13 @@ export const de = {
     /** Stated as a hint, not as placeholder text, so it survives the first keystroke. */
     notesHint: 'Nur für Mitarbeitende sichtbar',
     notesPlaceholder: 'Notiz hinzufügen …',
+    /** The files the Applicant attached (`A23`). Read-only, and listed in the drawer. */
+    documents: 'Unterlagen',
+    documentsLoading: 'Unterlagen werden geladen …',
+    documentsFailed: 'Die Unterlagen konnten nicht geladen werden.',
+    documentsEmpty: 'Keine Unterlagen hochgeladen.',
+    documentDownload: 'Herunterladen',
+    documentUploadedAt: (date: string) => `hochgeladen am ${date}`,
     consent: 'Einwilligung',
     consentAt: 'Erteilt am',
     consentTextVersion: 'Datenschutzerklärung',

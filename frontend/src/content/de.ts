@@ -114,6 +114,23 @@ export const de = {
     closing: 'Vielen Dank für dein Interesse!',
   },
 
+  /**
+   * Not yet in DESIGN.md: the document step is an addition to the specified
+   * flow (see API.md, POST /api/v1/applications/{id}/documents). Copy review
+   * pending, like the other strings written for this implementation.
+   */
+  documents: {
+    title: 'Möchtest du noch Unterlagen beifügen?',
+    subtitle: 'Das ist freiwillig. Deine Bewerbung ist bereits gespeichert.',
+    label: 'Dateien auswählen',
+    hint: 'PDF, DOC, DOCX, JPG oder PNG, jeweils höchstens 5 MB. Bis zu drei Dateien.',
+    submit: 'Unterlagen hochladen',
+    loadingLabel: 'Wird hochgeladen …',
+    skip: 'Ohne Unterlagen weiter',
+    uploadFailed:
+      'Das Hochladen hat gerade nicht funktioniert. Bitte versuche es noch einmal. Deine Bewerbung bleibt gespeichert.',
+  },
+
   errors: {
     ROUTE_REQUIRED: 'Bitte wähle aus, wie du uns helfen möchtest',
     CATEGORY_REQUIRED: 'Bitte wähle aus, wie du uns helfen möchtest',
@@ -136,6 +153,13 @@ export const de = {
     ABOUT_TOO_LONG: 'Bitte kürze deinen Text auf 2000 Zeichen',
     CONSENT_REQUIRED:
       'Ohne deine Einwilligung können wir deine Bewerbung nicht speichern',
+    DOCUMENT_REQUIRED: 'Bitte wähle mindestens eine Datei aus',
+    DOCUMENT_TYPE_UNSUPPORTED:
+      'Eine der Dateien hat ein Format, das wir nicht annehmen. Erlaubt sind PDF, DOC, DOCX, JPG und PNG. Es wurde nichts hochgeladen.',
+    DOCUMENT_TOO_LARGE:
+      'Eine der Dateien ist größer als 5 MB. Es wurde nichts hochgeladen. Bitte wähle kleinere Dateien aus.',
+    DOCUMENT_LIMIT_REACHED:
+      'Du kannst höchstens drei Dateien hochladen. Es wurde nichts hochgeladen. Bitte wähle weniger Dateien aus.',
     RATE_LIMITED:
       'Es kamen gerade sehr viele Bewerbungen an. Bitte versuche es in einer Minute noch einmal. Deine Angaben bleiben stehen.',
     INTERNAL_ERROR:
