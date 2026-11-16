@@ -72,6 +72,20 @@ class StaffSeederTests {
     }
 
     /**
+     * Passwords are hashed with bcrypt at cost 12 (GitHub issue #8). The cost
+     * sits in the hash prefix, so the strength is assertable without decoding
+     * anything, and {@code matches} still verifies a candidate against it.
+     */
+    @Test
+    void hashesWithBcryptAtCostTwelve() {
+        String hash = passwordEncoder.encode("first pass");
+
+        assertThat(hash).startsWith("$2a$12$");
+        assertThat(passwordEncoder.matches("first pass", hash)).isTrue();
+        assertThat(passwordEncoder.matches("wrong candidate", hash)).isFalse();
+    }
+
+    /**
      * A dashboard nobody can sign in to is worse than a backend that refuses to
      * start, and the refusal has to name the variable a person must set.
      */
