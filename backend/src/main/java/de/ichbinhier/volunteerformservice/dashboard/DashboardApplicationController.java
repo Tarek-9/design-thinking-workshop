@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.ichbinhier.volunteerformservice.application.Application;
+import de.ichbinhier.volunteerformservice.application.ApplicationDocumentService;
 import de.ichbinhier.volunteerformservice.application.ApplicationRepository;
 import de.ichbinhier.volunteerformservice.application.ApplicationStatus;
 import de.ichbinhier.volunteerformservice.application.StateChange;
@@ -42,6 +43,7 @@ public class DashboardApplicationController {
     private final ApplicationRepository appRepo;
     private final StaffRepository staffRepo;
     private final StateChangeRepository changeRepo;
+    private final ApplicationDocumentService documents;
     private final ApplicationEventStream stream;
 
     @GetMapping
@@ -123,11 +125,11 @@ public class DashboardApplicationController {
     }
 
     /**
-     * The State changes go first: they own a non-nullable foreign key on the
-     * Application, and the erase is the platform's only path to actually
-     * removing what a person wrote, so it must not leave a trail of their
-     * Application's life behind. Both deletes share one transaction, so a
-     * failure leaves neither half done.
+     * The Documents and the State changes go first: both own a non-nullable
+     * foreign key on the Application, and the erase is the platform's only path
+     * to actually removing what a person wrote, so it must not leave a trail of
+     * their Application's life behind. Everything shares one transaction, so a
+     * failure leaves nothing half done.
      */
     @DeleteMapping("/{id}/permanently")
     @Transactional
@@ -141,6 +143,7 @@ public class DashboardApplicationController {
 
         ApplicationDto erased = ApplicationDto.of(app);
 
+        documents.eraseAll(id);
         changeRepo.deleteByApplicationId(id);
         appRepo.deleteById(id);
 

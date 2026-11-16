@@ -27,6 +27,7 @@ the same change rather than left to drift. The decisions are collected
 - [Wire names](#wire-names)
 - [Sign-in and staff members](#sign-in-and-staff-members)
 - [Applications](#applications)
+- [Documents](#documents)
 - [State changes](#state-changes)
 - [Categories](#categories)
 - [Route selections](#route-selections)
@@ -386,7 +387,8 @@ effect, and the list, not the dashboard's own optimism, says what happened.
 
 ### DELETE /api/v1/staff/applications/{id}/permanently
 
-Erases the row. `204 No Content`, `404` for an unknown id.
+Erases the row, along with its State changes and its Documents, the files
+included. `204 No Content`, `404` for an unknown id.
 
 The ordinary delete action in the dashboard is **not** this: it is
 `PATCH … { "discarded": true }`, which moves the Application to the fourth
@@ -399,6 +401,35 @@ to someone who never agreed to it.
 `400` with `code: NOT_DISCARDED` if the Application has not been discarded
 first. Erasing straight from the working list is not a thing the UI can do, and
 the backend should not offer what the UI does not.
+
+## Documents
+
+Files an applicant attached to an Application (`A23`). Only the metadata comes
+in the list; the bytes come from the download.
+
+### GET /api/v1/staff/applications/{id}/documents
+
+```json
+{
+  "documents": [
+    {
+      "id": "b7e2…",
+      "fileName": "Lebenslauf.pdf",
+      "contentType": "application/pdf",
+      "sizeBytes": 183402,
+      "uploadedAt": "2026-11-16T09:12:04Z"
+    }
+  ]
+}
+```
+
+An empty list when nothing was attached. `404` for an unknown Application.
+
+### GET /api/v1/staff/applications/{id}/documents/{documentId}
+
+The file itself, with `Content-Disposition: attachment` and the stored
+`Content-Type`. `404` when the document does not belong to that Application.
+Both documents need a Sign-in.
 
 ## State changes
 

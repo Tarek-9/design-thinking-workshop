@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import de.ichbinhier.volunteerformservice.application.WeeklyTime;
 
@@ -49,6 +50,15 @@ public class ApiExceptionHandler {
     @ExceptionHandler(FieldValidationException.class)
     ResponseEntity<ProblemDetail> onFieldValidation(FieldValidationException exception) {
         return validationFailed(List.of(new ApiFieldError(exception.getField(), exception.getCode())));
+    }
+
+    /**
+     * A request above Spring's multipart ceiling never reaches a controller, so
+     * the one file-size code it can mean is answered here.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ResponseEntity<ProblemDetail> onOversizedUpload(MaxUploadSizeExceededException exception) {
+        return validationFailed(List.of(new ApiFieldError("files", "DOCUMENT_TOO_LARGE")));
     }
 
     @ExceptionHandler(ApiException.class)

@@ -444,6 +444,21 @@ in the language the API provides (`A12`).
   localisation contract would be needed before category labels can be
   translated consistently.
 
+### A23 — An applicant may attach up to three files of four kinds
+
+Attaching documents is optional. An applicant may add up to three files to an
+Application, each at most 5 MB, as PDF, DOC, DOCX, JPEG or PNG. A file is kept
+as long as its Application and is erased with it (`A16`).
+
+- **Confidence:** low — our invention. Nothing from the association says whether
+  applicants send a CV, a letter or a photo, nor how large those files are.
+- **Why it matters:** it decides what the upload accepts, how much the volume
+  holds and what staff can open. Limiting the kinds to four common formats keeps
+  the files readable on any staff computer.
+- **What breaks if wrong:** too small, and a useful file is refused at the form;
+  too large, and the volume fills faster than planned. Each limit is one
+  configured value in `DocumentProperties`.
+
 ---
 
 ## Open questions we cannot answer ourselves
