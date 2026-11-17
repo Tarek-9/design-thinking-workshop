@@ -72,8 +72,8 @@ class StaffSeederTests {
     }
 
     /**
-     * Hashes at bcrypt cost 12 (GitHub issue #8); the cost sits in the prefix,
-     * and {@code matches} still verifies a candidate against it.
+     * Hashes at bcrypt cost 12; the cost sits in the prefix, and
+     * {@code matches} still verifies a candidate against it.
      */
     @Test
     void hashesWithBcryptAtCostTwelve() {
