@@ -62,6 +62,12 @@ relative links between documents, no emoji.
 
 ## Git
 
+The upstream `kamalshekho/design-thinking-workshop` is the original project and
+stays untouched: no commits, branches, or PRs from here go there. Work happens
+only on the fork `Tarek-9/design-thinking-workshop`. Fixes and features go to
+`origin/develop`. `main` on the fork is a sync branch for the upstream and is
+not used for our work.
+
 Commit subjects follow [Conventional Commits
 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): subject`,
 in English, imperative, lowercase. `docs:` covers most work here while the repo
