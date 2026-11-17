@@ -1,8 +1,98 @@
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
+import { validationProblem } from '../../mocks/handlers';
 import { server } from '../../mocks/server';
-import { fetchCategories } from './api';
+import { countUploadedFiles } from '../../test/multipart';
+import { fetchCategories, uploadDocuments } from './api';
+
+const APPLICATION_ID = '55555555-5555-4555-8555-555555555555';
+
+function pdf(name = 'lebenslauf.pdf'): File {
+  return new File(['%PDF-1.4'], name, { type: 'application/pdf' });
+}
+
+describe('uploadDocuments', () => {
+  it('sends every file as a multipart part named files, against the application', async () => {
+    let path = '';
+    let parts = 0;
+    server.use(
+      http.post(
+        '*/api/v1/applications/:applicationId/documents',
+        async ({ request, params }) => {
+          path = String(params.applicationId);
+          parts = await countUploadedFiles(request);
+          return new HttpResponse(null, { status: 201 });
+        },
+      ),
+    );
+
+    const result = await uploadDocuments(APPLICATION_ID, [
+      pdf('a.pdf'),
+      pdf('b.pdf'),
+    ]);
+
+    expect(result).toEqual({ status: 'success' });
+    expect(path).toBe(APPLICATION_ID);
+    expect(parts).toBe(2);
+  });
+
+  it('returns the field errors the backend names, for the form to place', async () => {
+    server.use(
+      http.post('*/api/v1/applications/:applicationId/documents', () =>
+        validationProblem([{ field: 'files', code: 'DOCUMENT_TOO_LARGE' }]),
+      ),
+    );
+
+    const result = await uploadDocuments(APPLICATION_ID, [pdf()]);
+
+    expect(result).toEqual({
+      status: 'field-errors',
+      errors: [{ field: 'files', code: 'DOCUMENT_TOO_LARGE' }],
+    });
+  });
+
+  it('reports a proxy 413 as an oversized file', async () => {
+    server.use(
+      http.post(
+        '*/api/v1/applications/:applicationId/documents',
+        () => new HttpResponse(null, { status: 413 }),
+      ),
+    );
+
+    const result = await uploadDocuments(APPLICATION_ID, [pdf()]);
+
+    expect(result).toEqual({
+      status: 'field-errors',
+      errors: [{ field: 'files', code: 'DOCUMENT_TOO_LARGE' }],
+    });
+  });
+
+  it('fails without field errors on a server error', async () => {
+    server.use(
+      http.post(
+        '*/api/v1/applications/:applicationId/documents',
+        () => new HttpResponse(null, { status: 500 }),
+      ),
+    );
+
+    const result = await uploadDocuments(APPLICATION_ID, [pdf()]);
+
+    expect(result).toEqual({ status: 'failed' });
+  });
+
+  it('fails when the request never reaches the backend', async () => {
+    server.use(
+      http.post('*/api/v1/applications/:applicationId/documents', () =>
+        HttpResponse.error(),
+      ),
+    );
+
+    const result = await uploadDocuments(APPLICATION_ID, [pdf()]);
+
+    expect(result).toEqual({ status: 'failed' });
+  });
+});
 
 describe('fetchCategories', () => {
   it('fails to load when a category id is not shaped like a UUID', async () => {

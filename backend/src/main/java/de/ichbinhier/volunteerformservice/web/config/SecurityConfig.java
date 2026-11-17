@@ -18,9 +18,12 @@ import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /** Bcrypt work factor for staff password hashes. */
+    static final int BCRYPT_STRENGTH = 12;
+
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(BCRYPT_STRENGTH);
     }
 
     @Bean
@@ -35,6 +38,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/applications").permitAll()
+                .requestMatchers("/api/v1/applications/*/documents").permitAll()
                 .requestMatchers("/api/v1/categories").permitAll()
                 .requestMatchers("/api/v1/staff/session").permitAll()
                 .requestMatchers("/api/v1/staff/**").authenticated()

@@ -45,6 +45,16 @@ export interface Content {
     bodyAfter: string;
     closing: string;
   };
+  documents: {
+    title: string;
+    subtitle: string;
+    label: string;
+    hint: string;
+    submit: string;
+    loadingLabel: string;
+    skip: string;
+    uploadFailed: string;
+  };
   errors: Record<ErrorCode, string>;
   unknownError: string;
   a11y: { submitting: string; honeypotLabel: string };

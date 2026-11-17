@@ -27,7 +27,10 @@ export function useApplicationSubmit(
   // render happens — the ref is what makes the double-submit guard hold even
   // for two clicks that land back-to-back.
   const isSubmittingRef = useRef(false);
-  const [confirmedEmail, setConfirmedEmail] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState<{
+    applicationId: string;
+    email: string;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitErrorCode, setSubmitErrorCode] = useState<string | null>(null);
 
@@ -53,7 +56,10 @@ export function useApplicationSubmit(
     setIsSubmitting(false);
 
     if (result.status === 'success') {
-      setConfirmedEmail(applicationValues.email);
+      setConfirmed({
+        applicationId: result.applicationId,
+        email: applicationValues.email,
+      });
       return;
     }
 
@@ -77,5 +83,5 @@ export function useApplicationSubmit(
     setSubmitErrorCode(result.code);
   }
 
-  return { onSubmit, confirmedEmail, isSubmitting, submitErrorCode };
+  return { onSubmit, confirmed, isSubmitting, submitErrorCode };
 }

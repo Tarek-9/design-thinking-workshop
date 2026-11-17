@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { MOCK_CATEGORIES, validationProblem } from '../../mocks/handlers';
 import { server } from '../../mocks/server';
 import { expectNoA11yViolations } from '../../test/a11y';
+import { countUploadedFiles } from '../../test/multipart';
 import { ApplicationForm } from './ApplicationForm';
 
 async function pickRoute(label: string) {
@@ -23,7 +24,7 @@ async function fillValidApplication(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText('E-Mail'), 'anna@example.de');
   await user.selectOptions(
     screen.getByLabelText('Zeit pro Woche'),
-    '1–2 Stunden',
+    '1 bis 2 Stunden',
   );
   await user.click(
     screen.getByRole('checkbox', {
@@ -170,6 +171,9 @@ describe('ApplicationForm', () => {
 
     await user.click(
       screen.getByRole('button', { name: 'Bewerbung abschicken' }),
+    );
+    await user.click(
+      await screen.findByRole('button', { name: 'Ohne Unterlagen weiter' }),
     );
 
     expect(await screen.findByText('Deine Bewerbung ist da!')).toBeVisible();
@@ -511,5 +515,178 @@ describe('ApplicationForm', () => {
     await user.selectOptions(select, 'Social Media');
 
     await expectNoA11yViolations(container);
+  });
+});
+
+async function reachDocumentStep() {
+  const user = await pickRoute('Social Media');
+  await fillValidApplication(user);
+  await user.click(
+    screen.getByRole('button', { name: 'Bewerbung abschicken' }),
+  );
+  await screen.findByText('Möchtest du noch Unterlagen beifügen?');
+  return user;
+}
+
+function pdfFile(name: string, size = 1024): File {
+  return new File([new Uint8Array(size)], name, { type: 'application/pdf' });
+}
+
+describe('ApplicationForm document step', () => {
+  it('offers the optional step after the application is saved, with the stated limits', async () => {
+    await reachDocumentStep();
+
+    expect(
+      screen.getByText(
+        'PDF, DOC, DOCX, JPG oder PNG, jeweils höchstens 5 MB. Bis zu drei Dateien.',
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: 'Unterlagen hochladen' }),
+    ).toBeDisabled();
+  });
+
+  it('has no detectable accessibility violations', async () => {
+    const { container } = render(<ApplicationForm />);
+    const user = userEvent.setup();
+    const select = screen.getByLabelText('Wie möchtest du uns helfen?');
+    await waitFor(() => expect(select).not.toBeDisabled());
+    await user.selectOptions(select, 'Social Media');
+    await fillValidApplication(user);
+    await user.click(
+      screen.getByRole('button', { name: 'Bewerbung abschicken' }),
+    );
+    await screen.findByText('Möchtest du noch Unterlagen beifügen?');
+
+    await expectNoA11yViolations(container);
+  });
+
+  it('skips the upload entirely and goes on to the confirmation', async () => {
+    let uploads = 0;
+    server.use(
+      http.post('*/api/v1/applications/:applicationId/documents', () => {
+        uploads += 1;
+        return new HttpResponse(null, { status: 201 });
+      }),
+    );
+    const user = await reachDocumentStep();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Ohne Unterlagen weiter' }),
+    );
+
+    expect(await screen.findByText('Deine Bewerbung ist da!')).toBeVisible();
+    expect(uploads).toBe(0);
+  });
+
+  it('uploads the chosen files to the new application, then shows the confirmation', async () => {
+    let uploadedTo = '';
+    let uploadedCount = 0;
+    server.use(
+      http.post('*/api/v1/applications', () =>
+        HttpResponse.json({ applicationId: 'app-42' }, { status: 201 }),
+      ),
+      http.post(
+        '*/api/v1/applications/:applicationId/documents',
+        async ({ request, params }) => {
+          uploadedTo = String(params.applicationId);
+          uploadedCount = await countUploadedFiles(request);
+          return new HttpResponse(null, { status: 201 });
+        },
+      ),
+    );
+    const user = await reachDocumentStep();
+
+    await user.upload(screen.getByLabelText('Dateien auswählen'), [
+      pdfFile('lebenslauf.pdf'),
+      pdfFile('anschreiben.pdf'),
+    ]);
+    await user.click(
+      screen.getByRole('button', { name: 'Unterlagen hochladen' }),
+    );
+
+    expect(await screen.findByText('Deine Bewerbung ist da!')).toBeVisible();
+    expect(uploadedTo).toBe('app-42');
+    expect(uploadedCount).toBe(2);
+  });
+
+  it('places a refused file under the file field in German and keeps the step', async () => {
+    server.use(
+      http.post('*/api/v1/applications/:applicationId/documents', () =>
+        validationProblem([{ field: 'files', code: 'DOCUMENT_TOO_LARGE' }]),
+      ),
+    );
+    const user = await reachDocumentStep();
+
+    await user.upload(
+      screen.getByLabelText('Dateien auswählen'),
+      pdfFile('riesig.pdf'),
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Unterlagen hochladen' }),
+    );
+
+    expect(
+      await screen.findByText(
+        'Eine der Dateien ist größer als 5 MB. Es wurde nichts hochgeladen. Bitte wähle kleinere Dateien aus.',
+      ),
+    ).toBeVisible();
+    expect(screen.getByLabelText('Dateien auswählen')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    expect(
+      screen.queryByText('Deine Bewerbung ist da!'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('names a file the backend refuses by its bytes, under the file field', async () => {
+    server.use(
+      http.post('*/api/v1/applications/:applicationId/documents', () =>
+        validationProblem([
+          { field: 'files', code: 'DOCUMENT_TYPE_UNSUPPORTED' },
+        ]),
+      ),
+    );
+    const user = await reachDocumentStep();
+
+    await user.upload(
+      screen.getByLabelText('Dateien auswählen'),
+      new File(['not a pdf'], 'umbenannt.pdf', { type: 'application/pdf' }),
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Unterlagen hochladen' }),
+    );
+
+    expect(
+      await screen.findByText(
+        'Eine der Dateien hat ein Format, das wir nicht annehmen. Erlaubt sind PDF, DOC, DOCX, JPG und PNG. Es wurde nichts hochgeladen.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('keeps the application and offers a retry when the upload fails', async () => {
+    server.use(
+      http.post(
+        '*/api/v1/applications/:applicationId/documents',
+        () => new HttpResponse(null, { status: 500 }),
+      ),
+    );
+    const user = await reachDocumentStep();
+
+    await user.upload(
+      screen.getByLabelText('Dateien auswählen'),
+      pdfFile('a.pdf'),
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Unterlagen hochladen' }),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Das Hochladen hat gerade nicht funktioniert. Bitte versuche es noch einmal. Deine Bewerbung bleibt gespeichert.',
+    );
+    expect(
+      screen.getByRole('button', { name: 'Unterlagen hochladen' }),
+    ).toBeEnabled();
   });
 });

@@ -1,4 +1,4 @@
-import { getJson, postJson } from '../../lib/http';
+import { getJson, postJson, postMultipart } from '../../lib/http';
 import { isUuid } from '../../lib/uuid';
 import type { SubmitErrorCode } from './errors';
 import type { FixedRoute, WeeklyTime } from './routes';
@@ -17,6 +17,11 @@ const CATEGORIES_URL = `${BASE_URL}/api/v1/categories`;
 
 /** Category labels are 1–120 characters after trimming (`A6`, see API.md). */
 const LABEL_MAX = 120;
+
+const HTTP_CREATED = 201;
+const HTTP_BAD_REQUEST = 400;
+const HTTP_TOO_MANY_REQUESTS = 429;
+const HTTP_TOO_LARGE = 413;
 
 /**
  * A field of work the backend currently accepts applications for. The
@@ -123,13 +128,13 @@ export async function submitApplication(
     return { status: 'failed', code: 'INTERNAL_ERROR' };
   }
 
-  if (response.status === 201) {
+  if (response.status === HTTP_CREATED) {
     const applicationId = readApplicationId(await readBody(response));
     if (applicationId !== null) return { status: 'success', applicationId };
     return { status: 'failed', code: 'INTERNAL_ERROR' };
   }
 
-  if (response.status === 400) {
+  if (response.status === HTTP_BAD_REQUEST) {
     const errors = readFieldErrors(await readBody(response));
     // A 400 the frontend cannot place under a field would leave the applicant
     // staring at an unchanged form, so it falls back to a general message.
@@ -137,11 +142,57 @@ export async function submitApplication(
     return { status: 'failed', code: 'INTERNAL_ERROR' };
   }
 
-  if (response.status === 429) {
+  if (response.status === HTTP_TOO_MANY_REQUESTS) {
     return { status: 'failed', code: 'RATE_LIMITED' };
   }
 
   return { status: 'failed', code: 'INTERNAL_ERROR' };
+}
+
+export type UploadResult =
+  | { status: 'success' }
+  | { status: 'field-errors'; errors: ServerFieldError[] }
+  | { status: 'failed' };
+
+/**
+ * Attaches the applicant's files (`API.md`); the backend stores all or none,
+ * and a proxy `413` reads as an oversized file.
+ */
+export async function uploadDocuments(
+  applicationId: string,
+  files: readonly File[],
+): Promise<UploadResult> {
+  const body = new FormData();
+  for (const file of files) {
+    body.append('files', file);
+  }
+
+  let response: Response;
+
+  try {
+    response = await postMultipart(
+      `${APPLICATIONS_URL}/${encodeURIComponent(applicationId)}/documents`,
+      body,
+    );
+  } catch {
+    return { status: 'failed' };
+  }
+
+  if (response.status === HTTP_CREATED) return { status: 'success' };
+
+  if (response.status === HTTP_TOO_LARGE) {
+    return {
+      status: 'field-errors',
+      errors: [{ field: 'files', code: 'DOCUMENT_TOO_LARGE' }],
+    };
+  }
+
+  if (response.status === HTTP_BAD_REQUEST) {
+    const errors = readFieldErrors(await readBody(response));
+    if (errors.length > 0) return { status: 'field-errors', errors };
+  }
+
+  return { status: 'failed' };
 }
 
 export type FetchCategoriesResult =

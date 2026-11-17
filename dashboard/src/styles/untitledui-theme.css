@@ -21,6 +21,7 @@
 
 @theme {
   /* BACKGROUND COLORS */
+
   /* Shared foundation for the staff surface and both component sources. */
   --color-bg-canvas: #fcfcfd;
   --color-bg-primary: #ffffff;
@@ -50,6 +51,7 @@
   --color-text-error-primary: var(--color-utility-red-700);
   --color-text-error-primary_hover: var(--color-utility-red-700);
   --color-bg-error-primary: var(--color-utility-red-50);
+
   /* A lighter lilac, so hover reads as "lifted" rather than pressed. */
   --color-bg-brand-solid_hover: #9a4ec9;
   --color-text-brand-secondary: var(--color-fuut-purple);
@@ -61,6 +63,7 @@
   --color-bg-secondary_alt: #f7f7f8;
   --color-bg-tertiary: #f0f0f2;
   --color-bg-overlay: #18181b;
+
   /* The lilac fill a checked control carries. */
   --color-bg-brand-solid: #8437b6;
 
@@ -129,6 +132,7 @@
   --background-color-overlay: var(--color-bg-overlay);
   --background-color-brand-solid: var(--color-bg-brand-solid);
   --background-color-brand-solid_hover: var(--color-bg-brand-solid_hover);
+
   /*
    * The danger colours. Without these three the clone's `primary-destructive`
    * and `secondary-destructive` buttons ask Tailwind for `bg-error-solid` and

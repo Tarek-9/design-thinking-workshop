@@ -78,6 +78,14 @@ _Avoid_: Mentor, buddy, sponsor
 One applicant's request to volunteer, as it exists inside the platform.
 _Avoid_: Request, submission, ticket
 
+**Application document**:
+A file an applicant attaches to their Application: a PDF, DOC, DOCX, JPEG or PNG
+of at most 5 MB, up to three per Application (`A23`). The bytes sit on the
+upload volume under a random name, and the database keeps only the metadata.
+Only staff members read a document back, through the dashboard. It is erased
+together with its Application (`A16`).
+_Avoid_: Attachment, upload, CV
+
 **Owner**:
 The staff member responsible for an Application. An Application may have no
 owner yet. Distinct from Peer onboarder, which is a separate, unimplemented

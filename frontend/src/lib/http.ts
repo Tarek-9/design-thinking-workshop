@@ -1,6 +1,9 @@
 /** Requests time out after this long by default; pass `timeoutMs` to override. */
 export const DEFAULT_TIMEOUT_MS = 15_000;
 
+/** Up to three files of 5 MB each (`API.md`, documents). */
+export const UPLOAD_TIMEOUT_MS = 60_000;
+
 interface PostJsonOptions {
   timeoutMs?: number;
   keepalive?: boolean;
@@ -18,6 +21,22 @@ export function postJson(
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(timeoutMs),
     keepalive,
+  });
+}
+
+/**
+ * POSTs multipart form data; no `Content-Type`, so the browser writes the
+ * boundary. Uploads get a longer timeout than JSON.
+ */
+export function postMultipart(
+  url: string,
+  body: FormData,
+  { timeoutMs = UPLOAD_TIMEOUT_MS }: { timeoutMs?: number } = {},
+): Promise<Response> {
+  return fetch(url, {
+    method: 'POST',
+    body,
+    signal: AbortSignal.timeout(timeoutMs),
   });
 }
 

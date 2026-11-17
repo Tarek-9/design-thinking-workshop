@@ -20,14 +20,20 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "sign-in")
 public class SignInProperties {
 
+    private static final int DEFAULT_INACTIVITY_HOURS = 12;
+    private static final int DEFAULT_ATTEMPT_LIMIT = 5;
+    private static final int DEFAULT_ATTEMPT_WINDOW_MINUTES = 15;
+    private static final int DEFAULT_ATTEMPT_ADDRESS_LIMIT = 10_000;
+
     /** Twelve hours of sliding inactivity ends a Sign-in (`A17`). */
-    private Duration inactivity = Duration.ofHours(12);
+    private Duration inactivity = Duration.ofHours(DEFAULT_INACTIVITY_HOURS);
 
     /** Failures from one address tolerated inside {@link #attemptWindow} (`A20`). */
-    private int attemptLimit = 5;
+    private int attemptLimit = DEFAULT_ATTEMPT_LIMIT;
 
     /** How long a run of failed attempts is remembered (`A20`). */
-    private Duration attemptWindow = Duration.ofMinutes(15);
+    private Duration attemptWindow =
+            Duration.ofMinutes(DEFAULT_ATTEMPT_WINDOW_MINUTES);
 
     /**
      * How many addresses may be remembered at once. A throttle put up against
@@ -35,6 +41,6 @@ public class SignInProperties {
      * changing address, so the count is bounded and the bound is a value, not a
      * magic number in the store.
      */
-    private int attemptAddressLimit = 10_000;
+    private int attemptAddressLimit = DEFAULT_ATTEMPT_ADDRESS_LIMIT;
 
 }

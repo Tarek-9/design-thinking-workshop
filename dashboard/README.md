@@ -226,15 +226,16 @@ npm ci
 npm run dev
 ```
 
-| Command                           | What it does                  |
-| --------------------------------- | ----------------------------- |
-| `npm run dev`                     | Dev server on port 5174       |
-| `npm run build`                   | Production build into `dist/` |
-| `npm run preview`                 | Serve the built output        |
-| `npm run typecheck`               | `tsc --noEmit`                |
-| `npm run lint` / `lint:fix`       | ESLint                        |
-| `npm run format` / `format:check` | Prettier                      |
-| `npm test` / `test:watch`         | Vitest                        |
+| Command                               | What it does                  |
+| ------------------------------------- | ----------------------------- |
+| `npm run dev`                         | Dev server on port 5174       |
+| `npm run build`                       | Production build into `dist/` |
+| `npm run preview`                     | Serve the built output        |
+| `npm run typecheck`                   | `tsc --noEmit`                |
+| `npm run lint` / `lint:fix`           | ESLint                        |
+| `npm run stylelint` / `stylelint:fix` | Stylelint over the CSS        |
+| `npm run format` / `format:check`     | Prettier                      |
+| `npm test` / `test:watch`             | Vitest                        |
 
 The dev server proxies `/api` to `http://localhost:8080`, so it wants the
 backend running on its default port (`backend/README.md`). Development is
@@ -245,8 +246,10 @@ same-origin for the same reason production is: the Sign-in cookie is
 "Deployment" section says why.
 
 CI (`.github/workflows/dashboard.yml`, mirroring `frontend.yml`, scoped to
-`dashboard/`) runs typecheck, ESLint, format check, tests and the build on
-every pull request touching this directory.
+`dashboard/`) runs typecheck, ESLint, Stylelint, format check, tests and the
+build on every pull request touching this directory. The rules behind the
+linters, including the magic-number rule, are in
+[`../docs/CODE_STANDARDS.md`](../docs/CODE_STANDARDS.md).
 
 ## What does not exist yet
 

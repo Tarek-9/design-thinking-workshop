@@ -39,7 +39,7 @@ public class DashboardCategoryController {
     @GetMapping
     ResponseEntity<DashboardCategoriesResponse> list() {
         List<CategoryDto> cats = categoryRepo.findByOrderByDisplayOrderAsc().stream()
-            .map(this::toDto)
+            .map(CategoryDto::of)
             .toList();
 
         DashboardCategoriesResponse response = new DashboardCategoriesResponse();
@@ -69,7 +69,7 @@ public class DashboardCategoryController {
             .build();
 
         categoryRepo.save(cat);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toDto(cat));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CategoryDto.of(cat));
     }
 
     @PatchMapping("/{id}")
@@ -94,7 +94,7 @@ public class DashboardCategoryController {
         }
 
         categoryRepo.save(cat);
-        return ResponseEntity.ok(toDto(cat));
+        return ResponseEntity.ok(CategoryDto.of(cat));
     }
 
     @DeleteMapping("/{id}")
@@ -127,7 +127,7 @@ public class DashboardCategoryController {
         }
 
         List<CategoryDto> cats = categoryRepo.findByOrderByDisplayOrderAsc().stream()
-            .map(this::toDto)
+            .map(CategoryDto::of)
             .toList();
 
         DashboardCategoriesResponse response = new DashboardCategoriesResponse();
@@ -148,15 +148,6 @@ public class DashboardCategoryController {
 
     private static FieldValidationException orderIncomplete() {
         return new FieldValidationException("ids", "ORDER_INCOMPLETE");
-    }
-
-    private CategoryDto toDto(Category cat) {
-        CategoryDto dto = new CategoryDto();
-        dto.setId(cat.getId());
-        dto.setName(cat.getName());
-        dto.setDescription(cat.getDescription());
-        dto.setActive(cat.isActive());
-        return dto;
     }
 
 }

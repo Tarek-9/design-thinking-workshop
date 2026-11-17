@@ -444,6 +444,43 @@ in the language the API provides (`A12`).
   localisation contract would be needed before category labels can be
   translated consistently.
 
+### A23 — An applicant may attach up to three files of four kinds
+
+Attaching documents is optional. An applicant may add up to three files to an
+Application, each at most 5 MB, as PDF, DOC, DOCX, JPEG or PNG. A file is kept
+as long as its Application and is erased with it (`A16`).
+
+The bytes live on the association's filesystem in the mounted upload volume,
+one file per document; the database keeps only the metadata and the stored name.
+
+- **Confidence:** low — our invention. Nothing from the association says whether
+  applicants send a CV, a letter or a photo, nor how large those files are.
+- **Why it matters:** it decides what the upload accepts, how much the volume
+  holds and what staff can open. Limiting the kinds to four common formats keeps
+  the files readable on any staff computer.
+- **What breaks if wrong:** too small, and a useful file is refused at the form;
+  too large, and the volume fills faster than planned. Each limit is one
+  configured value in `DocumentProperties`.
+
+### A24 — Every Status change mails the applicant
+
+Each change of an Application's Status sends the applicant one mail, the
+rejection (`DECLINED`) included. The text names what the new Status means for
+them in plain German and what comes next. The mail is sent after the change is
+stored, and a failing mail never fails the change.
+
+- **Confidence:** low — our proposal, decided by the project team and not asked
+  of the client. It reverses the rule in `dashboard/API.md` that no status
+  change mails anyone, a rule written for exactly this worry about wording
+  nobody reviewed.
+- **Why it matters:** `A8` names silence as what loses applicants, and a status
+  change nobody hears about looks like no change at all.
+- **What breaks if wrong:** a rejection goes out in wording the association has
+  not reviewed, and a Status set by accident mails a real person. The "what
+  comes next" lines promise the staff member's follow-up (the appointment
+  details after `INTRO_BOOKED`, the next steps after `ACTIVE`), which nothing
+  checks. An applicant who chose the English form (`A22`) reads German mail.
+
 ---
 
 ## Open questions we cannot answer ourselves

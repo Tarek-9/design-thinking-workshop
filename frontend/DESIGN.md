@@ -421,7 +421,7 @@ Use generous whitespace without making the page feel empty.
 
 ## Subheading
 
-**Sag uns in zwei Minuten, wie du dabei sein möchtest. Deine Bestätigung mit allen weiteren Infos kommt sofort per E-Mail — kein „wir melden uns“.**
+**Sag uns in zwei Minuten, wie du dabei sein möchtest. Deine Bestätigung mit allen weiteren Infos kommt sofort per E-Mail, kein „wir melden uns“.**
 
 The two-minute promise is part of the UX value proposition and must remain visually prominent.
 
@@ -576,8 +576,8 @@ Label:
 Options:
 
 ```text
-1–2 Stunden
-3–5 Stunden
+1 bis 2 Stunden
+3 bis 5 Stunden
 mehr als 5 Stunden
 unregelmäßig, projektweise
 ```
@@ -655,7 +655,7 @@ Do not add:
 - phone;
 - address;
 - date of birth;
-- CV upload;
+- CV upload as a field of the form before submit;
 - “Wie hast du von uns erfahren?”;
 - languages;
 - social media links;
@@ -667,11 +667,14 @@ Do not add:
 
 These are intentionally excluded to protect conversion.
 
+The optional document step after submit (section 31) is not a form field. It
+runs once the Application exists, and no applicant has to use it.
+
 ---
 
 # 26. Required Figma States
 
-Create 11 frames/variants.
+Create 12 frames/variants.
 
 ```text
 01 Initial
@@ -685,12 +688,14 @@ Create 11 frames/variants.
 09 Categories Loading
 10 Categories Error
 11 Categories Empty
+12 Document Step
 ```
 
 The first four are mandatory for a complete design. 09–11 cover field 1
 before the applicant can do anything with it — see states 33a–33c — and are
 mandatory too, since the backend can return any of the three on page open
-(`A12`, API.md).
+(`A12`, API.md). 12 is the optional step after submit (section 31). It is not
+part of the form, but its copy is specified and built, so it needs a frame.
 
 ---
 
@@ -802,6 +807,60 @@ Rules:
 - emphasize `[email]` so a typo is noticeable — this is the one mistake that sends an applicant back into silence;
 - the screen shows no date, no queue position and no next step: those belong to the confirmation email, and the server sends none of them to the form (see [`API.md`](./API.md));
 - do not add vague reassurance beyond the specified copy.
+
+---
+
+# 31. State 12 — Document Step
+
+Optional step after a successful submit, before the confirmation (state 04).
+The Application exists at this point, and its `applicationId` comes from the
+submit response. The upload is sent only once that id is in hand. The step is
+not part of the form: the six fields and the submit are unchanged, and nothing
+on the step is required.
+
+### Heading
+
+**Möchtest du noch Unterlagen beifügen?**
+
+### Text
+
+**Das ist freiwillig. Deine Bewerbung ist bereits gespeichert.**
+
+### File field
+
+Label: **Dateien auswählen**
+
+Hint: **PDF, DOC, DOCX, JPG oder PNG, jeweils höchstens 5 MB. Bis zu drei Dateien.**
+
+### Buttons
+
+- primary: **Unterlagen hochladen**, disabled until at least one file is chosen; while the upload runs: **Wird hochgeladen …**
+- secondary: **Ohne Unterlagen weiter**, sends no request and continues to state 04
+
+### Errors
+
+Shown under the file field. The backend code is named in brackets.
+
+- `DOCUMENT_REQUIRED`: **Bitte wähle mindestens eine Datei aus**
+- `DOCUMENT_TYPE_UNSUPPORTED`: **Eine der Dateien hat ein Format, das wir nicht annehmen. Erlaubt sind PDF, DOC, DOCX, JPG und PNG. Es wurde nichts hochgeladen.**
+- `DOCUMENT_TOO_LARGE`: **Eine der Dateien ist größer als 5 MB. Es wurde nichts hochgeladen. Bitte wähle kleinere Dateien aus.**
+- `DOCUMENT_LIMIT_REACHED`: **Du kannst höchstens drei Dateien hochladen. Es wurde nichts hochgeladen. Bitte wähle weniger Dateien aus.**
+
+A failed upload that is not a refusal (network error, server error) is shown
+above the buttons:
+
+**Das Hochladen hat gerade nicht funktioniert. Bitte versuche es noch einmal. Deine Bewerbung bleibt gespeichert.**
+
+Rules:
+
+- a file is accepted only as PDF, DOC, DOCX, JPEG or PNG, at most 5 MB each,
+  and at most three per Application (`A23`); the file picker only narrows the
+  choice, and the backend checks the first bytes of each file;
+- the upload is all or nothing: one refused file stores none of them, the
+  error names the refusal, and the applicant chooses again;
+- a `413` from the proxy counts as `DOCUMENT_TOO_LARGE`;
+- a failed upload keeps the Application, and the applicant can retry or skip;
+- after an upload or a skip, the confirmation (state 04) follows unchanged.
 
 ---
 
@@ -1428,6 +1487,8 @@ Vereinsarbeit
   ↓ Submit
 Loading
   ↓ Success
+Document step (optional)
+  ↓ Upload or skip
 Confirmation
 ```
 
@@ -1576,6 +1637,7 @@ Field 1 is therefore the core structural element of the page, not merely the fir
 - [ ] Empty category list still allows Aktionsgruppe and Fördermitglied
 - [ ] Confirmation names the email address the applicant entered
 - [ ] Confirmation is identical for all four Vereinsarbeit categories
+- [ ] Document step can be skipped, and the confirmation follows either way
 - [ ] 375px mobile frame exists
 - [ ] Mobile CTA is full-width and sticky
 - [ ] Mobile select preserves native behaviour

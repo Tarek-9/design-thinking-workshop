@@ -27,6 +27,7 @@ the same change rather than left to drift. The decisions are collected
 - [Wire names](#wire-names)
 - [Sign-in and staff members](#sign-in-and-staff-members)
 - [Applications](#applications)
+- [Documents](#documents)
 - [State changes](#state-changes)
 - [Categories](#categories)
 - [Route selections](#route-selections)
@@ -304,13 +305,12 @@ the association has never confirmed.
 open-Applications panel excludes (`A13`). That rule lives in the dashboard; the
 backend needs no notion of it.
 
-**No status change sends anything to the applicant.** The only mail the platform
-sends is the confirmation on submission that
-[`../frontend/API.md`](../frontend/API.md) already requires. Everything after it
-is the staff member writing directly, from their own mail client. A dashboard
-that silently mails a rejection would put wording nobody in this team reviewed
-in front of an applicant, and would leave the staff member unsure whether it
-went out.
+**Every Status change sends the applicant one mail** (`A24`), the rejection
+(`DECLINED`) included. The backend builds it from a German text per Status
+(`email/StatusChangeMailer.java`) and sends it after the change is stored. A
+`PATCH` that keeps the Status it already has sends nothing. A mail failure is
+logged and never fails the `PATCH`, the same rule the confirmation on submission
+follows ([`../frontend/API.md`](../frontend/API.md)).
 
 ### PATCH /api/v1/staff/applications/{id}
 
@@ -386,7 +386,8 @@ effect, and the list, not the dashboard's own optimism, says what happened.
 
 ### DELETE /api/v1/staff/applications/{id}/permanently
 
-Erases the row. `204 No Content`, `404` for an unknown id.
+Erases the row, along with its State changes and its Documents, the files
+included. `204 No Content`, `404` for an unknown id.
 
 The ordinary delete action in the dashboard is **not** this: it is
 `PATCH … { "discarded": true }`, which moves the Application to the fourth
@@ -399,6 +400,35 @@ to someone who never agreed to it.
 `400` with `code: NOT_DISCARDED` if the Application has not been discarded
 first. Erasing straight from the working list is not a thing the UI can do, and
 the backend should not offer what the UI does not.
+
+## Documents
+
+Files an applicant attached to an Application (`A23`). Only the metadata comes
+in the list; the bytes come from the download.
+
+### GET /api/v1/staff/applications/{id}/documents
+
+```json
+{
+  "documents": [
+    {
+      "id": "b7e2…",
+      "fileName": "Lebenslauf.pdf",
+      "contentType": "application/pdf",
+      "sizeBytes": 183402,
+      "uploadedAt": "2026-11-16T09:12:04Z"
+    }
+  ]
+}
+```
+
+An empty list when nothing was attached. `404` for an unknown Application.
+
+### GET /api/v1/staff/applications/{id}/documents/{documentId}
+
+The file itself, with `Content-Disposition: attachment` and the stored
+`Content-Type`. `404` when the document does not belong to that Application.
+Both documents need a Sign-in.
 
 ## State changes
 

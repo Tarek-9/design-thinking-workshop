@@ -18,7 +18,7 @@ return, and `label` is renamed to `name`. Both are pending the same agreement.
 
 ## Scope
 
-One public page: the German applicant form. Three endpoints, all
+One public page: the German applicant form. Four endpoints, all
 unauthenticated. The form reads the active application categories, but never
 reads application data back. It writes applications and anonymous route
 selections.
@@ -194,6 +194,25 @@ The backend should stamp the consent timestamp itself using server time. The
 frontend deliberately does not send one — a timestamp from the client's clock
 is worth nothing as a record.
 
+## POST /api/v1/applications/{id}/documents
+
+Attaches up to three files to an application, after `POST /api/v1/applications`
+has answered with its `applicationId`. Optional: the form calls it only when the
+applicant picked at least one file.
+
+Multipart form data, one or more parts named `files`. Accepted kinds: PDF, DOC,
+DOCX, JPEG and PNG, at most 5 MB per file and three documents per application
+(`A23`). The file's first bytes must match its type, so a renamed file is
+refused.
+
+### Response — 201 Created
+
+Empty body. The applicant never sees a document again, so nothing is returned.
+
+A request is all or nothing: if one file is refused, none is stored, and the
+applicant can choose again. The errors follow the same shape as below, with
+`field` set to `files`.
+
 ## POST /api/v1/route-selections
 
 Reports which fixed route or category an applicant picked, at the moment they
@@ -277,6 +296,10 @@ Field codes the frontend handles:
 | `WEEKLY_TIME_REQUIRED`, `WEEKLY_TIME_UNKNOWN`       | `weeklyTime`     |
 | `ABOUT_TOO_LONG`                                    | `about`          |
 | `CONSENT_REQUIRED`                                  | `privacyConsent` |
+| `DOCUMENT_REQUIRED`                                 | `files`          |
+| `DOCUMENT_TYPE_UNSUPPORTED`                         | `files`          |
+| `DOCUMENT_TOO_LARGE`                                | `files`          |
+| `DOCUMENT_LIMIT_REACHED`                            | `files`          |
 
 `CATEGORY_UNKNOWN` means that the UUID does not identify a category.
 `CATEGORY_UNAVAILABLE` means that it identifies a category which is no longer
