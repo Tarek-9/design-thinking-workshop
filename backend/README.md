@@ -67,6 +67,46 @@ party that stores an applicant's details, and on our own domain that is not who
 receives them, so nothing a real person wrote may end up in this database
 (`dashboard/API.md`, "Deployment").
 
+## Applicant documents
+
+An applicant may attach files to their Application (`A23` in
+[`../docs/ASSUMPTIONS.md`](../docs/ASSUMPTIONS.md)). The upload is a separate
+request after the Application exists:
+
+```
+POST /api/v1/applications/{id}/documents     multipart, part name "files"
+GET  /api/v1/staff/applications/{id}/documents
+GET  /api/v1/staff/applications/{id}/documents/{documentId}
+```
+
+The upload is public, like the form it follows. Listing and downloading need a
+Sign-in, and the download is served as an attachment.
+
+Limits, all in `application/DocumentProperties.java`:
+
+- **Kinds:** PDF, DOC, DOCX, JPEG and PNG. The declared type must be one of
+  these, and the first bytes of the file must be that type's signature, so a
+  renamed file does not pass.
+- **Size:** 5 MB per file. `spring.servlet.multipart.max-file-size` is 6 MB in
+  `application.properties`, which is Spring's own ceiling above that.
+- **Count:** three documents per Application, counted across uploads.
+
+Each request is all or nothing: a refused file leaves no row and no file behind.
+The field codes are `DOCUMENT_REQUIRED`, `DOCUMENT_TYPE_UNSUPPORTED`,
+`DOCUMENT_TOO_LARGE` and `DOCUMENT_LIMIT_REACHED`, all on the field `files`.
+
+**Where the files go.** Only the metadata is in the database. The bytes are
+written to `document.upload-dir`, which defaults to
+`/var/lib/ichbinhier/documents` and can be set with `DOCUMENT_UPLOAD_DIR`. The
+file name on disk is a random UUID; the name the applicant sent is kept as
+metadata only, reduced to its last segment. Erasing an Application
+(`DELETE …/permanently`) removes the rows, and once that commits, the files.
+
+In `docker-compose.yml` the folder is the named volume `document-files`, mounted
+at `/var/lib/ichbinhier/documents`. The image creates that folder owned by the
+`app` user, so the volume starts writable. To run the backend outside Docker,
+point `DOCUMENT_UPLOAD_DIR` at any writable folder.
+
 ## Transactional email
 
 The confirmation email an applicant gets on submit (`A8` in

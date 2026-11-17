@@ -24,12 +24,15 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM: ${RESEND_FROM:-}
+      DOCUMENT_UPLOAD_DIR: ${DOCUMENT_UPLOAD_DIR:-/var/lib/ichbinhier/documents}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE-demo}
       STAFF_1_PASSWORD: ${STAFF_1_PASSWORD:-}
       STAFF_2_PASSWORD: ${STAFF_2_PASSWORD:-}
       STAFF_3_PASSWORD: ${STAFF_3_PASSWORD:-}
       STAFF_4_PASSWORD: ${STAFF_4_PASSWORD:-}
       STAFF_5_PASSWORD: ${STAFF_5_PASSWORD:-}
+    volumes:
+      - document-files:/var/lib/ichbinhier/documents
     depends_on:
       db:
         condition: service_healthy
@@ -63,3 +66,4 @@ services:
 
 volumes:
   db-data:
+  document-files:

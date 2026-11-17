@@ -12,7 +12,9 @@ WORKDIR /app
 
 COPY --from=build /build/target/volunteer-form-service-*.jar app.jar
 
-RUN addgroup -S app && adduser -S app -G app
+RUN addgroup -S app && adduser -S app -G app \
+ && mkdir -p /var/lib/ichbinhier/documents \
+ && chown app:app /var/lib/ichbinhier/documents
 USER app
 
 EXPOSE 8080
