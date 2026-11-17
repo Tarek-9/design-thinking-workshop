@@ -22,9 +22,8 @@ interface DocumentUploadProps {
 }
 
 /**
- * The optional step after a submitted Application: attach up to three files
- * to it, or continue without any. The Application already exists at this
- * point, so a failure here never loses what the applicant entered.
+ * Optional step after submit: attach up to three files or continue. The
+ * Application already exists, so failure loses nothing the applicant entered.
  */
 export function DocumentUpload({
   applicationId,

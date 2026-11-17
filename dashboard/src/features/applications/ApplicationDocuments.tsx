@@ -1,11 +1,7 @@
 /**
- * The Documents an Application carries, as the drawer lists them. Prop-driven
- * (ADR-0006): `ApplicationDocumentsContainer` reads the query and hands down
- * the state, so this renders without a cache and its tests need no provider.
- *
- * Each file is a link to its attachment download. The link is a plain
- * same-origin navigation, so the Sign-in cookie travels with it and nothing
- * here fetches the bytes.
+ * The Documents an Application carries, as the drawer lists them; prop-driven
+ * (`ADR-0006`). Each file is a plain same-origin link, so the Sign-in cookie
+ * travels and nothing here fetches the bytes.
  */
 
 import { Download01 } from '@untitledui/icons';

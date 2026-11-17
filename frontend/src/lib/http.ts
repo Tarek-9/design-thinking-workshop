@@ -25,9 +25,8 @@ export function postJson(
 }
 
 /**
- * POSTs multipart form data. No `Content-Type` is set: the browser has to
- * write the boundary itself. Uploads get a longer timeout than JSON, since a
- * few files of up to 5 MB each may take a while on a phone connection.
+ * POSTs multipart form data; no `Content-Type`, so the browser writes the
+ * boundary. Uploads get a longer timeout than JSON.
  */
 export function postMultipart(
   url: string,

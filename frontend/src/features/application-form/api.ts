@@ -150,10 +150,8 @@ export type UploadResult =
   | { status: 'failed' };
 
 /**
- * Attaches the applicant's files to a submitted Application (`API.md`). The
- * backend stores all of them or none, so a refusal leaves nothing behind and
- * the applicant can choose again. A `413` from the proxy is the same refusal
- * as an oversized file, so it is reported as one.
+ * Attaches the applicant's files (`API.md`); the backend stores all or none,
+ * and a proxy `413` reads as an oversized file.
  */
 export async function uploadDocuments(
   applicationId: string,

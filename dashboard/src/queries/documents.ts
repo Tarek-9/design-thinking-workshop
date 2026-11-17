@@ -1,9 +1,7 @@
 /**
- * The Documents of one Application, read when its drawer opens. Unlike the
- * Application list there is no stream event for them, so the query does not
- * trust its cache: `staleTime: 0` refetches on every mount, which is every
- * time a Staff member opens the drawer, and a file an Applicant attached after
- * the list was loaded shows up without a reload.
+ * One Application's Documents, read when its drawer opens. No stream event
+ * exists for them, so `staleTime: 0` refetches on every open: a file attached
+ * after load shows up without a reload.
  */
 
 import { queryOptions, useQuery } from '@tanstack/react-query';

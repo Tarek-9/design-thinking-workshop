@@ -1,7 +1,6 @@
 /**
- * A file an Applicant attached to an Application (`API.md`, "Documents"). The
- * list carries metadata only; the bytes come from the download, which is a
- * plain link and not something this application fetches.
+ * A file an Applicant attached (`API.md`, "Documents"); the list holds
+ * metadata only, the bytes come from a plain download link.
  */
 export type ApplicationDocument = {
   id: string;
