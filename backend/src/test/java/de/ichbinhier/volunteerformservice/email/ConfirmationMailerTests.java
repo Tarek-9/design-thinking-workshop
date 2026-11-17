@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-// Issue #4: a mail failure must never turn a stored application into a 500.
+// A mail failure must never turn a stored application into a 500.
 class ConfirmationMailerTests {
 
     @Test

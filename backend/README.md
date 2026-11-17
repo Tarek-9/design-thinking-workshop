@@ -76,8 +76,8 @@ Without `RESEND_API_KEY` set, `email/NoopEmailSender.java` takes over
 automatically and logs the email instead of sending it. Local development and
 the test suite need nothing configured.
 
-**To send real email**, the target configuration (Issue #4: the confirmation
-must reach every applicant address, not just the account owner):
+**To send real email**, the target configuration (the confirmation must
+reach every applicant address, not just the account owner):
 
 1. Sign up at [resend.com](https://resend.com), free tier is enough for this
    project's volume.
