@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import de.ichbinhier.volunteerformservice.application.Application;
 import de.ichbinhier.volunteerformservice.application.ApplicationDocumentService;
@@ -17,6 +19,7 @@ import de.ichbinhier.volunteerformservice.application.StateChange;
 import de.ichbinhier.volunteerformservice.application.StateChangeField;
 import de.ichbinhier.volunteerformservice.application.StateChangeRepository;
 import de.ichbinhier.volunteerformservice.application.StoredInstant;
+import de.ichbinhier.volunteerformservice.email.StatusChangeMailer;
 import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.ApiException;
@@ -32,6 +35,7 @@ class DashboardApplicationService {
     private final StateChangeRepository changes;
     private final ApplicationDocumentService documents;
     private final ApplicationEventStream stream;
+    private final StatusChangeMailer statusMailer;
 
     List<ApplicationDto> list() {
         return applications.findAllByOrderBySubmittedAtDesc().stream()
@@ -46,21 +50,24 @@ class DashboardApplicationService {
                 .toList();
     }
 
+    @Transactional
     ApplicationDto update(UUID id, UpdateApplicationRequest request) {
         String immutable = request.firstImmutableFieldSent();
         if (immutable != null) {
             throw new FieldValidationException(immutable, "IMMUTABLE_FIELD");
         }
 
-        var application = applications.findById(id)
+        var application = applications.findByIdForUpdate(id)
                 .orElseThrow(ApiException::notFound);
 
+        boolean statusChanged = false;
         if (request.getStatus() != null) {
             ApplicationStatus status = statusOf(request.getStatus());
             String oldStatus = application.getStatus().name();
             application.setStatus(status);
             if (!oldStatus.equals(request.getStatus())) {
                 recordChange(application, StateChangeField.STATUS, request.getStatus());
+                statusChanged = true;
             }
         }
 
@@ -90,9 +97,25 @@ class DashboardApplicationService {
 
         applications.save(application);
 
+        if (statusChanged) {
+            mailAfterCommit(application);
+        }
+
         ApplicationDto updated = ApplicationDto.of(application);
         stream.updated(updated);
         return updated;
+    }
+
+    // The mail fires only after commit: sent before it, a failed commit would
+    // announce a change that never landed; sent here, it would hold the row
+    // lock for the whole attempt.
+    private void mailAfterCommit(Application application) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                statusMailer.sendStatusChange(application);
+            }
+        });
     }
 
     /**
