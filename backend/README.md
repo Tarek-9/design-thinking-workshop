@@ -78,20 +78,28 @@ Without `RESEND_API_KEY` set, `email/NoopEmailSender.java` takes over
 automatically and logs the email instead of sending it. Local development and
 the test suite need nothing configured.
 
-**To send real email:**
+**To send real email**, the target configuration (the confirmation must
+reach every applicant address, not just the account owner):
 
 1. Sign up at [resend.com](https://resend.com), free tier is enough for this
    project's volume.
-2. Create an API key in the dashboard and set it as `RESEND_API_KEY` in `.env`
-   (see `.env.example`) — never commit the key itself.
-3. That's it for a demo. Sending works immediately from
-   `onboarding@resend.dev`, but **only to the email address on the Resend
-   account itself** — good enough to show the flow with your own inbox.
-4. To send to any address (what a real deployment needs), verify a domain in
-   Resend: add the DNS records it shows you, wait for verification, then set
-   `RESEND_FROM=noreply@your-domain` in `.env`. Until the branding question
-   with the association is settled, use a neutral domain, not
-   `ichbinhier.*` — see the reply to Paula's email for context.
+2. Verify a sending domain (a subdomain keeps this independent of the
+   association's branding): in the Resend dashboard add
+   `tmp-ichbinhier.tarek.foo` as a domain, copy the SPF + DKIM DNS records it
+   shows into the Cloudflare zone with proxy disabled, and wait for the
+   verification to pass. This is what lets Resend send from the domain to any
+   address, not just the account's own inbox.
+3. Create an API key in the dashboard of type `sending_access` and restrict it
+   to that domain. Set it as `RESEND_API_KEY` in the deployment environment
+   only (see `.env.example`) — never commit the key itself.
+4. Set `RESEND_FROM=noreply@tmp-ichbinhier.tarek.foo` in the deployment
+   environment.
+
+The DNS records, the sending domain and the API key are set up separately as
+an operations step; the code and this document only prepare the configuration.
+Until that verification is done, fall back to `onboarding@resend.dev`, which
+sends only to the email address on the Resend account itself — enough to show
+the flow with your own inbox.
 
 Both `resend.api-key` and `resend.from` are read from environment variables in
 `application.properties`; nothing provider-specific lives outside the `email`
