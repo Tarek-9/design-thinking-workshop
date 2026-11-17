@@ -4,11 +4,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 
-/**
- * The kinds of file an applicant may attach (`A23`). A file is accepted only
- * when its declared type is one of these and its first bytes are the ones the
- * type starts with, so an executable renamed to {@code .png} does not pass.
- */
+/** Accepted kinds (`A23`); declared type must match the leading bytes. */
 public enum DocumentType {
 
     PDF("application/pdf", bytes(0x25, 0x50, 0x44, 0x46)),

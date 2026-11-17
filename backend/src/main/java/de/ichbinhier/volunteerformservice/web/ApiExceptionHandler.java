@@ -52,10 +52,7 @@ public class ApiExceptionHandler {
         return validationFailed(List.of(new ApiFieldError(exception.getField(), exception.getCode())));
     }
 
-    /**
-     * A request above Spring's multipart ceiling never reaches a controller, so
-     * the one file-size code it can mean is answered here.
-     */
+    /** Requests above Spring's multipart ceiling never reach a controller, so the one size code is answered here. */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     ResponseEntity<ProblemDetail> onOversizedUpload(MaxUploadSizeExceededException exception) {
         return validationFailed(List.of(new ApiFieldError("files", "DOCUMENT_TOO_LARGE")));

@@ -124,13 +124,7 @@ public class DashboardApplicationController {
         return ResponseEntity.ok(updated);
     }
 
-    /**
-     * The Documents and the State changes go first: both own a non-nullable
-     * foreign key on the Application, and the erase is the platform's only path
-     * to actually removing what a person wrote, so it must not leave a trail of
-     * their Application's life behind. Everything shares one transaction, so a
-     * failure leaves nothing half done.
-     */
+    /** Delete dependent rows before the Application (non-nullable foreign keys); everything shares one transaction. */
     @DeleteMapping("/{id}/permanently")
     @Transactional
     ResponseEntity<Void> deletePermanently(@PathVariable UUID id) {

@@ -18,14 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.jayway.jsonpath.JsonPath;
 
-/**
- * The multipart ceiling answered by a real server. MockMvc hands its files over
- * without the container's limit, so this test starts Tomcat on a random port
- * with a 1 KB ceiling and posts a file above it. Tomcat refuses the request,
- * Spring raises {@code MaxUploadSizeExceededException}, and the advice answers
- * the same {@code DOCUMENT_TOO_LARGE} that {@link DocumentUploadTests} covers
- * directly. Its own context, because the limit is a server setting.
- */
+/** MockMvc bypasses the container's multipart ceiling, so a real server pins the limit. */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "spring.servlet.multipart.max-file-size=1KB")

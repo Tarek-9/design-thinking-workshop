@@ -16,10 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 
 
-/**
- * The applicant's side of the documents: uploading only. Reading them back is
- * staff work and lives in the dashboard package behind the Sign-in.
- */
 @RestController
 @RequestMapping("/api/v1/applications/{id}/documents")
 @RequiredArgsConstructor

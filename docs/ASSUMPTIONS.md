@@ -450,6 +450,9 @@ Attaching documents is optional. An applicant may add up to three files to an
 Application, each at most 5 MB, as PDF, DOC, DOCX, JPEG or PNG. A file is kept
 as long as its Application and is erased with it (`A16`).
 
+The bytes live on the association's filesystem in the mounted upload volume,
+one file per document; the database keeps only the metadata and the stored name.
+
 - **Confidence:** low — our invention. Nothing from the association says whether
   applicants send a CV, a letter or a photo, nor how large those files are.
 - **Why it matters:** it decides what the upload accepts, how much the volume

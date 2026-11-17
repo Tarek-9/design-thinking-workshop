@@ -23,10 +23,6 @@ import de.ichbinhier.volunteerformservice.web.ApiException;
 import lombok.RequiredArgsConstructor;
 
 
-/**
- * Staff reading what applicants attached. Everything under
- * {@code /api/v1/staff/**} needs a Sign-in, so nothing here is public.
- */
 @RestController
 @RequestMapping("/api/v1/staff/applications/{id}/documents")
 @RequiredArgsConstructor

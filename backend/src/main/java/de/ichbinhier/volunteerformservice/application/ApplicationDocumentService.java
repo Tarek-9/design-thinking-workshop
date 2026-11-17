@@ -3,12 +3,15 @@ package de.ichbinhier.volunteerformservice.application;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +46,10 @@ public class ApplicationDocumentService {
     private final DocumentProperties properties;
 
 
-    /**
-     * Stores every file or none of them. Each file is checked against its
-     * declared type and its first bytes before the rows are saved; a failure
-     * removes whatever was already written to the volume.
-     */
+    /** Stores every file or none; removes written files if validation or persistence fails. */
     @Transactional
     public void attach(UUID applicationId, List<MultipartFile> files) {
-        Application application = applications.findById(applicationId)
+        Application application = applications.findByIdForUpdate(applicationId)
                 .orElseThrow(ApiException::notFound);
         if (files.isEmpty()) {
             throw new FieldValidationException(FIELD, "DOCUMENT_REQUIRED");
@@ -77,11 +76,7 @@ public class ApplicationDocumentService {
         }
     }
 
-    /**
-     * Erases the Documents of an Application. The rows go with the caller's
-     * transaction; the files are removed only once it has committed, so a
-     * rollback never leaves rows pointing at files that are already gone.
-     */
+    /** Files are deleted only after commit, so a rollback leaves no rows for gone files. */
     @Transactional
     public void eraseAll(UUID applicationId) {
         List<ApplicationDocument> rows = documents.findByApplicationId(applicationId);
@@ -115,7 +110,8 @@ public class ApplicationDocumentService {
         try (InputStream content = file.getInputStream()) {
             size = Files.copy(content, target);
         }
-        if (!type.matches(head(target, type))) {
+        if (!type.matches(head(target, type))
+                || !matchesContainer(target, type)) {
             throw new FieldValidationException(FIELD, "DOCUMENT_TYPE_UNSUPPORTED");
         }
 
@@ -139,10 +135,54 @@ public class ApplicationDocumentService {
         }
     }
 
-    /**
-     * The name the applicant's browser sent, reduced to its last segment: a
-     * name carrying folders must not tell us anything about where to write.
-     */
+    private static boolean matchesContainer(Path file, DocumentType type)
+            throws IOException {
+        return switch (type) {
+            case DOC -> containsWordStream(file);
+            case DOCX -> containsWordPackage(file);
+            default -> true;
+        };
+    }
+
+    private static boolean containsWordStream(Path file) throws IOException {
+        // Scan the whole size-limited file; OLE directory names use UTF-16LE.
+        byte[] bytes = Files.readAllBytes(file);
+        return contains(bytes,
+                "WordDocument".getBytes(StandardCharsets.US_ASCII))
+                || contains(bytes,
+                        "WordDocument".getBytes(StandardCharsets.UTF_16LE));
+    }
+
+    private static boolean contains(byte[] bytes, byte[] token) {
+        for (int start = 0; start <= bytes.length - token.length; start++) {
+            int matched = 0;
+            while (matched < token.length
+                    && bytes[start + matched] == token[matched]) {
+                matched++;
+            }
+            if (matched == token.length) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsWordPackage(Path file) {
+        try (ZipFile archive = new ZipFile(file.toFile())) {
+            ZipEntry document = archive.getEntry("word/document.xml");
+            if (document == null || document.isDirectory()
+                    || document.getSize() == 0) {
+                return false;
+            }
+            try (InputStream content = archive.getInputStream(document)) {
+                return content.read() != -1;
+            }
+        } catch (IOException | IllegalArgumentException invalidArchive) {
+            return false;
+        }
+    }
+
+    /** Take only the last segment so a client-supplied folder cannot choose the write path. */
     private static String originalNameOf(MultipartFile file) {
         String sent = Objects.requireNonNullElse(file.getOriginalFilename(), "");
         String leaf = sent.substring(Math.max(sent.lastIndexOf('/'), sent.lastIndexOf('\\')) + 1).strip();
@@ -152,7 +192,7 @@ public class ApplicationDocumentService {
         return leaf.substring(0, Math.min(leaf.length(), ORIGINAL_NAME_LENGTH));
     }
 
-    /** A file that cannot be removed is logged by its kind only: its path is not for logs. */
+    /** A file that cannot be removed is logged by kind only, not path. */
     private static void deleteFile(Path file) {
         try {
             Files.deleteIfExists(file);

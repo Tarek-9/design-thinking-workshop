@@ -11,14 +11,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import jakarta.servlet.http.Cookie;
 
@@ -53,11 +59,6 @@ import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.config.SignIns;
 
-/**
- * What an applicant may attach and what staff may read back (`A23`). Uploading
- * is public; reading a document needs a Sign-in, and erasing an Application
- * takes its files from the volume with it.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -129,10 +130,7 @@ class DocumentUploadTests {
         application = applications.save(application(socialMedia));
     }
 
-    /**
-     * Rows go before the Application they point at, and the files go too, so a
-     * class that runs after this one finds neither the table nor the folder full.
-     */
+    /** Rows and files go before the Application they point at, so later runs start clean. */
     @AfterEach
     void clear() throws IOException {
         documents.deleteAll();
@@ -185,6 +183,95 @@ class DocumentUploadTests {
                                 padded(PDF_HEAD, 64))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].code").value("DOCUMENT_TYPE_UNSUPPORTED"));
+
+        assertThat(documents.findAll()).isEmpty();
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    void rejectsASpreadsheetDeclaredAsDocx() throws Exception {
+        mvc.perform(upload(application.getId(),
+                        new MockMultipartFile("files", "anschreiben.docx",
+                                DOCX_TYPE,
+                                zip("xl/workbook.xml", "<workbook/>"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.errors[0].field").value("files"))
+                .andExpect(jsonPath("$.errors[0].code")
+                        .value("DOCUMENT_TYPE_UNSUPPORTED"));
+
+        assertThat(documents.findAll()).isEmpty();
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    void rejectsBrokenAndEmptyArchivesDeclaredAsDocx() throws Exception {
+        byte[] word = zip("word/document.xml", "<document/>");
+        List<byte[]> invalid = List.of(
+                new byte[0],
+                padded("PK\u0003\u0004", 64),
+                zip(null, ""),
+                zip("word/document.xml", ""),
+                Arrays.copyOf(word, word.length - 22));
+
+        for (byte[] bytes : invalid) {
+            mvc.perform(upload(application.getId(),
+                            new MockMultipartFile("files", "anschreiben.docx",
+                                    DOCX_TYPE, bytes)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                    .andExpect(jsonPath("$.errors[0].field").value("files"))
+                    .andExpect(jsonPath("$.errors[0].code")
+                            .value("DOCUMENT_TYPE_UNSUPPORTED"));
+        }
+
+        assertThat(documents.findAll()).isEmpty();
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    void rejectsOleWithoutAWordDocumentStream() throws Exception {
+        for (String stream : List.of("Workbook", "PowerPoint Document")) {
+            mvc.perform(upload(application.getId(),
+                            new MockMultipartFile("files", "anschreiben.doc",
+                                    "application/msword", ole(stream))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                    .andExpect(jsonPath("$.errors[0].field").value("files"))
+                    .andExpect(jsonPath("$.errors[0].code")
+                            .value("DOCUMENT_TYPE_UNSUPPORTED"));
+        }
+
+        assertThat(documents.findAll()).isEmpty();
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    void acceptsWordContainersWithTheirDeclaredTypes() throws Exception {
+        mvc.perform(upload(application.getId(),
+                        new MockMultipartFile("files", "anschreiben.doc",
+                                "application/msword", ole("WordDocument")),
+                        new MockMultipartFile("files", "anschreiben.docx",
+                                DOCX_TYPE, wordPackage())))
+                .andExpect(status().isCreated());
+
+        assertThat(documents.countByApplicationId(application.getId()))
+                .isEqualTo(2);
+        assertThat(storedFiles()).hasSize(2);
+    }
+
+    @Test
+    void anInvalidWordContainerRemovesEarlierFiles() throws Exception {
+        mvc.perform(upload(application.getId(),
+                        new Sample("a.pdf", "application/pdf", PDF_HEAD).file(),
+                        new MockMultipartFile("files", "anschreiben.docx",
+                                DOCX_TYPE,
+                                zip("xl/workbook.xml", "<workbook/>"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.errors[0].field").value("files"))
+                .andExpect(jsonPath("$.errors[0].code")
+                        .value("DOCUMENT_TYPE_UNSUPPORTED"));
 
         assertThat(documents.findAll()).isEmpty();
         assertThat(storedFiles()).isEmpty();
@@ -337,15 +424,7 @@ class DocumentUploadTests {
         assertThat(applications.findById(application.getId())).isEmpty();
     }
 
-    /**
-     * Variant: the handler called directly, not a request. MockMvc hands a
-     * {@code MockMultipartFile} over without the servlet container's size limit,
-     * so {@code spring.servlet.multipart.max-file-size} never fires here, and
-     * setting it lower for this class would not fire either. That the real
-     * server does raise it is shown by {@link DocumentUploadLimitTests}; this
-     * test pins the answer a refused request gets: 400, the body's {@code code},
-     * and {@code files}.
-     */
+    /** MockMvc bypasses multipart limits; {@link DocumentUploadLimitTests} pins the server path. */
     @Test
     void anOversizedRequestAnswersDocumentTooLargeOnFiles() {
         ResponseEntity<ProblemDetail> response = new ApiExceptionHandler()
@@ -382,6 +461,108 @@ class DocumentUploadTests {
         return bytes;
     }
 
+    private static byte[] zip(String name, String content) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (ZipOutputStream archive = new ZipOutputStream(bytes)) {
+            if (name != null) {
+                zipEntry(archive, name, content);
+            }
+        }
+        return bytes.toByteArray();
+    }
+
+    private static byte[] wordPackage() throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (ZipOutputStream archive = new ZipOutputStream(bytes)) {
+            zipEntry(archive, "[Content_Types].xml",
+                    "<Types xmlns=\"http://schemas.openxmlformats.org/package/"
+                            + "2006/content-types\"><Default "
+                            + "Extension=\"rels\" ContentType=\"application/vnd."
+                            + "openxmlformats-package."
+                            + "relationships+xml\"/><Override "
+                            + "PartName=\"/word/document.xml\" ContentType=\""
+                            + DOCX_TYPE + ".main+xml\"/></Types>");
+            zipEntry(archive, "_rels/.rels",
+                    "<Relationships xmlns=\"http://schemas.openxmlformats.org/"
+                            + "package/2006/relationships\"><Relationship "
+                            + "Id=\"rId1\" "
+                            + "Type=\"http://schemas.openxmlformats.org/"
+                            + "officeDocument/2006/relationships/"
+                            + "officeDocument\" "
+                            + "Target=\"word/document.xml\"/></Relationships>");
+            zipEntry(archive, "word/document.xml",
+                    "<w:document xmlns:w=\"http://schemas.openxmlformats.org/"
+                            + "wordprocessingml/2006/main\">"
+                            + "<w:body/></w:document>");
+        }
+        return bytes.toByteArray();
+    }
+
+    private static void zipEntry(ZipOutputStream archive, String name,
+            String content) throws IOException {
+        archive.putNextEntry(new ZipEntry(name));
+        archive.write(content.getBytes(StandardCharsets.UTF_8));
+        archive.closeEntry();
+    }
+
+    private static byte[] ole(String streamName) {
+        // Header, directory, one regular 4096-byte stream, then its FAT sector.
+        int sectorSize = 512;
+        int endOfChain = -2;
+        ByteBuffer file = ByteBuffer.allocate(11 * sectorSize)
+                .order(ByteOrder.LITTLE_ENDIAN);
+        file.put(padded("\u00D0\u00CF\u0011\u00E0"
+                + "\u00A1\u00B1\u001A\u00E1", 8));
+        file.putShort(24, (short) 0x003E);
+        file.putShort(26, (short) 3);
+        file.putShort(28, (short) 0xFFFE);
+        file.putShort(30, (short) 9);
+        file.putShort(32, (short) 6);
+        file.putInt(44, 1);
+        file.putInt(48, 0);
+        file.putInt(56, 4096);
+        file.putInt(60, endOfChain);
+        file.putInt(68, endOfChain);
+        for (int offset = 76; offset < sectorSize; offset += 4) {
+            file.putInt(offset, -1);
+        }
+        file.putInt(76, 9);
+
+        oleDirectoryEntry(file, sectorSize, "Root Entry", 5, 1,
+                endOfChain, 0);
+        oleDirectoryEntry(file, sectorSize + 128, streamName, 2, -1,
+                1, 4096);
+        file.putShort(2 * sectorSize, (short) 0xA5EC);
+        file.putShort(2 * sectorSize + 2, (short) 0x00C1);
+
+        int fat = 10 * sectorSize;
+        for (int sector = 0; sector < sectorSize / 4; sector++) {
+            file.putInt(fat + 4 * sector, -1);
+        }
+        file.putInt(fat, endOfChain);
+        for (int sector = 1; sector < 8; sector++) {
+            file.putInt(fat + 4 * sector, sector + 1);
+        }
+        file.putInt(fat + 4 * 8, endOfChain);
+        file.putInt(fat + 4 * 9, -3);
+        return file.array();
+    }
+
+    private static void oleDirectoryEntry(ByteBuffer file, int offset,
+            String name, int type, int child, int startSector, long size) {
+        byte[] encoded = (name + "\0").getBytes(StandardCharsets.UTF_16LE);
+        file.position(offset);
+        file.put(encoded);
+        file.putShort(offset + 64, (short) encoded.length);
+        file.put(offset + 66, (byte) type);
+        file.put(offset + 67, (byte) 1);
+        file.putInt(offset + 68, -1);
+        file.putInt(offset + 72, -1);
+        file.putInt(offset + 76, child);
+        file.putInt(offset + 116, startSector);
+        file.putLong(offset + 120, size);
+    }
+
     private static Category category(String name, int displayOrder) {
         return Category.builder().name(name).displayOrder(displayOrder).active(true).build();
     }
@@ -402,8 +583,13 @@ class DocumentUploadTests {
     /** A file with a real signature at its start, so the bytes match the declared type. */
     private record Sample(String name, String contentType, String head) {
 
-        MockMultipartFile file() {
-            return new MockMultipartFile("files", name, contentType, padded(head, 64));
+        MockMultipartFile file() throws IOException {
+            byte[] bytes = switch (contentType) {
+                case "application/msword" -> ole("WordDocument");
+                case DOCX_TYPE -> wordPackage();
+                default -> padded(head, 64);
+            };
+            return new MockMultipartFile("files", name, contentType, bytes);
         }
 
     }

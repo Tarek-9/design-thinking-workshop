@@ -23,11 +23,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-/**
- * The metadata of one file an applicant attached to an Application. The bytes
- * live on the upload volume under {@link #storedName}, a random UUID, so the
- * database row is the only place the original name is kept.
- */
+/** Bytes live on the upload volume under {@link #storedName}; the database keeps the original name. */
 @Entity
 @Table(name = "application_documents")
 @Getter
