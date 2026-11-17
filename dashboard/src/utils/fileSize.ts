@@ -1,5 +1,5 @@
 const BYTES_PER_KB = 1024;
-const BYTES_PER_MB = 1024 * 1024;
+const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB;
 
 /**
  * A file size for a Staff member to read: whole kilobytes below a megabyte,

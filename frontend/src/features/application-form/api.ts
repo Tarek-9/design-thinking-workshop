@@ -21,6 +21,7 @@ const LABEL_MAX = 120;
 const HTTP_CREATED = 201;
 const HTTP_BAD_REQUEST = 400;
 const HTTP_TOO_MANY_REQUESTS = 429;
+const HTTP_TOO_LARGE = 413;
 
 /**
  * A field of work the backend currently accepts applications for. The
@@ -177,16 +178,16 @@ export async function uploadDocuments(
     return { status: 'failed' };
   }
 
-  if (response.status === 201) return { status: 'success' };
+  if (response.status === HTTP_CREATED) return { status: 'success' };
 
-  if (response.status === 413) {
+  if (response.status === HTTP_TOO_LARGE) {
     return {
       status: 'field-errors',
       errors: [{ field: 'files', code: 'DOCUMENT_TOO_LARGE' }],
     };
   }
 
-  if (response.status === 400) {
+  if (response.status === HTTP_BAD_REQUEST) {
     const errors = readFieldErrors(await readBody(response));
     if (errors.length > 0) return { status: 'field-errors', errors };
   }

@@ -16,6 +16,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+import de.ichbinhier.volunteerformservice.FieldLimits;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,15 +48,15 @@ public class ApplicationDocument {
             foreignKey = @ForeignKey(name = "fk_application_documents_application"))
     private Application application;
 
-    @Column(name = "original_name", nullable = false, length = 255)
+    @Column(name = "original_name", nullable = false, length = FieldLimits.DOCUMENT_NAME_MAX)
     private String originalName;
 
-    @Column(name = "stored_name", nullable = false, length = 36, updatable = false)
+    @Column(name = "stored_name", nullable = false, length = FieldLimits.STORED_NAME_MAX, updatable = false)
     private String storedName;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "document_type", nullable = false, length = 16)
+    @Column(name = "document_type", nullable = false, length = FieldLimits.DOCUMENT_TYPE_MAX)
     private DocumentType type;
 
     @Column(name = "size_bytes", nullable = false)

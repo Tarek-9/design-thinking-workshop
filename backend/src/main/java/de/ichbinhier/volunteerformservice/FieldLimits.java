@@ -15,6 +15,11 @@ public final class FieldLimits {
     public static final int CODE_MAX = 32;
     public static final int CATEGORY_NAME_MAX = 60;
     public static final int CATEGORY_DESCRIPTION_MAX = 140;
+    /** The upload's original name and the generated stored name (`A23`). */
+    public static final int DOCUMENT_NAME_MAX = 255;
+    public static final int STORED_NAME_MAX = 36;
+    /** The enum name of a document's type, stored as a string. */
+    public static final int DOCUMENT_TYPE_MAX = 16;
 
     private FieldLimits() {
     }
