@@ -28,10 +28,9 @@ public class ResendEmailSender implements EmailSender {
     private final String fromAddress;
 
 
-    // nginx answers the API host with 504 after 30s, and a status change is
-    // already stored before a mail is sent: a request hanging longer than
-    // that turns a saved change into an error for the staff member. Timeouts
-    // stay clearly below the 30s.
+    // nginx answers the API host with 504 after 30s and the change is
+    // already stored, so timeouts stay far below that: a saved change must
+    // not become an error.
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
 

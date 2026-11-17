@@ -9,14 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /*
- * Tells an applicant that their Application moved to another Status (A24).
- * Every change sends a mail, the rejection included: a status the applicant
- * never hears about is the silence A8 names as the thing that loses people.
- * Applicant-facing text is German (AGENTS.md, "Language split").
- *
- * The texts name no Category. The category is a lazy association, and the
- * mail runs after the change has committed, so no session is open to resolve
- * it. Only basic fields are read off the Application.
+ * Tells an applicant that their Application moved to another Status (A24):
+ * every change sends a mail, the rejection included (A8). Text is German
+ * (AGENTS.md, "Language split"). No texts name a Category: it is a lazy
+ * association and no session is open after the commit.
  */
 @Slf4j
 @Component
@@ -26,10 +22,9 @@ public class StatusChangeMailer {
     private final EmailSender sender;
 
 
-    // The status change is already stored when this runs (see
-    // DashboardApplicationController.update). A mail provider failure must
-    // not turn a saved status change into an error for the staff member, so
-    // failures are logged, not thrown, the same as ConfirmationMailer.
+    // The change is already stored when this runs; a provider failure is
+    // logged, not thrown, so a saved change never becomes an error for the
+    // staff member (same as ConfirmationMailer).
     public void sendStatusChange(Application application) {
         Text text = textFor(application.getStatus());
         String body = """

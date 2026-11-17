@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-// Issue #5: every Status change mails the applicant, the rejection included.
-// Like the confirmation (Issue #4), a mail error must never fail the change
-// that already happened, so a throwing sender is logged, never rethrown.
+// Every Status change mails the applicant, the rejection included. Like the
+// confirmation, a mail error must never fail the change that already
+// happened, so a throwing sender is logged, never rethrown.
 class StatusChangeMailerTests {
 
     @ParameterizedTest
