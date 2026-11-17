@@ -29,5 +29,8 @@ jobs:
           cache: maven
           cache-dependency-path: backend/pom.xml
 
+      - name: Static analysis
+        run: ./mvnw checkstyle:check
+
       - name: Test
         run: ./mvnw test

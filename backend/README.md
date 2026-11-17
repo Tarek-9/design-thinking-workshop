@@ -147,3 +147,10 @@ the flow with your own inbox.
 Both `resend.api-key` and `resend.from` are read from environment variables in
 `application.properties`; nothing provider-specific lives outside the `email`
 package.
+
+## Static analysis
+
+Checkstyle runs in CI (`.github/workflows/backend.yml`) and fails the build on
+a violation. Run it locally with `./mvnw checkstyle:check`. The rules, and why
+the demo seed is exempt, are in
+[`../docs/CODE_STANDARDS.md`](../docs/CODE_STANDARDS.md).

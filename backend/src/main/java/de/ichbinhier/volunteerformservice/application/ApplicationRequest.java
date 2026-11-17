@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import de.ichbinhier.volunteerformservice.FieldLimits;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,25 +26,25 @@ public class ApplicationRequest {
     UUID categoryId;
 
     @NotBlank(message = "NAME_REQUIRED")
-    @Size(max = 120, message = "NAME_TOO_LONG")
+    @Size(max = FieldLimits.NAME_MAX, message = "NAME_TOO_LONG")
     String name;
 
     @NotBlank(message = "EMAIL_REQUIRED")
     @Email(message = "EMAIL_INVALID")
-    @Size(max = 254, message = "EMAIL_TOO_LONG")
+    @Size(max = FieldLimits.EMAIL_MAX, message = "EMAIL_TOO_LONG")
     String email;
 
     @NotNull(message = "WEEKLY_TIME_REQUIRED")
     WeeklyTime weeklyTime;
 
-    @Size(max = 2000, message = "ABOUT_TOO_LONG")
+    @Size(max = FieldLimits.ABOUT_MAX, message = "ABOUT_TOO_LONG")
     String about;
 
     @AssertTrue(message = "CONSENT_REQUIRED")
     boolean privacyConsent;
 
     @NotBlank(message = "CONSENT_TEXT_VERSION_REQUIRED")
-    @Size(max = 32, message = "CONSENT_TEXT_VERSION_REQUIRED")
+    @Size(max = FieldLimits.CODE_MAX, message = "CONSENT_TEXT_VERSION_REQUIRED")
     String consentTextVersion;
 
     String website;

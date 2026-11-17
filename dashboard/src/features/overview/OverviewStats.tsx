@@ -46,6 +46,11 @@ type OverviewStatsProps = {
 };
 
 const HISTORY_DAYS = 7;
+/**
+ * The sparkline's stroke width, the same `1.75` the icons get in
+ * `styles/globals.css` — one consistent weight across the surface.
+ */
+const SPARKLINE_STROKE_WIDTH = 1.75;
 /** `Date#getDay()` is 0-indexed on Sunday; these line up with that index. */
 const WEEKDAY_LABELS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
@@ -223,7 +228,7 @@ export function OverviewStats({
               data={card.history}
               labels={weekdayLabels}
               chartClassName="h-10"
-              strokeWidth={1.75}
+              strokeWidth={SPARKLINE_STROKE_WIDTH}
               labelClassName="text-[10px] @max-[20rem]/card:hidden"
               className="col-start-2 row-start-3 mt-3 w-16 self-end @[16rem]/card:w-24 @[20rem]/card:w-28"
             />

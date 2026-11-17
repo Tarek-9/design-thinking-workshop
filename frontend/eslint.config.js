@@ -41,14 +41,36 @@ export default tseslint.config(
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
 
+      // A literal number is a named constant (see docs/CODE_STANDARDS.md).
+      '@typescript-eslint/no-magic-numbers': [
+        'error',
+        {
+          ignore: [-1, 0, 1],
+          ignoreArrayIndexes: true,
+          ignoreDefaultValues: true,
+          enforceConst: true,
+          detectObjects: true,
+        },
+      ],
+
+      // `no-magic-numbers` misses a number written directly as a JSX prop
+      // value (`offset={4}`), which the parser reads as a prop, not a literal
+      // expression. This selector closes that gap.
+      //
       // Design tokens live in CSS. An inline style bypasses the token layer
-      // and cannot be linted for literal values (see README.md).
+      // and cannot be linted for literal values (see README.md). The
+      // exceptions are the same lists as for `no-magic-numbers` above.
       'no-restricted-syntax': [
         'error',
         {
           selector: "JSXAttribute[name.name='style']",
           message:
             'Use a CSS module and design tokens instead of an inline style.',
+        },
+        {
+          selector: 'JSXExpressionContainer > Literal[value>1]',
+          message:
+            'A literal number in JSX is a named constant (see docs/CODE_STANDARDS.md).',
         },
       ],
 
@@ -84,12 +106,15 @@ export default tseslint.config(
     },
   },
 
-  /** Tests may assert on internals and use non-null assertions. */
+  /** Tests may assert on internals and use non-null assertions. Test data and
+     MSW handlers spell out literal values on purpose, so a reader sees the
+     status or length the test expects. */
   {
     files: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/mocks/**'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-magic-numbers': 'off',
     },
   },
 

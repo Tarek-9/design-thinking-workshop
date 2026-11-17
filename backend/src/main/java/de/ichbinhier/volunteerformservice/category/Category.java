@@ -13,6 +13,8 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import de.ichbinhier.volunteerformservice.FieldLimits;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,12 +36,12 @@ public class Category {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Size(max = 60)
-    @Column(name = "name", nullable = false, length = 60)
+    @Size(max = FieldLimits.CATEGORY_NAME_MAX)
+    @Column(name = "name", nullable = false, length = FieldLimits.CATEGORY_NAME_MAX)
     private String name;
 
-    @Size(max = 140)
-    @Column(name = "description", length = 140)
+    @Size(max = FieldLimits.CATEGORY_DESCRIPTION_MAX)
+    @Column(name = "description", length = FieldLimits.CATEGORY_DESCRIPTION_MAX)
     private String description;
 
     private int displayOrder;

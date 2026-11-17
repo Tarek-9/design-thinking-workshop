@@ -10,6 +10,10 @@ import { defineConfig } from 'vite';
  */
 const API_TARGET = 'http://localhost:8080';
 
+const DEV_SERVER_PORT = 5174;
+const STREAM_PROXY_TIMEOUT_MS = 3_600_000;
+const PROXY_TIMEOUT_MS = 30_000;
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -18,7 +22,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5174,
+    port: DEV_SERVER_PORT,
     // Mirrors `nginx.conf` location for location, so a request behaves the
     // same in development as in production. `changeOrigin` stays off on both
     // entries: nginx passes the browser's `Host` through, and so does Vite by
@@ -30,11 +34,11 @@ export default defineConfig({
       // browser buffers, which is what `proxy_buffering off` buys in nginx.
       '/api/v1/staff/events': {
         target: API_TARGET,
-        proxyTimeout: 3_600_000,
+        proxyTimeout: STREAM_PROXY_TIMEOUT_MS,
       },
       '/api': {
         target: API_TARGET,
-        proxyTimeout: 30_000,
+        proxyTimeout: PROXY_TIMEOUT_MS,
       },
     },
   },

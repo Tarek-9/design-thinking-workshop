@@ -21,6 +21,15 @@
   --color-fuut-red: #e31119;
   --color-fuut-gray: #4f4f4f;
   --color-fuut-creme: #f6f5f1;
+
+  /*
+   * The `ApplicationDrawer`'s desktop widths, and the width the strip
+   * reserves for its column (`app/strip.ts`). One value, read by both, so a
+   * width change cannot leave the strip and the drawer out of step.
+   */
+  --drawer-width-sm: 460px;
+  --drawer-width-lg: 480px;
+
   /*
    * Inter across the whole dashboard — self-hosted through
    * `@fontsource-variable/inter` (variable weights 100–900), so there is no
