@@ -11,6 +11,7 @@ import { useApplications } from '@/queries/applications';
 import { useCategories } from '@/queries/categories';
 import { useOwners } from '@/queries/staffMembers';
 
+import { ApplicationDocumentsContainer } from './ApplicationDocumentsContainer';
 import { ApplicationsScreen } from './ApplicationsScreen';
 import type { ApplicationFilters } from './filterApplications';
 import { useApplicationWrites } from './useApplicationWrites';
@@ -41,6 +42,9 @@ export function ApplicationsContainer({
       onEdit={writes.onEdit}
       onDiscard={writes.onDiscard}
       notes={writes.notes}
+      renderDocuments={(applicationId) => (
+        <ApplicationDocumentsContainer applicationId={applicationId} />
+      )}
     />
   );
 }

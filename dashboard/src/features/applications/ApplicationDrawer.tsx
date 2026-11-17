@@ -80,6 +80,12 @@ type ApplicationDrawerProps = {
    */
   notesValue: string;
   onNotesChange: (text: string) => void;
+  /**
+   * The Application's Documents section, rendered by a container the screen
+   * was handed (`ApplicationDocumentsContainer`). A slot rather than a list,
+   * so the drawer itself never reads the cache.
+   */
+  documents: ReactNode;
 };
 
 /** How long "Kopiert" stays on the copy button before it reverts. */
@@ -153,6 +159,7 @@ export function ApplicationDrawer({
   onChange,
   notesValue,
   onNotesChange,
+  documents,
 }: ApplicationDrawerProps) {
   /**
    * The address that was copied, not a flag: opening another Application then
@@ -333,6 +340,11 @@ export function ApplicationDrawer({
           <div className="border-secondary bg-secondary text-primary mt-2.5 rounded-[10px] border px-4 py-3.5 text-sm leading-relaxed break-words whitespace-pre-line">
             {application.about}
           </div>
+        </section>
+
+        <section className="mt-7">
+          <SectionLabel>{de.detail.documents}</SectionLabel>
+          <div className="mt-2.5">{documents}</div>
         </section>
 
         <section className="mt-7">

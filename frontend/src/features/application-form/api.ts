@@ -1,4 +1,4 @@
-import { getJson, postJson } from '../../lib/http';
+import { getJson, postJson, postMultipart } from '../../lib/http';
 import { isUuid } from '../../lib/uuid';
 import type { SubmitErrorCode } from './errors';
 import type { FixedRoute, WeeklyTime } from './routes';
@@ -142,6 +142,52 @@ export async function submitApplication(
   }
 
   return { status: 'failed', code: 'INTERNAL_ERROR' };
+}
+
+export type UploadResult =
+  | { status: 'success' }
+  | { status: 'field-errors'; errors: ServerFieldError[] }
+  | { status: 'failed' };
+
+/**
+ * Attaches the applicant's files (`API.md`); the backend stores all or none,
+ * and a proxy `413` reads as an oversized file.
+ */
+export async function uploadDocuments(
+  applicationId: string,
+  files: readonly File[],
+): Promise<UploadResult> {
+  const body = new FormData();
+  for (const file of files) {
+    body.append('files', file);
+  }
+
+  let response: Response;
+
+  try {
+    response = await postMultipart(
+      `${APPLICATIONS_URL}/${encodeURIComponent(applicationId)}/documents`,
+      body,
+    );
+  } catch {
+    return { status: 'failed' };
+  }
+
+  if (response.status === 201) return { status: 'success' };
+
+  if (response.status === 413) {
+    return {
+      status: 'field-errors',
+      errors: [{ field: 'files', code: 'DOCUMENT_TOO_LARGE' }],
+    };
+  }
+
+  if (response.status === 400) {
+    const errors = readFieldErrors(await readBody(response));
+    if (errors.length > 0) return { status: 'field-errors', errors };
+  }
+
+  return { status: 'failed' };
 }
 
 export type FetchCategoriesResult =

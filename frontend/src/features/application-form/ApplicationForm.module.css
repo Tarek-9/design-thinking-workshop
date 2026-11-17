@@ -87,6 +87,46 @@
   display: contents;
 }
 
+.fileInput {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--field-height);
+  padding: var(--wp--preset--spacing--20) var(--control-padding-inline);
+  font-family: var(--font-input);
+  font-size: var(--wp--preset--font-size--medium);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width-default) solid var(--color-border);
+  border-radius: var(--radius-control);
+}
+
+.fileInput:hover {
+  border-color: var(--color-border-hover);
+}
+
+.fileInput:focus {
+  border: var(--border-width-focus) solid var(--color-focus);
+  outline: none;
+}
+
+.fileInput::file-selector-button {
+  margin-right: var(--wp--preset--spacing--30);
+  padding: 0;
+  font: inherit;
+  color: var(--color-primary);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.uploadActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wp--preset--spacing--30);
+  margin-top: var(--wp--preset--spacing--40);
+}
+
 .submitHelper {
   margin: 0;
   font-size: var(--wp--preset--font-size--small);

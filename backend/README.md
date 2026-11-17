@@ -3,6 +3,9 @@
 Spring Boot service backing the applicant form and the staff dashboard. See
 [`../AGENTS.md`](../AGENTS.md) for repo-wide conventions.
 
+The [refactoring pass](../docs/REFACTORING.md) records the method, implemented
+improvements, deferred candidates and verification limits for ticket #11.
+
 ## Staff accounts
 
 The dashboard has no self-registration and no user administration, so

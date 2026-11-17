@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type SubmitEvent, useMemo } from 'react';
+import { type SubmitEvent, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import iconSpeak from '../../assets/icons/icon_speak.png';
@@ -13,6 +13,7 @@ import { useLocale } from '../../content/useLocale';
 import { ApplicationFields } from './ApplicationFields';
 import styles from './ApplicationForm.module.css';
 import { Confirmation } from './Confirmation';
+import { DocumentUpload } from './DocumentUpload';
 import { makeFieldProps, toErrorText } from './fieldProps';
 import { outcomeOf } from './routes';
 import { emptyFormValues, formSchema, type FormValues } from './schema';
@@ -47,20 +48,33 @@ export function ApplicationForm() {
   const outcome = route === '' ? null : outcomeOf(route);
 
   useRouteAnalytics(route);
-  const { onSubmit, confirmedEmail, isSubmitting, submitErrorCode } =
+  const { onSubmit, confirmed, isSubmitting, submitErrorCode } =
     useApplicationSubmit(
       setError,
       setValue,
       categoriesById,
       categoriesState.retry,
     );
+  const [documentsDone, setDocumentsDone] = useState(false);
 
   function handleFormSubmit(event: SubmitEvent<HTMLFormElement>) {
     void handleSubmit(onSubmit)(event);
   }
 
-  if (confirmedEmail) {
-    return <Confirmation content={content} email={confirmedEmail} />;
+  if (confirmed && !documentsDone) {
+    return (
+      <DocumentUpload
+        applicationId={confirmed.applicationId}
+        content={content}
+        onDone={() => {
+          setDocumentsDone(true);
+        }}
+      />
+    );
+  }
+
+  if (confirmed) {
+    return <Confirmation content={content} email={confirmed.email} />;
   }
 
   const fieldProps = makeFieldProps(register, errors, content);

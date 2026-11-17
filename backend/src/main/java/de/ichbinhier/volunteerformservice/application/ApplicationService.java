@@ -42,7 +42,7 @@ public class ApplicationService {
 
         Application saved;
         try {
-            saved = applications.saveAndFlush(build(request, category));
+            saved = applications.saveAndFlush(ApplicationMapper.from(request, category));
         } catch (DataIntegrityViolationException exception) {
             return applications.findBySubmissionId(request.getSubmissionId())
                     .orElseThrow(() -> exception)
@@ -53,22 +53,4 @@ public class ApplicationService {
         confirmationMailer.sendConfirmation(saved);
         return saved.getId();
     }
-
-
-    // todo: move to mapper?
-    private static Application build(ApplicationRequest request, Category category) {
-        String about = request.getAbout() == null ? null : request.getAbout().trim();
-
-        return Application.builder()
-                .submissionId(request.getSubmissionId())
-                .category(category)
-                .name(request.getName().trim())
-                .email(request.getEmail().trim())
-                .weeklyTime(request.getWeeklyTime())
-                .about(about == null || about.isEmpty() ? null : about)
-                .consentAt(StoredInstant.now())
-                .consentTextVersion(request.getConsentTextVersion())
-                .build();
-    }
-
 }
