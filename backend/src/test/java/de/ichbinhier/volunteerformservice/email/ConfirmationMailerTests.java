@@ -8,11 +8,7 @@ import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-// Issue #4: a mail error must never block an application. The Application is
-// already committed before sendConfirmation runs, so a throwing sender must
-// be logged, never rethrown — otherwise a down mail provider would turn a
-// stored submission into a 500 and invite a duplicate attempt. This test pins
-// that contract with a sender that always throws.
+// Issue #4: a mail failure must never turn a stored application into a 500.
 class ConfirmationMailerTests {
 
     @Test
