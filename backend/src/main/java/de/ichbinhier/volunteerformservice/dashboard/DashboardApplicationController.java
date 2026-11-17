@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -76,6 +78,7 @@ public class DashboardApplicationController {
     }
 
     @PatchMapping("/{id}")
+    @Transactional
     ResponseEntity<ApplicationDto> update(
         @PathVariable UUID id,
         @Valid @RequestBody UpdateApplicationRequest req) {
@@ -85,7 +88,7 @@ public class DashboardApplicationController {
             throw new FieldValidationException(immutable, "IMMUTABLE_FIELD");
         }
 
-        var app = appRepo.findById(id)
+        var app = appRepo.findByIdForUpdate(id)
             .orElseThrow(ApiException::notFound);
 
         boolean statusChanged = false;
@@ -124,12 +127,25 @@ public class DashboardApplicationController {
         appRepo.save(app);
 
         if (statusChanged) {
-            statusMailer.sendStatusChange(app);
+            mailAfterCommit(app);
         }
 
         ApplicationDto updated = ApplicationDto.of(app);
         stream.updated(updated);
         return ResponseEntity.ok(updated);
+    }
+
+    // The status change commits with this transaction; a mail sent before the
+    // commit could report a change that never landed, and sending here would
+    // hold the row lock for the whole (up to 10s) mail attempt. So the mail
+    // fires only after the commit.
+    private void mailAfterCommit(Application app) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                statusMailer.sendStatusChange(app);
+            }
+        });
     }
 
     /** Delete dependent rows before the Application (non-nullable foreign keys); everything shares one transaction. */

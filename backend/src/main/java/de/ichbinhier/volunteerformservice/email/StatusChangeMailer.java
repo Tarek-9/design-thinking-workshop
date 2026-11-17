@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
  * Applicant-facing text is German (AGENTS.md, "Language split").
  *
  * The texts name no Category. The category is a lazy association, and the
- * status change runs outside a transaction (see ApplicationDto), so reading
- * its name here would fail.
+ * mail runs after the change has committed, so no session is open to resolve
+ * it. Only basic fields are read off the Application.
  */
 @Slf4j
 @Component
