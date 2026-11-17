@@ -4,6 +4,8 @@
  * between screens and each screen owns its own layout.
  */
 
+import type { ReactNode } from 'react';
+
 import { PageHeader } from '@/components/shared/page-header';
 import { de } from '@/content/de';
 import type {
@@ -31,6 +33,8 @@ type OverviewScreenProps = {
   now: Date;
   /** The internal-notes draft, for the drawer the panel below opens. */
   notes: NotesField;
+  /** The drawer's Documents section, handed on to the panel below. */
+  renderDocuments: (applicationId: string) => ReactNode;
 };
 
 export function OverviewScreen({
@@ -43,6 +47,7 @@ export function OverviewScreen({
   owners,
   now,
   notes,
+  renderDocuments,
 }: OverviewScreenProps) {
   return (
     <div className="flex w-full flex-col gap-8">
@@ -67,6 +72,7 @@ export function OverviewScreen({
         owners={owners}
         now={now}
         notes={notes}
+        renderDocuments={renderDocuments}
       />
     </div>
   );

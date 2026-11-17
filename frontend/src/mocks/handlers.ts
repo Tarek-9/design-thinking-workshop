@@ -54,6 +54,11 @@ export const handlers = [
   }),
 
   http.post(
+    '*/api/v1/applications/:applicationId/documents',
+    () => new HttpResponse(null, { status: 201 }),
+  ),
+
+  http.post(
     '*/api/v1/route-selections',
     () => new HttpResponse(null, { status: 202 }),
   ),

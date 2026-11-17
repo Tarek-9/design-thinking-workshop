@@ -30,7 +30,17 @@ export const SUBMIT_ERROR_CODES = ['RATE_LIMITED', 'INTERNAL_ERROR'] as const;
 
 export type SubmitErrorCode = (typeof SUBMIT_ERROR_CODES)[number];
 
-export type ErrorCode = FieldErrorCode | SubmitErrorCode;
+/** Refusals of the document step, all reported under `files` (`API.md`). */
+export const DOCUMENT_ERROR_CODES = [
+  'DOCUMENT_REQUIRED',
+  'DOCUMENT_TYPE_UNSUPPORTED',
+  'DOCUMENT_TOO_LARGE',
+  'DOCUMENT_LIMIT_REACHED',
+] as const;
+
+export type DocumentErrorCode = (typeof DOCUMENT_ERROR_CODES)[number];
+
+export type ErrorCode = FieldErrorCode | SubmitErrorCode | DocumentErrorCode;
 
 /**
  * Which form field a server-sent error belongs under. The backend names fields

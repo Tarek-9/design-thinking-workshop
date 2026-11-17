@@ -13,6 +13,7 @@
  */
 
 import { Archive, Inbox01 } from '@untitledui/icons';
+import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/base/buttons/button';
@@ -53,6 +54,8 @@ type OpenApplicationsPanelProps = {
   now: Date;
   /** The internal-notes draft, for the drawer this panel opens too. */
   notes: NotesField;
+  /** The drawer's Documents section, the same render function Anfragen gets. */
+  renderDocuments: (applicationId: string) => ReactNode;
 };
 
 function hasActiveFilters(filters: OpenApplicationsFilters): boolean {
@@ -71,6 +74,7 @@ export function OpenApplicationsPanel({
   owners,
   now,
   notes,
+  renderDocuments,
 }: OpenApplicationsPanelProps) {
   const [filters, setFilters] = useState<OpenApplicationsFilters>(
     EMPTY_OPEN_APPLICATIONS_FILTERS,
@@ -219,6 +223,7 @@ export function OpenApplicationsPanel({
           onNotesChange={(text) => {
             notes.onChange(selected.id, text);
           }}
+          documents={renderDocuments(selected.id)}
         />
       ) : null}
 
