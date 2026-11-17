@@ -40,6 +40,9 @@ import { CONTROL_CLASSNAME } from './controlStyles';
  */
 const UNASSIGNED_KEY = 'unassigned';
 
+/** How far the popover clears its trigger, in pixels. */
+const POPOVER_OFFSET = 4;
+
 type OwnerSelectProps = {
   /** The Owner the Application currently carries, `null` when it has none. */
   ownerId: string | null;
@@ -133,7 +136,7 @@ export function OwnerSelect({ ownerId, owners, onChange }: OwnerSelectProps) {
         where the drawer's stacking context would otherwise paint over it.
       */}
       <AriaPopover
-        offset={4}
+        offset={POPOVER_OFFSET}
         className="border-secondary bg-primary z-40 max-h-64 w-(--trigger-width) overflow-y-auto rounded-lg border p-1 shadow-lg outline-hidden"
       >
         <AriaListBox items={options} className="outline-hidden">

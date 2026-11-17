@@ -215,7 +215,7 @@ export function ApplicationDrawer({
       ref={panelRef}
       tabIndex={-1}
       aria-label={de.detail.title}
-      className="drawer-entering border-secondary bg-primary fixed inset-y-0 right-0 z-30 flex w-full flex-col border-l shadow-lg outline-hidden sm:w-[460px] lg:w-[480px]"
+      className="drawer-entering border-secondary bg-primary fixed inset-y-0 right-0 z-30 flex w-full flex-col border-l shadow-lg outline-hidden sm:w-(--drawer-width-sm) lg:w-(--drawer-width-lg)"
     >
       <header className="border-secondary shrink-0 border-b px-6 pt-5 pb-4">
         <div className="flex items-start gap-3">

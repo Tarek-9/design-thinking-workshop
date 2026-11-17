@@ -48,6 +48,10 @@ export default tseslint.config(
         },
       ],
 
+      // `no-magic-numbers` misses a number written directly as a JSX prop
+      // value (`offset={4}`), which the parser reads as a prop, not a literal
+      // expression. This selector closes that gap.
+      //
       // Design tokens live in CSS. An inline style bypasses the token layer
       // and cannot be linted for literal values. The exceptions are listed
       // below and at each site.
@@ -57,6 +61,11 @@ export default tseslint.config(
           selector: "JSXAttribute[name.name='style']",
           message:
             'Use a Tailwind class and a design token instead of an inline style.',
+        },
+        {
+          selector: 'JSXExpressionContainer > Literal[value>1]',
+          message:
+            'A literal number in JSX is a named constant (see docs/CODE_STANDARDS.md).',
         },
       ],
     },
@@ -79,6 +88,7 @@ export default tseslint.config(
      rewritten. Code we author ourselves is not covered here. */
   {
     files: [
+      'src/components/application/app-navigation/**',
       'src/components/application/pagination/**',
       'src/components/application/table/table.tsx',
       'src/components/base/**',

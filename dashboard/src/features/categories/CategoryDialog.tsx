@@ -48,6 +48,9 @@ type CategoryDialogProps = {
 const fieldClassName =
   'border-primary bg-primary text-primary placeholder:text-quaternary w-full rounded-lg border px-3 py-2.5 text-sm leading-relaxed transition-colors duration-150 outline-none focus:border-fuut-purple focus:ring-2 focus:ring-fuut-purple/10';
 
+/** The description field keeps three rows: enough to see a sentence. */
+const DESCRIPTION_ROWS = 3;
+
 export function CategoryDialog({
   category,
   categories,
@@ -162,7 +165,7 @@ export function CategoryDialog({
               </label>
               <textarea
                 id={descriptionId}
-                rows={3}
+                rows={DESCRIPTION_ROWS}
                 value={description}
                 maxLength={CATEGORY_DESCRIPTION_MAX_LENGTH}
                 placeholder={de.categories.dialog.descriptionPlaceholder}

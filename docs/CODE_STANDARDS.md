@@ -52,6 +52,11 @@ Enforced by:
 - **Frontend and dashboard:** `@typescript-eslint/no-magic-numbers`. `-1`, `0`
   and `1` are allowed, and so are array indexes and default parameter values.
   Object literals are checked too, so `{ top: 4 }` needs a name.
+- **Frontend and dashboard:** `no-restricted-syntax` catches the one case
+  `@typescript-eslint/no-magic-numbers` does not: a number written directly as
+  a JSX prop value, such as `offset={4}` or `strokeWidth={1.75}`. The rule is
+  `JSXExpressionContainer > Literal[value>1]`, so allowing `-1`, `0` and `1`
+  stays the same.
 - **Backend:** Checkstyle `MagicNumber`. Constant fields (`static final`) are
   allowed, which is where the name lives.
 
