@@ -3,6 +3,9 @@
 Spring Boot service backing the applicant form and the staff dashboard. See
 [`../AGENTS.md`](../AGENTS.md) for repo-wide conventions.
 
+The [refactoring pass](../docs/REFACTORING.md) records the method, implemented
+improvements, deferred candidates and verification limits for ticket #11.
+
 ## Staff accounts
 
 The dashboard has no self-registration and no user administration, so
@@ -15,7 +18,9 @@ sent to a staff member, so none of these mailboxes has to exist.
 through `STAFF_5_PASSWORD` in `.env` (see `../.env.example`); there is no
 password literal anywhere in this repo. Each is read once, when its account is
 created, and hashed with bcrypt. Set them to five distinct values before the
-first start and hand each staff member their own.
+first start and hand each staff member their own. Passwords are hashed with
+bcrypt at cost 12. After a change to the cost factor, existing passwords must be
+set anew, since the seeder reads them only when an account is first created.
 
 The seeder works account by account rather than behind one "is the table empty"
 check, which decides two things worth knowing:
@@ -65,6 +70,46 @@ party that stores an applicant's details, and on our own domain that is not who
 receives them, so nothing a real person wrote may end up in this database
 (`dashboard/API.md`, "Deployment").
 
+## Applicant documents
+
+An applicant may attach files to their Application (`A23` in
+[`../docs/ASSUMPTIONS.md`](../docs/ASSUMPTIONS.md)). The upload is a separate
+request after the Application exists:
+
+```
+POST /api/v1/applications/{id}/documents     multipart, part name "files"
+GET  /api/v1/staff/applications/{id}/documents
+GET  /api/v1/staff/applications/{id}/documents/{documentId}
+```
+
+The upload is public, like the form it follows. Listing and downloading need a
+Sign-in, and the download is served as an attachment.
+
+Limits, all in `application/DocumentProperties.java`:
+
+- **Kinds:** PDF, DOC, DOCX, JPEG and PNG. The declared type must be one of
+  these, and the first bytes of the file must be that type's signature, so a
+  renamed file does not pass.
+- **Size:** 5 MB per file. `spring.servlet.multipart.max-file-size` is 6 MB in
+  `application.properties`, which is Spring's own ceiling above that.
+- **Count:** three documents per Application, counted across uploads.
+
+Each request is all or nothing: a refused file leaves no row and no file behind.
+The field codes are `DOCUMENT_REQUIRED`, `DOCUMENT_TYPE_UNSUPPORTED`,
+`DOCUMENT_TOO_LARGE` and `DOCUMENT_LIMIT_REACHED`, all on the field `files`.
+
+**Where the files go.** Only the metadata is in the database. The bytes are
+written to `document.upload-dir`, which defaults to
+`/var/lib/ichbinhier/documents` and can be set with `DOCUMENT_UPLOAD_DIR`. The
+file name on disk is a random UUID; the name the applicant sent is kept as
+metadata only, reduced to its last segment. Erasing an Application
+(`DELETE …/permanently`) removes the rows, and once that commits, the files.
+
+In `docker-compose.yml` the folder is the named volume `document-files`, mounted
+at `/var/lib/ichbinhier/documents`. The image creates that folder owned by the
+`app` user, so the volume starts writable. To run the backend outside Docker,
+point `DOCUMENT_UPLOAD_DIR` at any writable folder.
+
 ## Transactional email
 
 The confirmation email an applicant gets on submit (`A8` in
@@ -76,20 +121,28 @@ Without `RESEND_API_KEY` set, `email/NoopEmailSender.java` takes over
 automatically and logs the email instead of sending it. Local development and
 the test suite need nothing configured.
 
-**To send real email:**
+**To send real email**, the target configuration (the confirmation must
+reach every applicant address, not just the account owner):
 
 1. Sign up at [resend.com](https://resend.com), free tier is enough for this
    project's volume.
-2. Create an API key in the dashboard and set it as `RESEND_API_KEY` in `.env`
-   (see `.env.example`) — never commit the key itself.
-3. That's it for a demo. Sending works immediately from
-   `onboarding@resend.dev`, but **only to the email address on the Resend
-   account itself** — good enough to show the flow with your own inbox.
-4. To send to any address (what a real deployment needs), verify a domain in
-   Resend: add the DNS records it shows you, wait for verification, then set
-   `RESEND_FROM=noreply@your-domain` in `.env`. Until the branding question
-   with the association is settled, use a neutral domain, not
-   `ichbinhier.*` — see the reply to Paula's email for context.
+2. Verify a sending domain (a subdomain keeps this independent of the
+   association's branding): in the Resend dashboard add
+   `tmp-ichbinhier.tarek.foo` as a domain, copy the SPF + DKIM DNS records it
+   shows into the Cloudflare zone with proxy disabled, and wait for the
+   verification to pass. This is what lets Resend send from the domain to any
+   address, not just the account's own inbox.
+3. Create an API key in the dashboard of type `sending_access` and restrict it
+   to that domain. Set it as `RESEND_API_KEY` in the deployment environment
+   only (see `.env.example`) — never commit the key itself.
+4. Set `RESEND_FROM=noreply@tmp-ichbinhier.tarek.foo` in the deployment
+   environment.
+
+The DNS records, the sending domain and the API key are set up separately as
+an operations step; the code and this document only prepare the configuration.
+Until that verification is done, fall back to `onboarding@resend.dev`, which
+sends only to the email address on the Resend account itself — enough to show
+the flow with your own inbox.
 
 Both `resend.api-key` and `resend.from` are read from environment variables in
 `application.properties`; nothing provider-specific lives outside the `email`

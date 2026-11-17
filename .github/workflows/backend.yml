@@ -1,7 +1,5 @@
 name: backend
 
-# Scoped to the backend so the frontend and dashboard workflows never trigger
-# on a change here, and vice versa.
 on:
   push:
     branches: [main]

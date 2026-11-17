@@ -30,6 +30,7 @@ import {
   mockStaffMember,
 } from '@/data/mockApplications';
 import type { Application, Owner } from '@/domain/application';
+import type { ApplicationDocument } from '@/domain/applicationDocument';
 import type { Category } from '@/domain/category';
 import type { StaffMember } from '@/domain/staffMember';
 import type { StateChange } from '@/domain/stateChange';
@@ -112,6 +113,10 @@ export type StubbedApi = {
   categories: Category[];
   owners: Owner[];
   changes: StateChange[];
+  /** The Documents each Application carries, by id; an id not listed has none. */
+  documents: Record<string, ApplicationDocument[]>;
+  /** What the Documents reads answer with instead of a list, when set. */
+  documentsFailure: { status: number; code: string } | null;
   staffMember: StaffMember;
   /** What `POST /session` answers with instead of a Sign-in, when set. */
   signInFailure: { status: number; code: string } | null;
@@ -160,6 +165,8 @@ export function stubApi(overrides: Partial<StubbedApi> = {}): StubbedApi {
     categories: [...mockCategories],
     owners: [...mockOwners],
     changes: [],
+    documents: {},
+    documentsFailure: null,
     staffMember: mockStaffMember,
     signInFailure: null,
     signInCheckFailure: null,
@@ -296,6 +303,20 @@ export function stubApi(overrides: Partial<StubbedApi> = {}): StubbedApi {
           (change) => change.applicationId !== id,
         );
         return Promise.resolve(NO_CONTENT());
+      }
+
+      const documentsOf = /^\/applications\/([^/]+)\/documents$/.exec(path);
+      if (documentsOf !== null && method === 'GET') {
+        const id = documentsOf[1] ?? '';
+        if (!api.applications.some((row) => row.id === id)) {
+          return Promise.resolve(problem(404, 'NOT_FOUND'));
+        }
+        if (api.documentsFailure !== null) {
+          return Promise.resolve(
+            problem(api.documentsFailure.status, api.documentsFailure.code),
+          );
+        }
+        return Promise.resolve(json({ documents: api.documents[id] ?? [] }));
       }
 
       if (path === '/categories' && method === 'GET') {

@@ -12,6 +12,7 @@
  */
 
 import { Archive, Inbox01 } from '@untitledui/icons';
+import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/base/buttons/button';
@@ -60,6 +61,11 @@ type ApplicationsScreenProps = {
    * being typed.
    */
   notes: NotesField;
+  /**
+   * The drawer's Documents section for one Application, built by the container
+   * above (`ApplicationDocumentsContainer`) so this screen never reads the cache.
+   */
+  renderDocuments: (applicationId: string) => ReactNode;
 };
 
 export function ApplicationsScreen({
@@ -71,6 +77,7 @@ export function ApplicationsScreen({
   categories,
   owners,
   notes,
+  renderDocuments,
 }: ApplicationsScreenProps) {
   const [filters, setFilters] = useState<ApplicationFilters>(() => ({
     ...EMPTY_FILTERS,
@@ -217,6 +224,7 @@ export function ApplicationsScreen({
           onNotesChange={(text) => {
             notes.onChange(selected.id, text);
           }}
+          documents={renderDocuments(selected.id)}
         />
       ) : null}
 

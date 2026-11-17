@@ -79,6 +79,17 @@ export const en = {
     bodyAfter: '.',
     closing: 'Thank you for your interest!',
   },
+  documents: {
+    title: 'Would you like to attach documents?',
+    subtitle: 'This is optional. Your application has already been saved.',
+    label: 'Choose files',
+    hint: 'PDF, DOC, DOCX, JPG or PNG, each at most 5 MB. Up to three files.',
+    submit: 'Upload documents',
+    loadingLabel: 'Uploading …',
+    skip: 'Continue without documents',
+    uploadFailed:
+      'Uploading did not work just now. Please try again. Your application remains saved.',
+  },
   errors: {
     ROUTE_REQUIRED: 'Please choose how you would like to help',
     CATEGORY_REQUIRED: 'Please choose how you would like to help',
@@ -97,6 +108,13 @@ export const en = {
       'We do not recognise this choice. Please choose an item from the list',
     ABOUT_TOO_LONG: 'Please shorten your text to 2000 characters',
     CONSENT_REQUIRED: 'We cannot store your application without your consent',
+    DOCUMENT_REQUIRED: 'Please choose at least one file',
+    DOCUMENT_TYPE_UNSUPPORTED:
+      'One of the files is in a format we cannot accept. We accept PDF, DOC, DOCX, JPG and PNG. Nothing was uploaded.',
+    DOCUMENT_TOO_LARGE:
+      'One of the files is larger than 5 MB. Nothing was uploaded. Please choose smaller files.',
+    DOCUMENT_LIMIT_REACHED:
+      'You can upload at most three files. Nothing was uploaded. Please choose fewer files.',
     RATE_LIMITED:
       'We are receiving many applications right now. Please try again in a minute. Your details will remain here.',
     INTERNAL_ERROR:

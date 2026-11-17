@@ -24,12 +24,15 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM: ${RESEND_FROM:-}
+      DOCUMENT_UPLOAD_DIR: ${DOCUMENT_UPLOAD_DIR:-/var/lib/ichbinhier/documents}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE-demo}
       STAFF_1_PASSWORD: ${STAFF_1_PASSWORD:-}
       STAFF_2_PASSWORD: ${STAFF_2_PASSWORD:-}
       STAFF_3_PASSWORD: ${STAFF_3_PASSWORD:-}
       STAFF_4_PASSWORD: ${STAFF_4_PASSWORD:-}
       STAFF_5_PASSWORD: ${STAFF_5_PASSWORD:-}
+    volumes:
+      - document-files:/var/lib/ichbinhier/documents
     depends_on:
       db:
         condition: service_healthy
@@ -39,8 +42,11 @@ services:
     build:
       context: ./frontend
     image: ichbinhier-form:local
+    environment:
+      BASIC_AUTH_USERNAME: ${BASIC_AUTH_USERNAME:-}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-}
     ports:
-      - '8081:80'
+      - '127.0.0.1:8081:80'
     depends_on:
       - backend
     restart: unless-stopped
@@ -49,6 +55,9 @@ services:
     build:
       context: ./dashboard
     image: ichbinhier-dashboard:local
+    environment:
+      BASIC_AUTH_USERNAME: ${BASIC_AUTH_USERNAME:-}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:-}
     ports:
       - '8082:80'
     depends_on:
@@ -57,3 +66,4 @@ services:
 
 volumes:
   db-data:
+  document-files:
