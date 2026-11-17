@@ -33,6 +33,35 @@ data only; do not enter real applicant details while presenting it.
 
 `docker compose down` to stop services, with `-v` to drop the database
 
+### HTTP basic auth
+
+Both the form and the dashboard can sit behind HTTP basic auth. It is off by
+default: with `BASIC_AUTH_USERNAME` and `BASIC_AUTH_PASSWORD` left empty the
+demo serves anonymously exactly as before. Set both variables in `.env` (the
+same credential guards both apps) and rebuild to turn it on:
+
+```bash
+# .env
+BASIC_AUTH_USERNAME=volunteer
+BASIC_AUTH_PASSWORD=<a strong random value>
+```
+
+```bash
+docker compose up -d --build
+```
+
+With the variables set, every request (the SPA assets, the `/api/` proxy and
+the dashboard's SSE endpoint alike) is challenged with a `401` until the
+credentials are supplied, so a single build serves both modes. The password is
+hashed into an htpasswd file at container start and never lands in the image
+or the repository.
+
+Ops checklist for the deployment that is not yet in this code: switch off the
+old temporary hostnames (sslip.io, work.gd) once the real TLS domain is up,
+and serve the two containers only through the reverse proxy instead of
+exposing the host ports `8081`/`8082` to the network. `noindex` stays on so the
+protected pages are not indexed either way.
+
 ## Documents
 
 | Document | What it holds |
