@@ -16,14 +16,16 @@ mkdir -p "$AUTH_DIR"
 : > "$AUTH_FILE"
 
 if [ -n "${BASIC_AUTH_USERNAME:-}" ] && [ -n "${BASIC_AUTH_PASSWORD:-}" ]; then
-  # openssl is present in the nginx:1.27-alpine base image.
+  # openssl is installed by the Dockerfile.
   HASH=$(printf '%s' "$BASIC_AUTH_PASSWORD" | openssl passwd -apr1 -stdin)
   printf '%s:%s\n' "$BASIC_AUTH_USERNAME" "$HASH" > "$HTPASSWD_FILE"
   cat > "$AUTH_FILE" <<EOF
 auth_basic "Restricted area";
 auth_basic_user_file $HTPASSWD_FILE;
 EOF
-  chmod 600 "$HTPASSWD_FILE"
+  # nginx workers run as the nginx user and read the file on each request.
+  chown root:nginx "$HTPASSWD_FILE"
+  chmod 640 "$HTPASSWD_FILE"
 fi
 
 exec "$@"
