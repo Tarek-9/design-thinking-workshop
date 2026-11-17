@@ -72,9 +72,8 @@ class StaffSeederTests {
     }
 
     /**
-     * Passwords are hashed with bcrypt at cost 12 (GitHub issue #8). The cost
-     * sits in the hash prefix, so the strength is assertable without decoding
-     * anything, and {@code matches} still verifies a candidate against it.
+     * Hashes at bcrypt cost 12 (GitHub issue #8); the cost sits in the prefix,
+     * and {@code matches} still verifies a candidate against it.
      */
     @Test
     void hashesWithBcryptAtCostTwelve() {

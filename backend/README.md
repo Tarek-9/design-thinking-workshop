@@ -16,9 +16,9 @@ through `STAFF_5_PASSWORD` in `.env` (see `../.env.example`); there is no
 password literal anywhere in this repo. Each is read once, when its account is
 created, and hashed with bcrypt. Set them to five distinct values before the
 first start and hand each staff member their own. Passwords are hashed with
-bcrypt at cost 12 (GitHub issue #8); after a change to the cost factor, existing
-passwords must be set anew, because a hashed password cannot be re-hashed with a
-new cost — the seeder reads them only when an account is first created.
+bcrypt at cost 12 (GitHub issue #8). After a change to the cost factor, existing
+passwords must be set anew, since the seeder reads them only when an account is
+first created.
 
 The seeder works account by account rather than behind one "is the table empty"
 check, which decides two things worth knowing:
