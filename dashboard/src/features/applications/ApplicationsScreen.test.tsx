@@ -53,6 +53,7 @@ function Host({ initial }: { initial?: Application[] } = {}) {
           setDraft({ applicationId, text });
         },
       }}
+      renderDocuments={() => null}
     />
   );
 }

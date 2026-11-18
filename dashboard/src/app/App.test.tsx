@@ -330,6 +330,76 @@ describe('App', () => {
    * container is the pair of facts a screen cannot show on its own: that a
    * request was sent at all, and what is left on screen when it fails.
    */
+  /**
+   * The Documents an Applicant attached, in the drawer, each a link to its
+   * attachment download. The link is what carries the Sign-in: it is a plain
+   * navigation, not a request this application makes.
+   */
+  describe('the documents of an Application', () => {
+    const LEBENSLAUF = {
+      id: 'b7e2c4d0-1a2b-4c3d-8e9f-0a1b2c3d4e5f',
+      fileName: 'Lebenslauf.pdf',
+      contentType: 'application/pdf',
+      sizeBytes: 183402,
+      uploadedAt: '2026-09-07T09:12:04Z',
+    };
+
+    function maraId(): string {
+      const mara = api.applications.find((row) => row.name === 'Mara Weber');
+      if (mara === undefined) throw new Error('fixture has no Mara Weber');
+      return mara.id;
+    }
+
+    it('lists the files of the open Application, each linked to its download', async () => {
+      const user = userEvent.setup();
+      const id = maraId();
+      api.documents = { [id]: [LEBENSLAUF] };
+      await renderSignedIn();
+
+      await user.click(screen.getByText('Mara Weber'));
+
+      const link = await screen.findByRole('link', {
+        name: 'Lebenslauf.pdf: Herunterladen',
+      });
+      expect(link).toHaveAttribute(
+        'href',
+        `/api/v1/staff/applications/${id}/documents/${LEBENSLAUF.id}`,
+      );
+      expect(calls('GET', `/applications/${id}/documents`)).toHaveLength(1);
+    });
+
+    it('says so when the Application carries no files', async () => {
+      const user = userEvent.setup();
+      await renderSignedIn();
+
+      await user.click(screen.getByText('Mara Weber'));
+
+      expect(await screen.findByText(de.detail.documentsEmpty)).toBeVisible();
+    });
+
+    it('offers a retry when the list cannot be read, and shows it once it can', async () => {
+      const user = userEvent.setup();
+      const id = maraId();
+      api.documents = { [id]: [LEBENSLAUF] };
+      api.documentsFailure = { status: 500, code: 'INTERNAL_ERROR' };
+      await renderSignedIn();
+
+      await user.click(screen.getByText('Mara Weber'));
+      expect(await screen.findByText(de.detail.documentsFailed)).toBeVisible();
+
+      api.documentsFailure = null;
+      await user.click(
+        screen.getByRole('button', { name: de.dashboard.retry }),
+      );
+
+      expect(
+        await screen.findByRole('link', {
+          name: 'Lebenslauf.pdf: Herunterladen',
+        }),
+      ).toBeVisible();
+    });
+  });
+
   describe('the writes', () => {
     it('sends a Status change as a PATCH of that one field', async () => {
       const user = userEvent.setup();

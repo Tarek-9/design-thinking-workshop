@@ -27,6 +27,8 @@ import { ApiProblem } from './problem';
 /** Every path in this contract sits under it (`API.md`, "Scope"). */
 export const STAFF_API = '/api/v1/staff';
 
+const HTTP_NO_CONTENT = 204;
+
 /**
  * The `problem+json` body, as far as the dashboard reads it. `title`, `type`
  * and `detail` are deliberately ignored — they are English, and the dashboard
@@ -106,7 +108,7 @@ export async function request<T>(
     throw await problemFrom(response);
   }
 
-  if (response.status === 204) {
+  if (response.status === HTTP_NO_CONTENT) {
     return null as T;
   }
 

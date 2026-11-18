@@ -4,6 +4,7 @@
  * changes the three cards' sparklines are replayed from.
  */
 
+import { ApplicationDocumentsContainer } from '@/features/applications/ApplicationDocumentsContainer';
 import { useApplicationWrites } from '@/features/applications/useApplicationWrites';
 import { useApplications, useStateChanges } from '@/queries/applications';
 import { useCategories } from '@/queries/categories';
@@ -34,6 +35,9 @@ export function OverviewContainer({ staffName, now }: OverviewContainerProps) {
       onEdit={writes.onEdit}
       onDiscard={writes.onDiscard}
       notes={writes.notes}
+      renderDocuments={(applicationId) => (
+        <ApplicationDocumentsContainer applicationId={applicationId} />
+      )}
     />
   );
 }

@@ -119,6 +119,7 @@ export function AppShell({
         content. `px-8` made it 32px.
       */}
       <main
+        // eslint-disable-next-line no-restricted-syntax -- SIDEBAR_GUTTER is a JS value shared with the sidebar's position, so a class would duplicate it
         style={{ paddingInline: SIDEBAR_GUTTER }}
         className="bg-bg-canvas flex min-w-0 flex-1 flex-col gap-3 py-6"
       >

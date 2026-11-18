@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!--
+      Seed data: the numbers in DemoSeeder are the timeline of the demo week
+      (days ago, hours, owners, statuses), and naming each one would hide it.
+    -->
+    <suppress checks="MagicNumber" files="[\\/]demo[\\/]DemoSeeder\.java$"/>
+</suppressions>

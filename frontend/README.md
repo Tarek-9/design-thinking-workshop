@@ -94,6 +94,9 @@ than arguing. What they cannot check:
 - **English identifiers, localized strings.** A variable is never named
   `bewerbung`; the copy it renders comes from the active locale.
 
+The rules for magic numbers, shared values and comments, and how CI enforces
+them, are in [`../docs/CODE_STANDARDS.md`](../docs/CODE_STANDARDS.md).
+
 ## Component rules
 
 **A component in `components/ui/` does not know the domain.** It receives

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type SubmitEvent, useMemo } from 'react';
+import { type SubmitEvent, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import iconSpeak from '../../assets/icons/icon_speak.png';
@@ -13,6 +13,7 @@ import { useLocale } from '../../content/useLocale';
 import { ApplicationFields } from './ApplicationFields';
 import styles from './ApplicationForm.module.css';
 import { Confirmation } from './Confirmation';
+import { DocumentUpload } from './DocumentUpload';
 import { makeFieldProps, toErrorText } from './fieldProps';
 import { outcomeOf } from './routes';
 import { emptyFormValues, formSchema, type FormValues } from './schema';
@@ -20,13 +21,6 @@ import { useApplicationSubmit } from './useApplicationSubmit';
 import { useCategories } from './useCategories';
 import { useRouteAnalytics } from './useRouteAnalytics';
 
-/**
- * The applicant form, ported from Figma states 01–06 and 08 (DESIGN.md
- * sections 27–35 and 45): the initial route selector, the two direct-route
- * panels, the Vereinsarbeit fields, validation errors, the loading submit and
- * the confirmation view. State 07 (mobile 375px) is the same markup under the
- * responsive rules in ApplicationForm.module.css, not a separate branch.
- */
 export function ApplicationForm() {
   const { content } = useLocale();
   const {
@@ -54,20 +48,33 @@ export function ApplicationForm() {
   const outcome = route === '' ? null : outcomeOf(route);
 
   useRouteAnalytics(route);
-  const { onSubmit, confirmedEmail, isSubmitting, submitErrorCode } =
+  const { onSubmit, confirmed, isSubmitting, submitErrorCode } =
     useApplicationSubmit(
       setError,
       setValue,
       categoriesById,
       categoriesState.retry,
     );
+  const [documentsDone, setDocumentsDone] = useState(false);
 
   function handleFormSubmit(event: SubmitEvent<HTMLFormElement>) {
     void handleSubmit(onSubmit)(event);
   }
 
-  if (confirmedEmail) {
-    return <Confirmation content={content} email={confirmedEmail} />;
+  if (confirmed && !documentsDone) {
+    return (
+      <DocumentUpload
+        applicationId={confirmed.applicationId}
+        content={content}
+        onDone={() => {
+          setDocumentsDone(true);
+        }}
+      />
+    );
+  }
+
+  if (confirmed) {
+    return <Confirmation content={content} email={confirmed.email} />;
   }
 
   const fieldProps = makeFieldProps(register, errors, content);

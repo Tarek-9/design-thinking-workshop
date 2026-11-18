@@ -9,6 +9,7 @@ applicant form.
 - [`docs/ASSUMPTIONS.md`](./docs/ASSUMPTIONS.md) — every number and process step, each with an id and a confidence
 - [`docs/DISNEY.md`](./docs/DISNEY.md) — Dreamer / Realist / Critic pass, and the surviving scope
 - [`docs/adr/`](./docs/adr/) — decisions that are hard to reverse, one file each
+- [`docs/CODE_STANDARDS.md`](./docs/CODE_STANDARDS.md) — the code rules all three parts follow, and what CI enforces
 - [`frontend/`](./frontend/) — the applicant form: specification, API contract, React project
 - [`frontend/references/`](./frontend/references/) — screenshots of the applicant form, one per UI state
 - [`dashboard/`](./dashboard/) — the staff dashboard: API contract, conventions, React project
@@ -61,6 +62,12 @@ Wrap prose at 80 columns; leave tables and links on one line. Plain Markdown,
 relative links between documents, no emoji.
 
 ## Git
+
+The upstream `kamalshekho/design-thinking-workshop` is the original project and
+stays untouched: no commits, branches, or PRs from here go there. Work happens
+only on the fork `Tarek-9/design-thinking-workshop`. Fixes and features go to
+`origin/develop`. `main` on the fork is a sync branch for the upstream and is
+not used for our work.
 
 Commit subjects follow [Conventional Commits
 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): subject`,

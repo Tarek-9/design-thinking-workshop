@@ -55,6 +55,8 @@ type CategoriesTableProps = {
   emptyState: ReactNode;
 };
 
+const PERCENT = 100;
+
 /** The widest usage bar, so the column compares Categories against each other. */
 function maxUsage(usage: ReadonlyMap<string, number>): number {
   return Math.max(1, ...usage.values());
@@ -221,7 +223,10 @@ export function CategoriesTable({
                       className="bg-tertiary block h-1 w-20 overflow-hidden rounded-full"
                     >
                       <span
-                        style={{ width: `${String((count / scale) * 100)}%` }}
+                        // eslint-disable-next-line no-restricted-syntax -- the bar's width is a share of the largest count, known only at render
+                        style={{
+                          width: `${String((count / scale) * PERCENT)}%`,
+                        }}
                         className="bg-fuut-purple/60 block h-full rounded-full transition-[width] duration-200 ease-out"
                       />
                     </span>

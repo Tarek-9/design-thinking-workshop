@@ -20,6 +20,23 @@ import {
 
 import { cx } from '@/utils/cx';
 
+const CHART_TOP_MARGIN = 4;
+const AREA_SIDE_MARGIN = 2;
+const AREA_MARGIN = {
+  top: CHART_TOP_MARGIN,
+  right: AREA_SIDE_MARGIN,
+  bottom: 0,
+  left: AREA_SIDE_MARGIN,
+};
+const BAR_MARGIN = { top: CHART_TOP_MARGIN, right: 0, bottom: 0, left: 0 };
+const AREA_FILL_OPACITY = 0.05;
+const ACTIVE_DOT_RADIUS = 3.5;
+const CURSOR_STROKE_WIDTH = 1;
+const CURSOR_DASH_ARRAY = '3 3';
+const BAR_CORNER_RADIUS = 2;
+const BAR_HOVER_OPACITY = 0.1;
+const TOOLTIP_Z_INDEX = 50;
+
 export type SparklineType = 'area' | 'bar';
 
 type SparklinePoint = { index: number; value: number; label?: string };
@@ -45,7 +62,11 @@ function SparklineTooltipContent({
   return (
     <div className="border-sd-border bg-sd-popover text-sd-popover-foreground flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs shadow-md">
       {label && <span className="text-sd-muted-foreground">{label}</span>}
-      <span className="font-semibold tabular-nums" style={{ color }}>
+      <span
+        className="font-semibold tabular-nums"
+        // eslint-disable-next-line no-restricted-syntax -- the series colour arrives as a prop, so no class can name it
+        style={{ color }}
+      >
         {point.value}
       </span>
     </div>
@@ -116,53 +137,48 @@ export function Sparkline({
       >
         {flat ? (
           <div className="flex h-full w-full items-end">
-            <span
-              className="h-px w-full rounded-full"
-              style={{ backgroundColor: 'var(--color-border-secondary)' }}
-            />
+            <span className="bg-border-secondary h-px w-full rounded-full" />
           </div>
         ) : (
           <ResponsiveContainer>
             {type === 'area' ? (
-              <AreaChart
-                data={points}
-                margin={{ top: 4, right: 2, bottom: 0, left: 2 }}
-              >
+              <AreaChart data={points} margin={AREA_MARGIN}>
                 <Area
                   dataKey="value"
                   type="linear"
                   stroke={color}
                   strokeWidth={strokeWidth}
                   fill={color}
-                  fillOpacity={0.05}
+                  fillOpacity={AREA_FILL_OPACITY}
                   isAnimationActive={false}
-                  activeDot={{ r: 3.5, strokeWidth: 0, fill: color }}
+                  activeDot={{
+                    r: ACTIVE_DOT_RADIUS,
+                    strokeWidth: 0,
+                    fill: color,
+                  }}
                 />
                 <Tooltip
                   cursor={{
                     stroke: color,
-                    strokeWidth: 1,
-                    strokeDasharray: '3 3',
+                    strokeWidth: CURSOR_STROKE_WIDTH,
+                    strokeDasharray: CURSOR_DASH_ARRAY,
                   }}
                   content={<SparklineTooltipContent color={color} />}
-                  wrapperStyle={{ outline: 'none', zIndex: 50 }}
+                  wrapperStyle={{ outline: 'none', zIndex: TOOLTIP_Z_INDEX }}
                 />
               </AreaChart>
             ) : (
-              <BarChart
-                data={points}
-                margin={{ top: 4, right: 0, bottom: 0, left: 0 }}
-              >
+              <BarChart data={points} margin={BAR_MARGIN}>
                 <Bar
                   dataKey="value"
                   fill={color}
-                  radius={[2, 2, 0, 0]}
+                  radius={[BAR_CORNER_RADIUS, BAR_CORNER_RADIUS, 0, 0]}
                   isAnimationActive={false}
                 />
                 <Tooltip
-                  cursor={{ fill: color, opacity: 0.1 }}
+                  cursor={{ fill: color, opacity: BAR_HOVER_OPACITY }}
                   content={<SparklineTooltipContent color={color} />}
-                  wrapperStyle={{ outline: 'none', zIndex: 50 }}
+                  wrapperStyle={{ outline: 'none', zIndex: TOOLTIP_Z_INDEX }}
                 />
               </BarChart>
             )}

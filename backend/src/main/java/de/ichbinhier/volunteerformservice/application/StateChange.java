@@ -15,6 +15,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import de.ichbinhier.volunteerformservice.FieldLimits;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,7 +49,7 @@ public class StateChange {
     private Instant changedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "field", nullable = false, length = 32)
+    @Column(name = "field", nullable = false, length = FieldLimits.CODE_MAX)
     private StateChangeField field;
 
     /** {@code null} for a cleared Owner; never null for STATUS or DISCARDED. */
