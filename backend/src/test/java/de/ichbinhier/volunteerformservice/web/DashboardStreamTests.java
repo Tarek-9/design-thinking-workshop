@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcPrint;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -47,7 +49,7 @@ import de.ichbinhier.volunteerformservice.web.config.SignIns;
  * watch" does not happen. See `dashboard/API.md`, "The live stream".
  */
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @ActiveProfiles("test")
 class DashboardStreamTests {
 
@@ -116,7 +118,7 @@ class DashboardStreamTests {
                         .content(submission(UUID.randomUUID())))
                 .andExpect(status().isCreated());
 
-        assertThat(eventsOn(stream))
+        assertThat(awaitEvents(stream, 1))
                 .singleElement()
                 .satisfies(event -> {
                     assertThat(event.name()).isEqualTo("application.created");
@@ -138,7 +140,7 @@ class DashboardStreamTests {
                         .content(submission(submissionId)))
                 .andExpect(status().isCreated());
 
-        assertThat(eventsOn(stream)).hasSize(1);
+        assertThat(awaitEvents(stream, 1)).hasSize(1);
     }
 
     @Test
@@ -149,7 +151,7 @@ class DashboardStreamTests {
         patchApplication(onFile, "{\"status\":\"IN_REVIEW\"}");
         patchApplication(onFile, "{\"discarded\":true}");
 
-        List<StreamEvent> events = eventsOn(stream);
+        List<StreamEvent> events = awaitEvents(stream, 2);
         assertThat(events).extracting(StreamEvent::name)
                 .containsExactly("application.updated", "application.updated");
         assertThat(dataOf(events.get(0))).containsEntry("status", "IN_REVIEW");
@@ -173,7 +175,7 @@ class DashboardStreamTests {
                         .cookie(signIn))
                 .andExpect(status().isNoContent());
 
-        assertThat(eventsOn(stream))
+        assertThat(awaitEvents(stream, 1))
                 .singleElement()
                 .satisfies(event -> {
                     assertThat(event.name()).isEqualTo("application.deleted");
@@ -190,9 +192,11 @@ class DashboardStreamTests {
 
         patchApplication(onFile, "{\"status\":\"INTRO_BOOKED\"}");
 
-        assertThat(eventsOn(first)).hasSize(1);
-        assertThat(eventsOn(second)).hasSize(1);
-        assertThat(eventsOn(first).get(0).data()).isEqualTo(eventsOn(second).get(0).data());
+        List<StreamEvent> firstEvents = awaitEvents(first, 1);
+        List<StreamEvent> secondEvents = awaitEvents(second, 1);
+        assertThat(firstEvents).hasSize(1);
+        assertThat(secondEvents).hasSize(1);
+        assertThat(firstEvents.get(0).data()).isEqualTo(secondEvents.get(0).data());
     }
 
     @Test
@@ -203,7 +207,7 @@ class DashboardStreamTests {
         patchApplication(onFile, "{\"status\":\"IN_REVIEW\"}");
         patchApplication(onFile, "{\"status\":\"INTRO_BOOKED\"}");
 
-        List<Long> ids = eventsOn(stream).stream().map(StreamEvent::id).toList();
+        List<Long> ids = awaitEvents(stream, 2).stream().map(StreamEvent::id).toList();
         assertThat(ids).hasSize(2);
         assertThat(ids.get(1)).isGreaterThan(ids.get(0));
     }
@@ -259,6 +263,21 @@ class DashboardStreamTests {
             }
         }
 
+        return events;
+    }
+
+    /**
+     * MockMvc does not deterministically flush an async SSE response before the
+     * next read, so the event a write just caused may still be in flight. Re-read
+     * until {@code expectedCount} events are present or the deadline passes.
+     */
+    private static List<StreamEvent> awaitEvents(MvcResult stream, int expectedCount) throws Exception {
+        long deadline = System.nanoTime() + Duration.ofSeconds(2).toNanos();
+        List<StreamEvent> events = eventsOn(stream);
+        while (events.size() < expectedCount && System.nanoTime() < deadline) {
+            Thread.sleep(20);
+            events = eventsOn(stream);
+        }
         return events;
     }
 
