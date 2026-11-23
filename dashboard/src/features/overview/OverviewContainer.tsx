@@ -1,9 +1,3 @@
-/**
- * Übersicht's container. The same writes Anfragen's container makes — the
- * panel below renders the same list and the same drawer — plus the State
- * changes the three cards' sparklines are replayed from.
- */
-
 import { ApplicationDocumentsContainer } from '@/features/applications/ApplicationDocumentsContainer';
 import { useApplicationWrites } from '@/features/applications/useApplicationWrites';
 import { useApplications, useStateChanges } from '@/queries/applications';

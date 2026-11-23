@@ -1,13 +1,6 @@
 /*
- * Design tokens for the shadcn/ui-derived primitives in `src/components/ui/`
- * — `Card`, the `Select` behind Übersicht's filter pills, and `Sparkline` —
- * and for the screens built from them.
- *
- * Untitled UI already owns the bare semantic names (`bg-primary`,
- * `border-border` would collide with `text-primary` etc. via
- * `untitledui-theme.css`), so every token here is namespaced `sd-*` (shadcn)
- * instead of the shadcn defaults (`background`, `card`, `muted`...). Light
- * theme only, no `dark:` values. Only the shades actually used are defined.
+ * Namespaced sd-* so they never collide with the Untitled UI names.
+ * Light theme only, and only the shades in use are defined.
  */
 
 @theme {

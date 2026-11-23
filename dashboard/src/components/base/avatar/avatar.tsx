@@ -1,15 +1,4 @@
-/**
- * Clone path: `components/base/avatar/avatar.tsx`. Its base components are
- * imported directly instead of through the clone's `base-components/index.tsx`
- * barrel, and the `AvatarProfilePhoto` variant is not part of this copy.
- *
- * One behaviour was added: `alt=""` hides the initials too, not only the
- * image. Every avatar in this dashboard renders initials — the wire carries no
- * photo (`API.md`) — and each one sits beside the name it abbreviates, so
- * leaving the letters in the accessible name would have a screen reader read
- * "AB Ashton Blackwell". `alt=""` is how the caller already says the avatar is
- * decorative; it now means that whichever way the avatar renders.
- */
+/** alt="" hides the initials too: they sit beside the name, so a reader would repeat it. */
 
 import { User01 } from '@untitledui/icons';
 import { type FC, type ReactNode, useState } from 'react';
@@ -23,62 +12,20 @@ import { VerifiedTick } from './base-components/verified-tick';
 export interface AvatarProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
-  /**
-   * The class name for the main child of the avatar.
-   */
   contentClassName?: string;
   src?: string | null;
   alt?: string;
-  /**
-   * Display an inner contrast border around the avatar image.
-   */
   contrastBorder?: boolean;
-  /**
-   * Whether the avatar should be rounded.
-   * @default true
-   */
   rounded?: boolean;
-  /**
-   * Display an outer border around the avatar.
-   */
   border?: boolean;
-  /**
-   * Display a badge (i.e. company logo).
-   */
   badge?: ReactNode;
-  /**
-   * Display a status indicator.
-   */
   status?: 'online' | 'offline';
-  /**
-   * Display a verified tick icon.
-   *
-   * @default false
-   */
   verified?: boolean;
-  /**
-   * Display a count badge.
-   */
   count?: number;
-  /**
-   * The initials of the user to display if no image is available.
-   */
   initials?: string;
-  /**
-   * An icon to display if no image is available.
-   */
   placeholderIcon?: FC<{ className?: string }>;
-  /**
-   * A placeholder to display if no image is available.
-   */
   placeholder?: ReactNode;
 
-  /**
-   * Whether the avatar should show a focus ring when the parent group is in focus.
-   * For example, when the avatar is wrapped inside a link.
-   *
-   * @default false
-   */
   focusable?: boolean;
 }
 
@@ -213,7 +160,6 @@ export const Avatar = ({
       className={cx(
         'relative inline-flex shrink-0 rounded-[7px]',
         rounded && 'rounded-full',
-        // Focus styles
         focusable &&
           'group-focus-visible:outline-focus-ring outline-transparent group-focus-visible:outline-2 group-focus-visible:outline-offset-2',
         border && 'ring-secondary_alt ring-1',

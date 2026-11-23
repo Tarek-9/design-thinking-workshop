@@ -32,30 +32,8 @@ import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * A week of demo Applications, and the State changes that lead to each one.
- *
- * <p>Behind the {@code demo} profile on purpose. The Categories (`A7`) and the
- * Staff accounts (`A17`) are platform data — nothing works without them — while
- * these Applications are a presentation artifact, so a database only gets
- * applicant-shaped rows when somebody asks for them. `dashboard/API.md`,
- * "Deployment", limits the database to test data for the same reason the details
- * below are invented: the consent text names the association as the party that
- * stores an applicant's details, and on our own domain that is not who receives
- * them. Every address here sits at {@code example.org}, which
- * <a href="https://www.rfc-editor.org/rfc/rfc2606">RFC 2606</a> reserves and no
- * mailbox can ever exist under; the names and the German texts are ours. What is
- * <em>not</em> made obviously fake is how the set reads — a demo of triage has to
- * look like triage.
- *
- * <p>The rule that shapes the data is `dashboard/API.md`, "Which makes seeding
- * part of this contract": an Application written straight into {@code IN_REVIEW}
- * with no {@code STATUS} row claims it was submitted that way, and Übersicht's
- * sparklines go flat. So a seed declares a <em>timeline</em> — when it arrived
- * and what happened to it since — and the current Status, Owner and discarded
- * state are folded out of that timeline exactly as {@code PATCH} would apply it.
- * The state cannot disagree with the history because it is never written twice.
- */
+// Behind the demo profile, so applicant-shaped rows exist only on request.
+// Addresses sit at example.org (RFC 2606), so no real mailbox can be hit.
 @Component
 @Profile("demo")
 @Order(DemoSeeder.AFTER_THE_CATEGORIES_AND_THE_STAFF_ACCOUNTS)
@@ -63,30 +41,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DemoSeeder implements ApplicationRunner {
 
-    /**
-     * An Application needs a Category and most of these need an Owner, so this
-     * runs after {@code CategorySeeder} (1) and {@code StaffSeeder} (2).
-     */
+    // After CategorySeeder (1) and StaffSeeder (2): Applications need both.
     static final int AFTER_THE_CATEGORIES_AND_THE_STAFF_ACCOUNTS = 3;
 
-    /** The wording every seeded Applicant agreed to; the form is at the same one. */
     private static final String CONSENT_TEXT_VERSION = "2026-09";
 
-    /** Positions in the form's own Category order (`A7`), not Category ids. */
+    // Indexes into the form's Category order.
     private static final int SOCIAL_MEDIA = 0;
     private static final int EDITORIAL = 1;
     private static final int LEGAL = 2;
     private static final int SOMETHING_ELSE = 3;
 
-    /**
-     * Thirteen Applications across the four Categories, all six statuses,
-     * assigned and unassigned, six of them older than seven days (`A19`), two
-     * discarded (`A16`) and one discarded and restored. The trailing week is
-     * where the movement is: Applications arrive on most of the seven days,
-     * three leave {@code NEW} inside the window, an Owner is assigned five times
-     * and cleared once, and five Applications cross the seven-day line — so each
-     * of Übersicht's three cards has a real curve rather than a flat one.
-     */
+    // The trailing week must hold movement, or Übersicht's sparklines go flat.
     static final List<Seed> SEEDS = List.of(
             new Seed(
                     "Mara Weber",
@@ -141,8 +107,7 @@ public class DemoSeeder implements ApplicationRunner {
                             + " helfen.",
                     "Info-Runde in der nächsten Woche.",
                     ago(5, 10),
-                    // The Owner and the Status carry the same timestamp: one PATCH
-                    // set both, and `API.md` writes one row per changed field.
+                    // Owner and Status share a timestamp: one PATCH set both.
                     List.of(
                             owner(4, 9, 2),
                             status(4, 9, ApplicationStatus.IN_REVIEW),
@@ -192,8 +157,7 @@ public class DemoSeeder implements ApplicationRunner {
                     "Ich weiß noch nicht, wo ich helfen kann. Schreibt mir gern.",
                     "",
                     ago(8, 5),
-                    // Untouched since it arrived: no rows at all, which `API.md`
-                    // reads as NEW and unowned since `submittedAt`.
+                    // No rows: reads as NEW and unowned, since it was never touched.
                     List.of()),
             new Seed(
                     "Kerem Aydın",
@@ -247,12 +211,8 @@ public class DemoSeeder implements ApplicationRunner {
     private final StaffRepository staffMembers;
     private final EntityManager entityManager;
 
-    /**
-     * Skipped whole once there is any Application at all, so a restart mid-demo
-     * neither duplicates the week nor brings back a set somebody cleared on
-     * purpose. Unlike {@code StaffSeeder} this is all-or-nothing: half a week is
-     * worse than none, and there is nothing here a deployment needs.
-     */
+    // Skipped once any Application exists, so a restart neither duplicates the week
+    // nor revives a set that was cleared.
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
@@ -317,13 +277,8 @@ public class DemoSeeder implements ApplicationRunner {
         backdate(application.getId(), submittedAt);
     }
 
-    /**
-     * {@code submittedAt} is minted by {@code @CreationTimestamp} and its column
-     * is not updatable, so a demo week whose Applications arrived on different
-     * days cannot be written through JPA at all. This is the only statement in
-     * the platform that moves the column, and it is here rather than on
-     * {@code ApplicationRepository} so no production path can reach it.
-     */
+    // JPA cannot move submittedAt (@CreationTimestamp, not updatable). This native
+    // update is kept off ApplicationRepository so no production path can reach it.
     private void backdate(UUID id, Instant submittedAt) {
         entityManager
                 .createNativeQuery("update applications set submitted_at = :at where id = :id")
@@ -332,17 +287,12 @@ public class DemoSeeder implements ApplicationRunner {
                 .executeUpdate();
     }
 
-    /**
-     * The Staff member at a 1-based position, wrapped around however many
-     * accounts exist. A seed asks for "the third Staff member", not for a person:
-     * which five accounts a deployment has is {@code StaffSeeder}'s business, and
-     * a database holding fewer than five still gets a usable demo.
-     */
+    // Wraps around, so a database with fewer than five accounts still gets a demo.
     private static Staff staffAt(List<Staff> staff, String position) {
         return position == null ? null : staff.get((Integer.parseInt(position) - 1) % staff.size());
     }
 
-    /** Whole hours before start-up: {@code days} days and {@code hours} on top. */
+    // Hours before start-up.
     private static int ago(int days, int hours) {
         return days * 24 + hours;
     }
@@ -356,7 +306,6 @@ public class DemoSeeder implements ApplicationRunner {
                 ago(days, hours), StateChangeField.OWNER, Integer.toString(staffPosition));
     }
 
-    /** The move that hands an Application back to nobody: {@code to_value} is null. */
     private static Step ownerCleared(int days, int hours) {
         return new Step(ago(days, hours), StateChangeField.OWNER, null);
     }
@@ -366,12 +315,6 @@ public class DemoSeeder implements ApplicationRunner {
                 ago(days, hours), StateChangeField.DISCARDED, Boolean.toString(discarded));
     }
 
-    /**
-     * A demo Application: how long ago it arrived, and what happened to it since.
-     * {@code categoryIndex} is a position in the form's own Category order
-     * (`A7`), and the Status, Owner and discarded state are not fields here —
-     * they are folded out of {@code steps}.
-     */
     record Seed(
             String name,
             String email,
@@ -383,12 +326,8 @@ public class DemoSeeder implements ApplicationRunner {
             List<Step> steps) {
     }
 
-    /**
-     * One State change, oldest first, as a {@code PATCH} would have written it.
-     * {@code value} is typed by {@code field} exactly as {@code to_value} is: a
-     * status name, a 1-based Staff position or {@code null} for a cleared Owner,
-     * or {@code "true"}/{@code "false"}.
-     */
+    // value is typed by field, as in to_value: a status name, a 1-based Staff
+    // position, null for a cleared Owner, or "true" or "false".
     record Step(int hoursAgo, StateChangeField field, String value) {
     }
 

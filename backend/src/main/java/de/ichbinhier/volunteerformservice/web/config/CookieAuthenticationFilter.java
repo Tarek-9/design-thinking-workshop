@@ -15,14 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 
-/**
- * Turns the {@code ibh_session} cookie into an authenticated request, and slides
- * the Sign-in's twelve hours forward while it is at it (`A17`).
- *
- * <p>The Staff member is loaded per request from the token's id rather than kept
- * in {@link SignIns}, so a corrected name reaches {@code GET /me} without a new
- * sign-in and a deleted Staff member stops authenticating at once.
- */
+// The Staff member is loaded on every request, so a deleted member stops
+// authenticating at once.
 public class CookieAuthenticationFilter extends OncePerRequestFilter {
 
     private final StaffRepository staffRepo;
@@ -57,10 +51,7 @@ public class CookieAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * A sign-out would otherwise leave two {@code Set-Cookie} headers on one
-     * response — this filter's refreshed cookie and the controller's cleared one.
-     */
+    // A sign-out would otherwise send two Set-Cookie headers: refreshed and cleared.
     private static boolean endsTheSignIn(HttpServletRequest request) {
         return "DELETE".equals(request.getMethod())
                 && "/api/v1/staff/session".equals(request.getRequestURI());

@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/base/badges/badge-types.ts`, unchanged.
- */
-
 export type IconComponentType = React.FunctionComponent<{
   className?: string;
   strokeWidth?: string | number;

@@ -28,16 +28,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 
-/**
- * A real Sign-in: twelve hours of sliding inactivity and throttling by address
- * rather than account lockout (`A17`, `A20`). See `dashboard/API.md`, "Sign-in
- * and staff members".
- *
- * <p>The durations are shortened to a second here so that inactivity can
- * actually be waited out, and every test that provokes a failure uses its own
- * address — the throttle is one bean for the whole context, and sharing an
- * address between tests would make them depend on their order.
- */
+// Durations are shortened so inactivity can be waited out. Each test that fails
+// a sign-in uses its own address, as the throttle is one bean for the context.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -85,11 +77,7 @@ class SignInTests {
                 .andExpect(jsonPath("$.name").value("Ashton Blackwell"));
     }
 
-    /**
-     * Sliding inactivity is only sliding if the cookie moves with it — a
-     * `Max-Age` fixed at sign-in would expire on the hour whatever the Staff
-     * member did in between.
-     */
+    // A Max-Age fixed at sign-in would expire the cookie whatever the Staff member did.
     @Test
     void writesTheCookieAgainOnEveryAuthenticatedResponse() throws Exception {
         Cookie signIn = cookieFrom(signIn(EMAIL, PASSWORD, "203.0.113.2").andReturn());
@@ -154,11 +142,7 @@ class SignInTests {
                         .isNotNull());
     }
 
-    /**
-     * The throttle is read before the password is verified, so a throttled
-     * address is told nothing about whether it guessed right — and no bcrypt
-     * comparison is spent on it (`A20`).
-     */
+    // Checked before the password, so a throttled address learns nothing.
     @Test
     void answersAThrottledAddressBeforeCheckingItsPassword() throws Exception {
         String address = "203.0.113.6";
@@ -169,11 +153,8 @@ class SignInTests {
                 .andExpect(jsonPath("$.code").value("RATE_LIMITED"));
     }
 
-    /**
-     * There is deliberately no account lockout: five staff members share one
-     * account each and have no administrator to release them (`A17`), so a
-     * throttled address must not follow the account around.
-     */
+    // The throttle follows the address: with no administrator, a locked account
+    // could never be released.
     @Test
     void leavesTheAccountUsableFromAnotherAddress() throws Exception {
         exhaust("203.0.113.7");
@@ -195,12 +176,8 @@ class SignInTests {
         }
     }
 
-    /**
-     * Both nginx configs and the Vite proxy stand in front of the backend, so
-     * without {@code server.forward-headers-strategy} every request would carry
-     * the proxy's address and one person's typing mistakes would throttle all
-     * five staff members at once.
-     */
+    // Behind the proxies every request would carry the proxy's address without
+    // server.forward-headers-strategy, so one typo would throttle all staff at once.
     @Test
     void tellsCallersApartByTheirForwardedAddress() throws Exception {
         exhaustForwarded("203.0.113.10");

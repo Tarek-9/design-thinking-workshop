@@ -205,9 +205,7 @@
   height: var(--icon-size-sm);
 }
 
-/* The full row loses its rhythm before the form's 640px mobile breakpoint.
-   Collapse navigation at the content-driven 900px threshold while preserving
-   the tablet form layout and all destinations in the drawer. */
+/* The full row gets cramped before the 640px breakpoint, so the menu collapses at 900px. */
 @media (width <= 900px) {
   .right {
     position: absolute;

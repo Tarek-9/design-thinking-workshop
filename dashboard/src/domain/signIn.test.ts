@@ -9,13 +9,7 @@ const staffMember: StaffMember = {
   email: 'ashton.blackwell@ichbinhier.online',
 };
 
-/**
- * The one transition a `401` causes. It is a function rather than three lines
- * inside `markSignInExpired` because what it refuses to do is the point: a
- * `401` may not invent a Sign-in, and it may not re-decide one that is already
- * gone — which is what keeps the burst of `401`s a sign-out leaves behind from
- * putting the cover up on the way out (`queries/session.ts`).
- */
+/** A 401 must neither invent a Sign-in nor re-decide one that is gone. */
 describe('expireSignIn', () => {
   it('expires an active Sign-in, keeping the Staff member', () => {
     expect(expireSignIn(activeSignIn(staffMember))).toEqual({

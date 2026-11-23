@@ -1,13 +1,6 @@
 import type { FormValues } from './schema';
 
-/**
- * Every error the form can show, as a machine code. Codes are produced by the
- * zod schema and by the backend (see API.md); German text is looked up once, in
- * ../../content/de.ts.
- *
- * Adding a code here without adding its text there is a type error — which is
- * the point.
- */
+/** German text lives only in content/de.ts, so a code without its text is a type error. */
 export const FIELD_ERROR_CODES = [
   'ROUTE_REQUIRED',
   'CATEGORY_REQUIRED',
@@ -30,7 +23,6 @@ export const SUBMIT_ERROR_CODES = ['RATE_LIMITED', 'INTERNAL_ERROR'] as const;
 
 export type SubmitErrorCode = (typeof SUBMIT_ERROR_CODES)[number];
 
-/** Refusals of the document step, all reported under `files` (`API.md`). */
 export const DOCUMENT_ERROR_CODES = [
   'DOCUMENT_REQUIRED',
   'DOCUMENT_TYPE_UNSUPPORTED',
@@ -42,12 +34,7 @@ export type DocumentErrorCode = (typeof DOCUMENT_ERROR_CODES)[number];
 
 export type ErrorCode = FieldErrorCode | SubmitErrorCode | DocumentErrorCode;
 
-/**
- * Which form field a server-sent error belongs under. The backend names fields
- * as they appear in the request body, and `categoryId` maps onto the form's
- * `route` field because the form asks one question where the API takes one
- * value.
- */
+/** categoryId maps to route: the form asks one question where the API takes one value. */
 const SERVER_FIELD_TO_FORM_FIELD: Record<string, keyof FormValues> = {
   categoryId: 'route',
   name: 'name',

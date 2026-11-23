@@ -8,23 +8,16 @@ import { uploadDocuments } from './api';
 import styles from './ApplicationForm.module.css';
 import { toErrorText } from './fieldProps';
 
-/**
- * The kinds the backend accepts (`API.md`). The picker only narrows what is
- * offered; the backend checks the bytes and has the last word.
- */
+/** The picker only narrows the choice: the backend checks the bytes and has the last word. */
 const ACCEPTED_KINDS = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
 
 interface DocumentUploadProps {
   applicationId: string;
   content: Content;
-  /** Leaves the step, after an upload or when the applicant skips it. */
   onDone: () => void;
 }
 
-/**
- * Optional step after submit: attach up to three files or continue. The
- * Application already exists, so failure loses nothing the applicant entered.
- */
+/** The application already exists, so a failed upload loses nothing the applicant entered. */
 export function DocumentUpload({
   applicationId,
   content,

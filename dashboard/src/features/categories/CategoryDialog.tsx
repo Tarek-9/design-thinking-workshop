@@ -1,18 +1,4 @@
-/**
- * Add and edit one Category, in a modal over Kategorien.
- *
- * A modal rather than a second screen or an inline row editor: the form has
- * three fields, and the list behind it is the context a Staff member needs
- * while typing — a Category is defined against the ones already there
- * (`A12`). React Aria's `Modal` owns the focus trap, the Escape key and the
- * `aria-modal` semantics; the styling is this application's, assembled from
- * `base/` primitives the way `README.md` describes.
- *
- * The preview under the fields is the Applicant's side of the same data: what
- * the form will render once this is saved. It exists because the person
- * editing never sees the form, so nothing else in the dashboard shows the
- * consequence of the wording they are choosing.
- */
+// The preview shows the Applicant's form, which the person editing never sees.
 
 import { Tag01, XClose } from '@untitledui/icons';
 import { useId, useState } from 'react';
@@ -35,11 +21,8 @@ import {
 } from '@/domain/category';
 import { cx } from '@/utils/cx';
 
-/** Everything a Category carries except its id, which the screen assigns. */
 type CategoryDialogProps = {
-  /** The Category being edited, or `null` while adding a new one. */
   category: Category | null;
-  /** The full list, so the name can be checked against the others. */
   categories: readonly Category[];
   onSubmit: (draft: CategoryDraft) => void;
   onClose: () => void;
@@ -48,7 +31,6 @@ type CategoryDialogProps = {
 const fieldClassName =
   'border-primary bg-primary text-primary placeholder:text-quaternary w-full rounded-lg border px-3 py-2.5 text-sm leading-relaxed transition-colors duration-150 outline-none focus:border-fuut-purple focus:ring-2 focus:ring-fuut-purple/10';
 
-/** The description field keeps three rows: enough to see a sentence. */
 const DESCRIPTION_ROWS = 3;
 
 export function CategoryDialog({
@@ -61,11 +43,7 @@ export function CategoryDialog({
   const [name, setName] = useState(category?.name ?? '');
   const [description, setDescription] = useState(category?.description ?? '');
   const [active, setActive] = useState(category?.active ?? true);
-  /**
-   * Validation runs on submit, not on every keystroke: a name is invalid for
-   * most of the time it is being typed, and flagging that as it happens is
-   * noise rather than help.
-   */
+  // Validated on submit: a name is incomplete for most of the time it is typed.
   const [error, setError] = useState<string | null>(null);
 
   const descriptionId = useId();
@@ -131,8 +109,7 @@ export function CategoryDialog({
                 </p>
               </div>
 
-              {/* Escape and a click outside close the dialog too; this makes
-                  the way out visible rather than only known. */}
+              {/* Escape and outside clicks already close it; this makes the exit visible. */}
               <Button
                 size="sm"
                 color="tertiary"

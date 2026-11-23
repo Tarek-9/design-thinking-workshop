@@ -15,7 +15,6 @@ import { DiscardedApplicationsScreen } from './DiscardedApplicationsScreen';
 
 const NOW = new Date('2026-09-05T12:00:00.000Z');
 
-/** The first two of the mock set, as `App` hands them to this screen. */
 function discardedApplications(): Application[] {
   const applications = createMockApplications(NOW).slice(0, 2);
 

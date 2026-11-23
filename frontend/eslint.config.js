@@ -41,7 +41,6 @@ export default tseslint.config(
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
 
-      // A literal number is a named constant (see docs/CODE_STANDARDS.md).
       '@typescript-eslint/no-magic-numbers': [
         'error',
         {
@@ -53,13 +52,7 @@ export default tseslint.config(
         },
       ],
 
-      // `no-magic-numbers` misses a number written directly as a JSX prop
-      // value (`offset={4}`), which the parser reads as a prop, not a literal
-      // expression. This selector closes that gap.
-      //
-      // Design tokens live in CSS. An inline style bypasses the token layer
-      // and cannot be linted for literal values (see README.md). The
-      // exceptions are the same lists as for `no-magic-numbers` above.
+      // no-magic-numbers misses a number in a JSX prop value (`offset={4}`).
       'no-restricted-syntax': [
         'error',
         {
@@ -83,11 +76,7 @@ export default tseslint.config(
     },
   },
 
-  /**
-   * The UI layer must not know the domain. It receives finished strings as
-   * props, which is what keeps it reusable by the English staff dashboard and
-   * what matches the Figma component boundary (DESIGN.md section 45).
-   */
+  /** Finished strings come in as props, so the UI layer can be reused by the staff dashboard. */
   {
     files: ['src/components/**/*.{ts,tsx}'],
     rules: {
@@ -106,9 +95,7 @@ export default tseslint.config(
     },
   },
 
-  /** Tests may assert on internals and use non-null assertions. Test data and
-     MSW handlers spell out literal values on purpose, so a reader sees the
-     status or length the test expects. */
+  /** Tests and mocks spell out literal values on purpose, so the expected value is visible. */
   {
     files: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/mocks/**'],
     rules: {
@@ -118,7 +105,7 @@ export default tseslint.config(
     },
   },
 
-  /* Storybook metadata is the documented exception to named exports. */
+  /* Storybook metadata is the allowed exception to named exports. */
   {
     files: ['src/**/*.stories.{ts,tsx}'],
     rules: {

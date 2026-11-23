@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import de.ichbinhier.volunteerformservice.category.CategoryRepository;
 
-/** A defect still leaves as a code the dashboard can word, not as an empty 500. */
+// A defect still answers with a code the dashboard can word.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

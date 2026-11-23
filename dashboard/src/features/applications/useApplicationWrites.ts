@@ -1,16 +1,3 @@
-/**
- * The three writes both Application screens make — an edit, a discard, and the
- * internal-notes draft behind the drawer — wired once.
- *
- * Anfragen and Übersicht's "Offene Anfragen" panel render the same list and
- * the same drawer, so their containers would otherwise hold this block
- * verbatim, and the second copy is how the debounce and the draft's clearing
- * rule would drift apart.
- *
- * It is a hook rather than a component: what a screen takes is intent
- * callbacks (ADR-0006), and this is where an intent becomes a request.
- */
-
 import { useCallback, useMemo } from 'react';
 
 import type { ApplicationEdit } from '@/domain/application';
@@ -36,11 +23,7 @@ export function useApplicationWrites(now: Date): ApplicationWrites {
     [edit],
   );
 
-  /**
-   * The optimistic `discardedAt` is stamped from the reference date rather
-   * than from the clock, so a test that injects one sees the date it injected.
-   * The server stamps its own and the response carries it back (`API.md`).
-   */
+  // Stamped from the reference date, so a test sees the date it injected.
   const onDiscard = useCallback(
     (ids: ReadonlySet<string>) => {
       setDiscarded({ ids, discardedAt: now.toISOString() });
@@ -48,11 +31,7 @@ export function useApplicationWrites(now: Date): ApplicationWrites {
     [setDiscarded, now],
   );
 
-  /**
-   * The note waits for its request, unlike the two above: the draft is cleared
-   * on success and kept on failure, and that is a question only the settled
-   * request answers.
-   */
+  // The note waits for its request: the draft is kept on failure.
   const saveNotes = useCallback(
     (id: string, internalNotes: string) =>
       editAndWait({ id, change: { internalNotes } }),

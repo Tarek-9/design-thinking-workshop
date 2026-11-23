@@ -1,18 +1,7 @@
-/**
- * The underline tab strip over a list, each tab carrying the number of rows
- * behind it. Adapted from the clone's `application/tabs/tabs.tsx`.
- *
- * Generic over the set of views, because Anfragen's named views
- * (`ApplicationView`) and Kategorien's (`CategoryView`) are different sets
- * with the same behaviour — the two screens had a tab strip each, identical
- * down to the class strings, and a colour or spacing change had to be made
- * twice.
- */
+/** One tab strip for both list screens, so a style change is made once. */
 
 type TabStripProps<TView extends string> = {
-  /** Names the strip for a screen reader; the list the tabs filter. */
   ariaLabel: string;
-  /** The views, in the order they are shown. */
   views: readonly TView[];
   labels: Record<TView, string>;
   counts: Record<TView, number>;

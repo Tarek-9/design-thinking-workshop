@@ -1,12 +1,4 @@
-/**
- * What a table card shows in place of its rows: an icon in a tinted square,
- * one line naming the state, one line saying what to do about it, and — where
- * the screen has one — the action that fills the list.
- *
- * Kategorien and Aussortiert each carried this markup inline, once for the
- * empty list and once for "nothing matches the search", which is why both
- * screens pass the wording in rather than choosing it here.
- */
+/** Kategorien and Aussortiert pass their own wording in, so it is not chosen here. */
 
 import type { FC, ReactNode } from 'react';
 

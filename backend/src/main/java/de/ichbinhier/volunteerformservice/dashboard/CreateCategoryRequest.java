@@ -20,7 +20,6 @@ public class CreateCategoryRequest {
 
     private Boolean active;
 
-    /** A Category name is 1–60 characters after trimming, as the contract says. */
     @NotBlank(message = "CATEGORY_NAME_REQUIRED")
     @Size(max = FieldLimits.CATEGORY_NAME_MAX, message = "CATEGORY_NAME_TOO_LONG")
     public String getName() {

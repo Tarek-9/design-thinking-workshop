@@ -1,10 +1,4 @@
-/**
- * Which Applications a screen shows: the named view, the search term, the
- * Category and Status selection, and — arriving from Übersicht — an Owner and
- * "open only". The table renders the rows it is handed and filters nothing
- * itself, so this stays a pure function and the behaviour is tested without a
- * table in jsdom.
- */
+// Pure, so the rules are tested without rendering a table.
 
 import type {
   Application,
@@ -20,10 +14,7 @@ import {
 } from '@/domain/application';
 import { daysSince } from '@/utils/dates';
 
-/**
- * An owner id, the `'unassigned'` sentinel (matches an Application with no
- * owner), or `null` (matches every Application).
- */
+// 'unassigned' matches Applications without an owner; null matches all.
 export type OwnerFilter = string | null;
 
 export type ApplicationFilters = {
@@ -31,18 +22,9 @@ export type ApplicationFilters = {
   search: string;
   categoryId: string | null;
   status: ApplicationStatus | null;
-  /**
-   * Owner equality filter. Optional because Anfragen's own toolbar does not
-   * expose it — it only travels in from Übersicht's "Offene Anfragen" panel,
-   * which does.
-   */
+  // Optional: set by the Übersicht panel only.
   ownerId?: OwnerFilter;
-  /**
-   * True when arriving from Übersicht's "Offene Anfragen" panel: excludes
-   * `COMPLETED_APPLICATION_STATUSES` independently of `view` or `status`, per
-   * `A13`. Optional so existing `view`/`status` filtering is unaffected when
-   * absent.
-   */
+  // Set only by the Übersicht panel; applies on top of view and status.
   excludeCompleted?: boolean;
 };
 
@@ -70,7 +52,7 @@ function matchesView(
   }
 }
 
-/** Exported so Übersicht's "Offene Anfragen" panel matches Anfragen exactly on what counts as a hit. */
+// Exported so the Übersicht panel counts search hits exactly like Anfragen.
 export function matchesSearch(
   application: Application,
   search: string,
@@ -85,7 +67,6 @@ export function matchesSearch(
   );
 }
 
-/** Exported for the same reason as `matchesSearch`. */
 export function matchesOwner(
   application: Application,
   ownerId: OwnerFilter | undefined,
@@ -99,12 +80,7 @@ export function matchesOwner(
   return application.ownerId === ownerId;
 }
 
-/**
- * Reads the `view`/`status` query carried on an `#applications?...` hash, so
- * Übersicht's metric cards can deep-link into a pre-filtered Anfragen list.
- * Unknown or absent values are dropped rather than defaulted, so the caller's
- * own `EMPTY_FILTERS` spread still wins.
- */
+// Unknown values are dropped, so the EMPTY_FILTERS spread supplies the default.
 export function parseFiltersFromHash(
   hash: string,
 ): Partial<ApplicationFilters> {
@@ -148,11 +124,7 @@ export function parseFiltersFromHash(
   return filters;
 }
 
-/**
- * The inverse of `parseFiltersFromHash`: builds the `#applications?...` link
- * Übersicht's "Offene Anfragen" panel uses for "Alle offenen Anfragen
- * ansehen", so the two stay in sync without duplicating the query shape.
- */
+// Inverse of parseFiltersFromHash, so the query shape lives in one place.
 export function buildApplicationsHref(
   filters: Partial<ApplicationFilters>,
 ): string {
@@ -178,10 +150,8 @@ export function buildApplicationsHref(
   return `#applications?${params.toString()}`;
 }
 
-/**
- * Anfragen's own list. Discarded Applications are not in it and not in the
- * view counts either (`A16`) — the fourth screen is the only place they show.
- */
+// Discarded Applications are hidden here and from the view counts; only the
+// discarded screen shows them.
 export function filterApplications(
   applications: readonly Application[],
   filters: ApplicationFilters,

@@ -1,17 +1,4 @@
-/**
- * Everything the dashboard does to an Application: the list, the state history
- * behind Übersicht's sparklines, the one `PATCH` a Staff member's edits travel
- * as, and the permanent erase.
- *
- * Both reads are whole-list reads: there is no server-side search, filter,
- * sort or pagination, and the dashboard computes every view from the array it
- * holds (`API.md`, "Applications" and "State changes").
- *
- * `toApplication` is exported because the live stream needs it. `API.md`
- * promises an event's `data` is *exactly* what the list returns, and the
- * backend keeps that promise with one mapping of its own — so decoding an
- * event through a second mapping here is how the two would drift.
- */
+/** Whole-list reads: the server does no filtering, sorting or paging. */
 
 import type { Application, ApplicationPatch } from '@/domain/application';
 import type { StateChange } from '@/domain/stateChange';
@@ -19,16 +6,7 @@ import { STATE_CHANGE_WINDOW_DAYS } from '@/domain/stateChange';
 
 import { request, requestNoContent } from './transport';
 
-/**
- * The wire shape. Field for field the domain type, because issue #27 moved
- * the dashboard's own names onto the wire's rather than the other way round —
- * the mapping below is therefore a projection, not a translation, and its job
- * is to keep a field the backend adds later from reaching a screen unnoticed.
- *
- * The two enums arrive as the strings `API.md` lists and are taken at their
- * word: a value outside them is a contract breach, and rejecting the whole
- * list over one unknown status would replace a wrong badge with no dashboard.
- */
+/** Enums are not validated: one unknown status must not blank the whole list. */
 export type ApplicationWire = {
   id: string;
   categoryId: string;
@@ -94,16 +72,7 @@ export async function fetchStateChanges(
   }));
 }
 
-/**
- * The one write a Staff member makes on an Application (`API.md`,
- * `PATCH /api/v1/staff/applications/{id}`). Any subset of the four fields; the
- * response is the complete Application, so the caller never has to infer what
- * happened.
- *
- * The body is passed through as it was built rather than normalised here: an
- * absent `ownerId` and an explicit `null` mean different things on the wire,
- * and a mapping that filled either in would decide for the drawer.
- */
+/** An absent `ownerId` and an explicit `null` differ, so the body goes out as built. */
 export async function patchApplication(
   id: string,
   patch: ApplicationPatch,
@@ -117,12 +86,7 @@ export async function patchApplication(
   );
 }
 
-/**
- * Erases the row, and its State changes with it (`API.md`). `204`, so there is
- * nothing to map; `400 NOT_DISCARDED` when the Application has not been
- * discarded first, which the fourth screen makes unreachable and the backend
- * refuses anyway.
- */
+/** Only a discarded Application can be erased: the backend answers `400 NOT_DISCARDED` otherwise. */
 export async function eraseApplication(id: string): Promise<void> {
   await requestNoContent(
     'DELETE',

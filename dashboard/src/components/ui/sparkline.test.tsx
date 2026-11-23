@@ -1,10 +1,4 @@
-/**
- * The one thing about the sparkline a unit test can settle: whether a week is
- * charted at all. Recharts needs a measured `ResponsiveContainer`, which jsdom
- * cannot give it, so the curve itself is verified in a browser (issue #39) and
- * the shape of its input by `applicationsAsOf`. What is left here is the
- * switch a backend with no history turns on.
- */
+/** jsdom cannot measure the chart, so only the flat-week switch is tested here. */
 
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -13,11 +7,7 @@ import { Sparkline } from './sparkline';
 
 const LABELS = ['Mi', 'Do', 'Fr', 'Sa', 'So', 'Mo', 'Di'];
 
-/**
- * Queried by attribute rather than through a role: the chart is decoration
- * next to a number a Staff member can already read, so it is `aria-hidden`
- * and no accessible query reaches it.
- */
+/** The chart is aria-hidden decoration, so it is found by attribute. */
 function renderSparkline(data: number[]): HTMLElement {
   const { container } = render(
     <Sparkline
@@ -40,9 +30,7 @@ describe('Sparkline', () => {
   it('draws one baseline instead of a chart when the whole week is zero', () => {
     const chart = renderSparkline([0, 0, 0, 0, 0, 0, 0]);
 
-    // A bar chart draws nothing at all for zero-height bars and an area chart
-    // draws its line on the bottom edge in the card's own colour, so the two
-    // types disagree about the same honest answer (issue #53).
+    // Bar and area charts disagree on a zero week, so the switch is pinned here.
     expect(chart).toHaveAttribute('data-flat', 'true');
     expect(chart.querySelector('.recharts-responsive-container')).toBeNull();
   });

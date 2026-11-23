@@ -21,21 +21,7 @@ import { useBreakpoint } from '@/hooks/use-breakpoint';
 import { cx } from '@/utils/cx';
 import { initialsOf } from '@/utils/initials';
 
-/**
- * Copied from the Untitled UI clone
- * (`components/application/app-navigation/base-components/nav-account-card.tsx`),
- * with the account switcher removed: the clone's card lets a person hold
- * several accounts and add another, and this dashboard has one Staff member
- * signed in at a time.
- *
- * The menu is a React Aria `MenuTrigger` rather than the clone's `Dialog` plus
- * a hand-written arrow-key handler — it is the same library, and it carries
- * the keyboard behaviour the hand-written version reimplements.
- *
- * Its `Abmelden` item calls `onSignOut`, which ends the session and returns
- * the application to `LoginScreen` (`A16`). Profil ansehen and Einstellungen
- * have no screen behind them yet and still do nothing.
- */
+/** Profil and Einstellungen have no screen yet, so they do nothing. */
 
 const menuItems: {
   id: string;
@@ -55,9 +41,7 @@ export const NavAccountCard = ({
 }: {
   account: StaffMember;
   avatarRounded?: boolean;
-  /** Whether the desktop sidebar shows only the avatar. */
   isCollapsed?: boolean;
-  /** Called when the Staff member picks Abmelden. */
   onSignOut?: () => void;
 }) => {
   const isDesktop = useBreakpoint('lg');

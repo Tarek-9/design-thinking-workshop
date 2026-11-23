@@ -15,12 +15,6 @@ interface RoutePanelProps {
   actionHref: string;
 }
 
-/**
- * Domain-free direct-route outcome panel matching the Figma Route Panel.
- *
- * Callers provide the final copy and destination; the component only owns the
- * visual variant, matching exported icon and CTA presentation.
- */
 export function RoutePanel({
   variant,
   title,

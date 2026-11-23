@@ -1,15 +1,4 @@
-/**
- * Test fixtures, and nothing else (`README.md`, "How `src/` is laid out").
- *
- * These were the dashboard's data until the screens read the backend (issue
- * #37); what is left of them is what a test renders a screen with. They are
- * shaped exactly like the wire, so a fixture cannot pass a test that the real
- * response would fail.
- *
- * Volumes are deliberately small. The association receives Applications in
- * dozens, not thousands — the roughly thousand emails the client described
- * (`C2`) are the Backlog, which the dashboard does not touch.
- */
+/** Test fixtures, shaped like the wire so they cannot pass a test the real response would fail. */
 
 import type { Application, Category, Owner } from '@/domain/application';
 import type { StaffMember } from '@/domain/staffMember';
@@ -22,11 +11,7 @@ export const mockStaffMember: StaffMember = {
   email: 'ashton.blackwell@ichbinhier.online',
 };
 
-/**
- * The four Categories `A7` records, in the order the form offers them. The
- * descriptions are ours, not the association's — `A15` says why they exist and
- * what they are for.
- */
+/** Descriptions are invented fixtures. Order matches the form. */
 export const mockCategories: Category[] = [
   {
     id: 'social-media',
@@ -64,7 +49,6 @@ type Seed = Omit<
   Application,
   'id' | 'submittedAt' | 'consentAt' | 'consentTextVersion' | 'discardedAt'
 > & {
-  /** Whole days before the reference date the Application arrived. */
   daysAgo: number;
 };
 
@@ -156,15 +140,12 @@ const seeds: Seed[] = [
     status: 'DECLINED',
     ownerId: 'staff-1',
     about: 'Ich hätte Interesse an einer bezahlten Stelle.',
-    internalNotes: 'Kein Ehrenamt gesucht — abgelehnt und weiterverwiesen.',
+    internalNotes: 'Kein Ehrenamt gesucht: abgelehnt und weiterverwiesen.',
     daysAgo: 21,
   },
 ];
 
-/**
- * Builds the mock set relative to a reference date, so the stale view has
- * something to show whenever the prototype is opened.
- */
+/** Dates are relative to the reference date, so the fixtures stay plausible. */
 export function createMockApplications(now: Date): Application[] {
   return seeds.map(({ daysAgo, ...seed }, index) => {
     const submittedAt = new Date(
@@ -175,8 +156,7 @@ export function createMockApplications(now: Date): Application[] {
       ...seed,
       id: `application-${String(index + 1)}`,
       submittedAt,
-      // Every seed is in the working list; discarding happens in the session
-      // (`A16`), so nothing here is stamped as discarded.
+      // Seeds start in the working list: discarding happens in the session.
       discardedAt: null,
       consentAt: submittedAt,
       consentTextVersion: '2026-09',

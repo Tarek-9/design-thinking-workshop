@@ -4,11 +4,6 @@ import { describe, expect, it } from 'vitest';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { Field } from './Field';
 
-/**
- * Reference test for a UI component, and the proof that the a11y setup runs.
- * A ported control is expected to be covered like this: what the applicant
- * perceives, plus an axe pass.
- */
 describe('Field', () => {
   it('links label, hint and error to the control', () => {
     render(

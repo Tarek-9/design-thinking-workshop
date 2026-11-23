@@ -20,10 +20,6 @@ import de.ichbinhier.volunteerformservice.application.WeeklyTime;
 
 import tools.jackson.databind.exc.InvalidFormatException;
 
-/**
- * Every failure leaves here as {@code application/problem+json} carrying a
- * {@code code}: no empty body, no bare status, no German.
- */
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
@@ -52,7 +48,7 @@ public class ApiExceptionHandler {
         return validationFailed(List.of(new ApiFieldError(exception.getField(), exception.getCode())));
     }
 
-    /** Requests above Spring's multipart ceiling never reach a controller, so the one size code is answered here. */
+    // Oversized requests never reach a controller, so the handler answers here.
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     ResponseEntity<ProblemDetail> onOversizedUpload(MaxUploadSizeExceededException exception) {
         return validationFailed(List.of(new ApiFieldError("files", "DOCUMENT_TOO_LARGE")));
@@ -65,10 +61,7 @@ public class ApiExceptionHandler {
                 .body(ApiProblem.of(exception.getStatus(), exception.getCode()));
     }
 
-    /**
-     * An id that is not a UUID names no Application and no Category, so it reads
-     * as {@code NOT_FOUND}; a query parameter of the wrong type is a bad request.
-     */
+    // A malformed path id names nothing, so it reads as NOT_FOUND like a missing one.
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<ProblemDetail> onUnusableParameter(MethodArgumentTypeMismatchException exception) {
         boolean inPath = exception.getParameter().hasParameterAnnotation(PathVariable.class);
@@ -78,11 +71,7 @@ public class ApiExceptionHandler {
         return validationFailed(List.of(new ApiFieldError(exception.getName(), "VALIDATION_FAILED")));
     }
 
-    /**
-     * The last resort. Spring's own refusals — an unknown route, a wrong method,
-     * an unsupported media type — keep their status and get the code that goes
-     * with it; anything else is a defect and reads as {@code INTERNAL_ERROR}.
-     */
+    // Spring's own refusals keep their status; only real defects become 500s.
     @ExceptionHandler(Exception.class)
     ResponseEntity<ProblemDetail> onUnexpectedFailure(Exception exception) {
         if (exception instanceof ErrorResponse known) {

@@ -10,11 +10,11 @@ and wire formats are English; every German string a staff member reads lives in
 `src/content/de.ts` and is not sent by the backend
 ([ADR-0003](../docs/adr/0003-german-dashboard-english-documentation.md)). The
 one exception is Category data, which staff members maintain and applicants
-read — see [Categories](#categories).
+read: see [Categories](#categories).
 
 Status: **agreed and implemented**, apart from the two blocks marked as such
 below. The backend serves every endpoint here, the dashboard reads all of them
-(issue #37) and it now calls every write too (issue #38) — the `PATCH`, the
+(issue #37) and it now calls every write too (issue #38): the `PATCH`, the
 `POST`, the `DELETE`s and the order `PUT`.
 Where reality had to differ from this document, the document was amended in
 the same change rather than left to drift. The decisions are collected
@@ -30,7 +30,6 @@ the same change rather than left to drift. The decisions are collected
 - [Documents](#documents)
 - [State changes](#state-changes)
 - [Categories](#categories)
-- [Route selections](#route-selections)
 - [The live stream](#the-live-stream)
 - [Errors](#errors)
 - [Deployment](#deployment)
@@ -44,9 +43,8 @@ The dashboard is the staff members' side of the platform: three screens today
 (Übersicht, Anfragen, Kategorien) and a fourth for discarded Applications
 (`A16`). It reads every Application, edits four fields on them, reads their
 [state history](#state-changes) so that Übersicht's three metric cards carry a
-real seven-day trend, maintains the Category list (`A12`), reads the
-route-selection counters, and receives changes made elsewhere over a live
-stream (`A18`).
+real seven-day trend, maintains the Category list (`A12`), and receives changes
+made elsewhere over a live stream (`A18`).
 
 Two rules shape everything below.
 
@@ -60,7 +58,7 @@ public endpoints keep the paths they have, unchanged.
 filtering, sorting or pagination. `GET /api/v1/staff/applications` returns
 every Application, and the dashboard computes its views, its metric cards and
 its seven-day trends from that array. The association receives Applications in
-dozens, not thousands — the roughly thousand emails the client described (`C2`)
+dozens, not thousands. The roughly thousand emails the client described (`C2`)
 are the Backlog (`A3`), which the dashboard does not touch. This is a deliberate
 trade: it keeps definitions such as "open" (`A13`), "stale" (`A19`) and
 "unassigned" (`A14`) in one place instead of implementing them a second time in
@@ -68,7 +66,7 @@ Java, where they would drift.
 
 The same rule decides the shape of [state changes](#state-changes): the backend
 hands over the raw changes and the dashboard replays them, rather than the
-backend computing "how many were new last Tuesday" — that question is those
+backend computing "how many were new last Tuesday"; that question is those
 same three definitions, asked about a past date.
 
 Both parts sit behind one reverse proxy on one host, so requests are
@@ -80,19 +78,18 @@ headers; the Sign-in cookie makes them actively harmful.
 The backend already has `Category` and `Application` entities and the form's
 three endpoints. This is the delta.
 
-| Area                        | Today                                      | Needed                                                                                                         |
-| --------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `Application.status`        | absent                                     | new column, enum, defaults to `NEW` on submission (`A9`)                                                       |
-| `Application.owner`         | absent                                     | nullable reference to a staff member (`A14`)                                                                   |
-| `Application.internalNotes` | absent                                     | nullable text, max 4000                                                                                        |
-| `Application.discardedAt`   | absent                                     | nullable timestamp, server-stamped (`A16`)                                                                     |
-| State changes               | absent                                     | new table, one row per changed field, no author ([State changes](#state-changes))                              |
-| `Category.description`      | absent                                     | new column, max 140, may be empty (`A15`)                                                                      |
-| `Category.label`            | exists                                     | renamed to `name` (see [Wire names](#wire-names))                                                              |
-| Staff members               | absent                                     | new table, seeded with one account per staff member (`A1`, `A17`)                                              |
-| Sign-in                     | absent                                     | cookie-based, `/api/v1/staff/**` protected (`A17`)                                                             |
-| Route-selection counters    | endpoint exists, counters are not readable | a read endpoint for the dashboard                                                                              |
-| Live stream                 | absent                                     | one `text/event-stream` endpoint (`A18`, [ADR-0004](../docs/adr/0004-server-sent-events-for-the-dashboard.md)) |
+| Area                        | Today  | Needed                                                                                                         |
+| --------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
+| `Application.status`        | absent | new column, enum, defaults to `NEW` on submission (`A9`)                                                       |
+| `Application.owner`         | absent | nullable reference to a staff member (`A14`)                                                                   |
+| `Application.internalNotes` | absent | nullable text, max 4000                                                                                        |
+| `Application.discardedAt`   | absent | nullable timestamp, server-stamped (`A16`)                                                                     |
+| State changes               | absent | new table, one row per changed field, no author ([State changes](#state-changes))                              |
+| `Category.description`      | absent | new column, max 140, may be empty (`A15`)                                                                      |
+| `Category.label`            | exists | renamed to `name` (see [Wire names](#wire-names))                                                              |
+| Staff members               | absent | new table, seeded with one account per staff member (`A1`, `A17`)                                              |
+| Sign-in                     | absent | cookie-based, `/api/v1/staff/**` protected (`A17`)                                                             |
+| Live stream                 | absent | one `text/event-stream` endpoint (`A18`, [ADR-0004](../docs/adr/0004-server-sent-events-for-the-dashboard.md)) |
 
 An Application submitted through the form gets `status = NEW`, `owner = null`,
 `internalNotes = null` and `discardedAt = null`. The form does not send any of
@@ -100,8 +97,8 @@ them and must not be able to.
 
 The `internalNotes` column is nullable, but the wire never is: the read
 coalesces a stored `null` to `""`. That is why the dashboard types
-`internalNotes` as `string` while `about` — which the backend really does send
-as `null` — is `string | null`.
+`internalNotes` as `string` while `about` (which the backend really does send
+as `null`) is `string | null`.
 
 ## Wire names
 
@@ -131,7 +128,7 @@ staff member reads.
 `Category.label` becomes `name` because `CONTEXT.md` spends the word "name" on
 this and the form contract has no reason to prefer `label`. This is the one
 place where the wire moves rather than the dashboard, and it changes
-`GET /api/v1/categories` for the form too — see
+`GET /api/v1/categories` for the form too, see
 [Categories](#categories).
 
 Enum values are `SCREAMING_SNAKE_CASE` throughout, following `weeklyTime` in the
@@ -146,8 +143,8 @@ JSON is `camelCase`, the Jackson default. Timestamps are ISO 8601 in UTC, as
 
 There is no self-registration and no user administration anywhere in the
 dashboard. The backend seeds one account per staff member (`A1`), with initial
-passwords supplied as environment variables — `STAFF_1_PASSWORD` through
-`STAFF_5_PASSWORD`, see `.env.example` — and stored hashed (`A17`). The five
+passwords supplied as environment variables (`STAFF_1_PASSWORD` through
+`STAFF_5_PASSWORD`, see `.env.example`), and stored hashed (`A17`). The five
 people are invented and their addresses are sign-in identities only: no mail is
 ever sent to a staff member.
 
@@ -168,7 +165,7 @@ Set-Cookie: ibh_session=…; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=
 ```
 
 A server-side cookie rather than a bearer token, because an `EventSource`
-cannot set request headers — a token would have to travel in the query string of
+cannot set request headers: a token would have to travel in the query string of
 [the live stream](#the-live-stream), where the proxy logs it. `SameSite=Strict`
 on one origin removes CSRF without a token. Twelve hours of sliding inactivity
 (`A17`).
@@ -176,13 +173,13 @@ on one origin removes CSRF without a token. Twelve hours of sliding inactivity
 **Sliding means the same `Set-Cookie` arrives on every authenticated response**,
 not only on this one: a `Max-Age` fixed at sign-in would expire twelve hours
 later whatever the staff member did in between. The dashboard needs to do
-nothing about that — the cookie is `HttpOnly` and the browser replaces it — but
+nothing about that: the cookie is `HttpOnly` and the browser replaces it, but
 a proxy in front of the API must not strip `Set-Cookie` from ordinary `GET`
 responses. Sign-ins live in the backend's memory, so a restart ends all of them
 at once and every staff member meets the sign-in screen (`A17`).
 
 On failure: `401` with `code: INVALID_CREDENTIALS`, and **the same response for
-an unknown address as for a wrong password** — the dashboard has no
+an unknown address as for a wrong password**. The dashboard has no
 "registered?" question to answer. After five failures from one address inside
 fifteen minutes, `429` with `code: RATE_LIMITED` and a `Retry-After` in seconds,
 until the window runs out; a successful sign-in clears the address (`A20`). The
@@ -224,7 +221,7 @@ owner filter on Übersicht.
 { "members": [{ "id": "e0d1…", "name": "Ashton Blackwell" }] }
 ```
 
-No email here — the selector shows names, and an address per row would spread
+No email here: the selector shows names, and an address per row would spread
 personal data further than the screen needs.
 
 ### When a Sign-in expires
@@ -283,7 +280,7 @@ Every Application, including discarded ones.
 key and means nothing to a staff member.
 
 Ordered by `submittedAt`, newest first. The dashboard sorts for itself, so the
-order is a convenience rather than a contract. `Cache-Control: no-store` — this
+order is a convenience rather than a contract. `Cache-Control: no-store`: this
 is personal data and must not sit in a browser cache.
 
 An empty list is valid and means the dashboard shows its empty state.
@@ -345,7 +342,7 @@ Response: `200 OK` with the complete Application in the shape above, so the
 dashboard never has to infer what happened. `404` with `code: NOT_FOUND` for an
 unknown id.
 
-**Nothing an applicant wrote can be changed** — `name`, `email`, `about`,
+**Nothing an applicant wrote can be changed**: `name`, `email`, `about`,
 `weeklyTime`, `categoryId`, `consentAt` and `consentTextVersion` are rejected
 if present, rather than ignored. Silently dropping them would let a future bug
 look like it worked.
@@ -371,7 +368,7 @@ gets past it.
 
 Anfragen discards a checked selection, and the fourth screen restores or erases
 one. There is deliberately **no bulk endpoint**: the dashboard sends one
-`PATCH` — or one `DELETE … /permanently` — per Application, at most a handful
+`PATCH`, or one `DELETE … /permanently`, per Application, at most a handful
 in flight at once. With dozens of Applications the round trips are cheap, and a
 bulk endpoint would need its own partial-failure shape for a case a single
 request already describes.
@@ -381,7 +378,7 @@ of five Applications produces five `application.updated` events. That is
 expected traffic, not a loop to guard against.
 
 When part of a bulk action fails, the dashboard shows one general message and
-refetches `GET /api/v1/staff/applications` — the successful requests keep their
+refetches `GET /api/v1/staff/applications`; the successful requests keep their
 effect, and the list, not the dashboard's own optimism, says what happened.
 
 ### DELETE /api/v1/staff/applications/{id}/permanently
@@ -432,13 +429,13 @@ Both documents need a Sign-in.
 
 ## State changes
 
-Übersicht carries three metric cards — "Neue Anfragen" (`status = NEW`), "Ohne
+Übersicht carries three metric cards: "Neue Anfragen" (`status = NEW`), "Ohne
 Zuständigkeit" (`ownerId = null`) and "Lange offen" (older than seven days,
-`A19`) — and each one shows a sparkline of the trailing seven days next to its
+`A19`), and each one shows a sparkline of the trailing seven days next to its
 number. The number comes from the list. **The seven days cannot**: a card's
 value last Tuesday depends on what `status` and `ownerId` were last Tuesday,
 and an Application carries only its current pair. Replaying today's values
-across the week produces a curve that is confidently wrong — an Application
+across the week produces a curve that is confidently wrong: an Application
 moved to `IN_REVIEW` this morning would count as "not new" for all seven days,
 and "Lange offen" would count a restored Application as present on days it was
 discarded.
@@ -485,7 +482,7 @@ GET /api/v1/staff/applications/changes?days=30
 | `to`            | enum \| string \| null \| boolean | the new value, typed by `field`           |
 
 `to` is one of the six statuses for `STATUS`, a staff-member id or `null` for
-`OWNER`, and `true`/`false` for `DISCARDED` — `true` meaning discarded,
+`OWNER`, and `true`/`false` for `DISCARDED`: `true` meaning discarded,
 matching `PATCH`'s own `discarded` boolean rather than a timestamp.
 
 `days` defaults to 30 and caps the window. The dashboard needs seven and slices
@@ -502,15 +499,15 @@ touched.
 
 **Only a real change.** A `PATCH` that sets a field to the value it already
 holds writes no row, and re-discarding a discarded Application leaves
-`discardedAt` where it is. The dashboard repeats a value freely — an optimistic
-write re-sent, a second click on the same status — and a row per request would
+`discardedAt` where it is. The dashboard repeats a value freely: an optimistic
+write re-sent, a second click on the same status, and a row per request would
 show as a trend that never happened.
 
 **No `internalNotes`.** No card reads them, and a debounced textarea would turn
 one note into a stream of rows.
 
 **No author.** A row records what changed and when, never which staff member
-did it. See [Not in this contract](#not-in-this-contract) — this is a state
+did it. See [Not in this contract](#not-in-this-contract): this is a state
 history, not an audit log, and the distinction is deliberate
 ([ADR-0005](../docs/adr/0005-state-history-without-authorship.md)).
 
@@ -537,7 +534,7 @@ bug.
 **No `Last-Event-ID`, same as the stream.** There is no event type for a state
 change. The dashboard already receives the full Application on
 `application.updated`, knows the value it held before, and appends the change
-to its own copy of the history — and on every `open` of the stream, including
+to its own copy of the history, and on every `open` of the stream, including
 every reconnect, it refetches this endpoint alongside the list. Correctness
 comes from the refetch, exactly as it does for the list itself.
 
@@ -559,8 +556,8 @@ quietly cancelled, so this contract asks for both halves:
 - add `description` to the entity, max 140 characters, may be empty;
 - add `description` to the form's `GET /api/v1/categories` response;
 - rename `label` to `name` in the same change, in both responses;
-- lower the name's limit from 120 characters to 60 in the same change — the
-  form contract's `1–120` is the applicant-name limit applied to a Category by
+- lower the name's limit from 120 characters to 60 in the same change: the
+  form contract's 1 to 120 is the applicant-name limit applied to a Category by
   reflex, and a 120-character Category does not fit the line an applicant reads
   it on.
 
@@ -585,16 +582,16 @@ Every Category, active and inactive, in display order.
 }
 ```
 
-| Field         | Type    | Note                                   |
-| ------------- | ------- | -------------------------------------- |
-| `id`          | string  | UUID                                   |
-| `name`        | string  | German, 1–60 characters after trimming |
-| `description` | string  | German, max 140, may be `""`           |
-| `active`      | boolean | whether the form offers it             |
+| Field         | Type    | Note                                      |
+| ------------- | ------- | ----------------------------------------- |
+| `id`          | string  | UUID                                      |
+| `name`        | string  | German, 1 to 60 characters after trimming |
+| `description` | string  | German, max 140, may be `""`              |
+| `active`      | boolean | whether the form offers it                |
 
 **No counts on a Category.** The Kategorien table shows how many Applications
 name each Category, and its delete button is disabled for a Category that any
-Application names — but both numbers are counted in the dashboard from the list
+Application names, but both numbers are counted in the dashboard from the list
 it already holds, for the same reason "open", "stale" and "unassigned" are
 ([Scope](#scope)). The two counts differ, and the difference is the least
 obvious rule on this screen: the column excludes discarded Applications so a
@@ -609,7 +606,7 @@ line of the form's category list, where 120 characters do not fit. The
 dashboard's dialog counts down from the same 60.
 
 Display order is the array's order. A Category carries no position field on the
-wire — the backend keeps `displayOrder` internally and hands the list over
+wire, the backend keeps `displayOrder` internally and hands the list over
 sorted.
 
 ### POST /api/v1/staff/categories
@@ -641,7 +638,7 @@ Any subset of `name`, `description`, `active`. Absent means untouched.
 
 Response: `200 OK` with the Category. Deactivating takes it out of the form and
 leaves every existing Application with the Category it was submitted under
-(`A15`) — it changes no Application at all.
+(`A15`): it changes no Application at all.
 
 Renaming a Category changes what a staff member sees against old Applications
 too, which is intended: staff members may correct a label, but a new field of
@@ -653,7 +650,7 @@ work gets a new Category. That rule is already in the form contract.
 
 `409 Conflict` with `code: CATEGORY_IN_USE` when any Application names it,
 discarded ones included. The dashboard also disables the button in that case,
-but the rule belongs to the data, not to a button (`A15`) — the dashboard's own
+but the rule belongs to the data, not to a button (`A15`). The dashboard's own
 code carries the same guard twice for the same reason.
 
 ### PUT /api/v1/staff/categories/order
@@ -675,48 +672,6 @@ anything else is `400 VALIDATION_FAILED` with code `ORDER_INCOMPLETE`.
 Response: `200 OK` with the reordered list, same shape as
 `GET /api/v1/staff/categories`.
 
-## Route selections
-
-`POST /api/v1/route-selections` already collects, per the form contract, which
-route each visitor picked — and nothing currently reads it back. That endpoint
-is the only measurement of `A5` this project will produce, and `A5` — that
-roughly four in five requests want the community rather than association work —
-carries the whole design of the project. A number that can only be reached by
-running SQL against someone else's database will not survive to the final
-presentation.
-
-### GET /api/v1/staff/route-selections
-
-```json
-{
-  "fixedRoutes": [
-    { "route": "COMMUNITY", "count": 412 },
-    { "route": "SUPPORTING_MEMBER", "count": 37 }
-  ],
-  "categories": [{ "categoryId": "5c2b…", "name": "Social Media", "count": 21 }]
-}
-```
-
-Two blocks rather than one flat list, because `A5` is a claim about the ratio
-between the two fixed routes and Vereinsarbeit as a whole. The Vereinsarbeit
-total is the sum of the `categories` block; the per-Category breakdown is the
-secondary question.
-
-Counts only. **No raw selection records, no timestamps per selection.** The form
-contract promised that this counter is not associated with a person, and a list
-of individual selections with times weakens that promise for no gain — there is
-no screen for it.
-
-Categories with a count of zero appear with `"count": 0`, including inactive
-ones, so "nobody has ever chosen this" is visible rather than absent.
-
-**No screen reads this yet**, and that is an open debt rather than a change of
-mind: the dashboard needs a block on Übersicht — the two fixed routes, the
-Vereinsarbeit total as the sum of the `categories` block, and the per-Category
-breakdown under it. Named here so the backend does not read a missing screen as
-a cancelled endpoint. Without it `A5`, which carries the design of the whole
-project, stays a claim nobody can show.
-
 ## The live stream
 
 One endpoint, so that an Application submitted on the form appears in every
@@ -728,7 +683,7 @@ WebSockets, is in
 ### GET /api/v1/staff/events
 
 `Content-Type: text/event-stream`. Authenticated by the same Sign-in cookie as
-everything else — this is why the Sign-in is a cookie and not a bearer token.
+everything else. This is why the Sign-in is a cookie and not a bearer token.
 
 Three event types:
 
@@ -739,7 +694,7 @@ Three event types:
 | `application.deleted` | an Application was erased permanently, with its state changes (cascade) |
 
 `data` is **the complete Application**, in exactly the shape
-`GET /api/v1/staff/applications` returns — including on `application.deleted`,
+`GET /api/v1/staff/applications` returns, including on `application.deleted`,
 because a discarded Application is not gone and the dashboard may need to drop
 it from the fourth screen too. The client applies the event without a follow-up
 request, which is the whole point of holding the full list.
@@ -752,8 +707,8 @@ data: {"id":"a3f1c0de-…","status":"NEW","ownerId":null, …}
 ```
 
 `id` is a monotonic counter, useful in logs. **The server does not honour
-`Last-Event-ID` and keeps no replay buffer.** On every `open` — including every
-automatic reconnect — the dashboard refetches
+`Last-Event-ID` and keeps no replay buffer.** On every `open`, including every
+automatic reconnect, the dashboard refetches
 `GET /api/v1/staff/applications` **and
 [`GET /api/v1/staff/applications/changes`](#get-apiv1staffapplicationschanges)**
 and replaces its state, which is what actually guarantees correctness; an
@@ -779,18 +734,18 @@ timeout:
 ```
 
 When the Sign-in expires the server closes the stream with `401`. The dashboard
-never reads that status — an `EventSource` reports only `error` — so it asks
+never reads that status: an `EventSource` reports only `error`, so it asks
 `GET /me`, and only a `401` there covers the dashboard with the sign-in screen.
 
 `EventSource` reconnects on its own only after a _dropped_ connection. A
-response it can see — the `401` above, or a `502` from the proxy while the
-backend restarts — closes it for good, and reconnecting is then the
+response it can see (the `401` above, or a `502` from the proxy while the
+backend restarts) closes it for good, and reconnecting is then the
 dashboard's own job; it opens a fresh stream every five seconds until one
 connects or the Sign-in turns out to be gone. This is what makes a `401` on
 this endpoint safe to answer plainly: it costs the dashboard a reconnect, not
 the connection.
 
-There is no polling fallback — the dashboard shows whether the stream is
+There is no polling fallback: the dashboard shows whether the stream is
 connected instead, because a dashboard that silently displays yesterday's
 queue is worse than one that admits it is disconnected.
 
@@ -846,8 +801,8 @@ Field codes:
 request is wrong, the Application is simply not on the fourth screen yet, so
 there is no field to hang it on.
 
-A status this table does not name — a `405`, a `415`, a `400` Spring raises
-before a controller sees the body — carries the status's own name as its `code`
+A status this table does not name (a `405`, a `415`, a `400` Spring raises
+before a controller sees the body) carries the status's own name as its `code`
 (`METHOD_NOT_ALLOWED`, `UNSUPPORTED_MEDIA_TYPE`, `BAD_REQUEST`). Each of those
 is a caller defect rather than something a staff member can act on, so the
 general message is the right wording; what matters is that a body arrives at
@@ -859,22 +814,22 @@ carries a header with it: `Retry-After`, in seconds. The dashboard ignores it
 and shows the general message.
 
 An unknown `code` falls back to the general message, so adding one never breaks
-the dashboard — but the staff member then sees generic wording, so say when the
+the dashboard, but the staff member then sees generic wording, so say when the
 list grows. The lookup exists: both tables are worded in `de.errors` in
-`src/content/de.ts` — `de.errors.codes` and `de.errors.fields`, keyed by the
-`code` itself — and `src/content/errorMessage.ts` reads them. It takes a bare
+`src/content/de.ts`: `de.errors.codes` and `de.errors.fields`, keyed by the
+`code` itself, and `src/content/errorMessage.ts` reads them. It takes a bare
 string rather than a known code, so a `code` this contract does not name is a
 general message rather than a blank. The two key sets are typed in
 `src/domain/apiError.ts`, so a code added to the tables above without a wording
 fails the dashboard's typecheck instead of reaching a staff member as the
 fallback.
 
-`INVALID_CREDENTIALS` gets **one wording for both causes** — a wrong password
+`INVALID_CREDENTIALS` gets **one wording for both causes**: a wrong password
 and an unknown address read identically, as
 [Sign-in](#post-apiv1staffsession) requires. The dashboard said "Zu dieser
 E-Mail-Adresse gibt es kein Konto", which answered the "registered?" question
 this contract refuses to answer; that string is gone, and the sign-in screen
-now reads its rejection out of `de.errors.codes.INVALID_CREDENTIALS` — while
+now reads its rejection out of `de.errors.codes.INVALID_CREDENTIALS`, while
 the check is still local, so the wording cannot drift back once the request is
 real. Where the message sits is still a field hint under the address; the
 [Sign-in request](#post-apiv1staffsession) is what moves it to the form, since
@@ -886,7 +841,7 @@ notes are kept.
 ## Deployment
 
 Everything the form contract says about deployment still holds: one reverse
-proxy, one origin, no CORS, and a database that holds **test data only** — the
+proxy, one origin, no CORS, and a database that holds **test data only**. The
 prototype runs on our own domain, and the consent text names the association as
 the party that stores an applicant's details, which on our domain is not who
 receives them.
@@ -894,13 +849,13 @@ receives them.
 The demo week the dashboard is shown on is part of that rule rather than an
 exception to it: the backend seeds thirteen invented Applications and the State
 changes that lead to them (`A21`), addressed at the reserved `example.org`
-domain, and only under the `demo` profile — so a database gets
+domain, and only under the `demo` profile, so a database gets
 applicant-shaped rows when somebody asks for them and not by starting up. See
 [`../backend/README.md`](../backend/README.md), "Demo data".
 
 Two things are new, both about the stream, and both cause the same failure if
 missed: events arrive in batches instead of immediately, and "the Application
-appears while you watch" — the moment the demo is built around — does not
+appears while you watch" (the moment the demo is built around) does not
 happen.
 
 - The proxy must not buffer this path: `proxy_buffering off;` and a long
@@ -912,13 +867,13 @@ happen.
 The dashboard takes **no** build-time variable, and unlike the form it never
 gains one: every request is a relative `/api/…` path, so the dashboard is
 same-origin in development exactly as it is in production. A
-`VITE_API_BASE_URL` pointing at another origin would be unusable anyway — the
+`VITE_API_BASE_URL` pointing at another origin would be unusable anyway: the
 Sign-in cookie is `SameSite=Strict`, and a cross-origin request does not carry
 it.
 
 Development gets its own reverse proxy instead, in `vite.config.ts`, mirroring
 `nginx.conf` location for location: `/api/v1/staff/events` with an hour of
-`proxyTimeout` — nginx's `proxy_read_timeout` — so an idle stream is not cut,
+`proxyTimeout` (nginx's `proxy_read_timeout`), so an idle stream is not cut,
 and `/api` with thirty seconds. Nothing between Vite and the browser buffers a
 response, so the stream arrives event by event there too. `npm run dev`
 therefore expects the backend on `http://localhost:8080`, its default port.
@@ -929,7 +884,7 @@ browsers count `localhost` as a trustworthy origin and store the cookie anyway.
 **There is no Mock Service Worker.** An earlier version of this section
 promised one behind an unset `VITE_API_BASE_URL`; the promise existed because
 the backend did not, and the backend does now. What replaces it is the proxy
-above — a real backend on the other end of `/api` from the first request. The
+above: a real backend on the other end of `/api` from the first request. The
 mock data (`src/data/`) stays exactly what it is: fixtures for the tests and
 for props handed to a screen, never a request handler.
 
@@ -939,7 +894,7 @@ Named so that nobody builds them by accident:
 
 - **No email from the dashboard.** One confirmation on submission, nothing else.
 - **No server-side search, filter, sort or pagination**, and no
-  `GET /api/v1/staff/applications/{id}` — the dashboard holds the list and no
+  `GET /api/v1/staff/applications/{id}`: the dashboard holds the list and no
   screen links to a single Application.
 - **No bulk endpoints.** A bulk action is N single requests
   ([Bulk actions](#bulk-actions-are-n-single-requests)).
@@ -950,7 +905,7 @@ Named so that nobody builds them by accident:
 - **No user administration, no self-registration, no password reset screen, no
   avatar upload.** Accounts are seeded (`A17`). The account menu's "Profil
   ansehen" and "Einstellungen" are deliberate decoration for a possible later
-  feature — they call nothing, and no endpoint is being asked for here.
+  feature: they call nothing, and no endpoint is being asked for here.
 - **No optimistic locking**, no `ETag`, no `If-Match`.
 - **No audit log.** [State changes](#state-changes) record _what_ changed and
   _when_, never _who_ changed it. The dashboard has nowhere to show authorship,
@@ -969,7 +924,7 @@ Proposed for agreement with the backend team:
 2. **The dashboard reads the whole list.** No server-side querying. The
    definitions of open (`A13`), stale (`A19`) and unassigned (`A14`) stay in the
    dashboard.
-3. **A server-side cookie, not a bearer token** — because `EventSource` cannot
+3. **A server-side cookie, not a bearer token**, because `EventSource` cannot
    set headers, and a token in a query string ends up in proxy logs.
 4. **Five seeded accounts, twelve-hour Sign-in, throttling by address rather
    than account lockout** (`A17`).
@@ -980,7 +935,7 @@ Proposed for agreement with the backend team:
 7. **Deleting is discarding** (`A16`). Permanent erasure is a separate endpoint,
    reachable only for an already-discarded Application.
 8. **A Category carries no counts on the wire.** The dashboard counts
-   Applications per Category itself — excluding discarded ones in the column,
+   Applications per Category itself, excluding discarded ones in the column,
    including them in the delete guard (`A15`). The server keeps only the
    `409 CATEGORY_IN_USE` guard, which protects the data rather than a button.
 9. **`description` is added to the Category entity and to the form's category
@@ -990,18 +945,16 @@ Proposed for agreement with the backend team:
     reconnect, no polling fallback**
     ([ADR-0004](../docs/adr/0004-server-sent-events-for-the-dashboard.md)).
 11. **Last write wins** on concurrent edits.
-12. **Route-selection counts become readable**, as two blocks, counts only —
-    and Übersicht owes them a screen.
-13. **The backend records state changes** to `status`, `owner` and `discarded`
-    — one row per changed field, no author, no `internalNotes` — and hands the
+12. **The backend records state changes** to `status`, `owner` and `discarded`
+    (one row per changed field, no author, no `internalNotes`), and hands the
     raw rows over; the dashboard replays them into the metric cards' seven-day
     trends. Erasing an Application cascades to its rows
     ([ADR-0005](../docs/adr/0005-state-history-without-authorship.md)).
-14. **Seeded and test data must write the state changes that lead to the
+13. **Seeded and test data must write the state changes that lead to the
     state.** Otherwise every trend in the demo is flat.
-15. **A bulk action is N single requests**, N stream events, and a refetch on
+14. **A bulk action is N single requests**, N stream events, and a refetch on
     partial failure. No bulk endpoint.
-16. **Category `name` is capped at 60 characters**, not 120 — it is one line of
+15. **Category `name` is capped at 60 characters**, not 120: it is one line of
     the form.
 
 ## What the dashboard changes on its own side
@@ -1013,51 +966,51 @@ request:
 
 - ~~rename the domain fields per [Wire names](#wire-names), and replace
   `weeklyAvailability: number` with the `weeklyTime` enum plus four German
-  labels in `src/content/de.ts`~~ — done, against the mock data; the labels are
+  labels in `src/content/de.ts`~~, done against the mock data; the labels are
   `de.weeklyTimes` and carry no "pro Woche" suffix, since `IRREGULAR` is not a
   quantity;
-- ~~spell statuses in `SCREAMING_SNAKE_CASE`~~ — done;
+- ~~spell statuses in `SCREAMING_SNAKE_CASE`~~, done;
 - ~~add `discardedAt` to the Application type and the fourth screen with its
-  own table, plus restore and permanent-delete actions~~ — done, against the
+  own table, plus restore and permanent-delete actions~~, done against the
   mock data; `README.md` records the screen and the wording;
-- ~~add `description` to the Category type — it is already there — and drop the
-  client-side slug id generator, since the backend owns ids~~ — done; a
+- ~~add `description` to the Category type, it is already there, and drop the
+  client-side slug id generator, since the backend owns ids~~, done; a
   Category added on Kategorien takes a `crypto.randomUUID()` until the request
   layer hands the backend's id back;
 - ~~replace the sign-in screen's "kein Konto" message with one wording for
   `INVALID_CREDENTIALS`, add one for `RATE_LIMITED`, and add the `de.errors`
-  block the [Errors](#errors) table is looked up in~~ — done; every code in
+  block the [Errors](#errors) table is looked up in~~, done; every code in
   both [Errors](#errors) tables has a wording, `errorMessage.ts` looks one up
   and `apiError.ts` types the keys. Kategorien's dialog now reads its own two
   name failures out of `de.errors.fields` as well, so the client-side check and
   the backend's `CATEGORY_NAME_REQUIRED` / `CATEGORY_NAME_TAKEN` say the same
   sentence;
 - ~~debounce internal notes by 800 ms, cap the textarea at 4000 characters and
-  count down the remainder~~ — done (issue #38); the countdown is
+  count down the remainder~~, done (issue #38); the countdown is
   `de.fields.remaining`, shared with the Category description's, and the
   unsent note lives in a draft above the drawer so that neither the stream's
   echo nor a failed request can take the typed text off the screen;
 - read the metric cards' trends from
   [`GET …/applications/changes`](#get-apiv1staffapplicationschanges) instead of
-  replaying today's `status`/`ownerId` across the week — issue #39. The
+  replaying today's `status`/`ownerId` across the week (issue #39). The
   endpoint is called and its answer is in the cache; the replay is not written,
   so the curve is still the confidently wrong one this document warns about.
   `OverviewStats` does already read the one shared list, so the cards and the
   "Offene Anfragen" panel cannot disagree;
 - ~~take the stale threshold's German label from `STALE_AFTER_DAYS` instead of
   spelling "Älter als 7 Tage" a second time, and point the constant's comment
-  at `A19`, which exists~~ — done;
+  at `A19`, which exists~~, done;
 - ~~replace the sidebar's mock avatar with initials, and read the signed-in
   staff member from `GET /api/v1/staff/me` rather than from
-  `src/data/currentStaffMember.ts`~~ — done; `avatar` is off `StaffMember` and
+  `src/data/currentStaffMember.ts`~~, done; `avatar` is off `StaffMember` and
   off `Owner` too, since neither `me` nor `members` carries one, so every
   avatar in the dashboard is initials and `alt=""` now hides the letters from
   the accessible name as well as the image it replaced;
 - ~~keep `src/data/` as test fixtures and put a Mock Service Worker behind an
-  unset `VITE_API_BASE_URL`~~ — the fixtures stay, the Mock Service Worker is
+  unset `VITE_API_BASE_URL`~~: the fixtures stay, the Mock Service Worker is
   withdrawn: `vite.config.ts` proxies `/api` to the real backend instead, so
   development is same-origin like production ([Deployment](#deployment));
-- ~~add the stream connection marker~~ — done; it says "Live" or "Nicht
+- ~~add the stream connection marker~~, done; it says "Live" or "Nicht
   verbunden" plus what to do about the second, and it waits out a grace period
   before reporting a drop, because `EventSource` fires `error` on every
   reconnect attempt.
@@ -1065,4 +1018,5 @@ request:
 ~~Two smaller drifts to fix while renaming: the mock spells the fourth Category
 `Sonstiges` where the backend seeds `Etwas anderes`, and the mock stamps
 `privacyPolicyVersion: '2026-05'` where the consent text is at `2026-09`. In
-both cases the backend is right and the mock is stale.~~ — both fixed.
+both cases the backend is right and the mock is stale.~~, both fixed.
+ed.

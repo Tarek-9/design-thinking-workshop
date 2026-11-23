@@ -39,10 +39,7 @@ describe('parseApplicationEvent', () => {
     });
   });
 
-  /**
-   * A dropped event costs nothing a refetch does not repair, and throwing
-   * here would take the connection down with it.
-   */
+  // Throwing would take the stream down, and a refetch repairs a dropped event.
   it('drops a body that is not the JSON it claimed to be', () => {
     expect(parseApplicationEvent('application.updated', 'not json')).toBeNull();
   });
@@ -82,14 +79,7 @@ describe('applyApplicationEvent', () => {
     ).toEqual([]);
   });
 
-  /**
-   * Both cases the shared upsert exists for. The refetch on every `open` may
-   * already have picked up a creation, and every event reaches the stream of
-   * the Staff member who caused the change too — so a `created` for a row the
-   * list holds must not duplicate it. The other way round, an `updated` can
-   * be the first thing seen of an Application submitted while the stream was
-   * down.
-   */
+  /** Covers a creation the refetch already brought, and an update arriving before any create. */
   it('is idempotent for a creation the list already holds', () => {
     expect(
       applyApplicationEvent([existing], {

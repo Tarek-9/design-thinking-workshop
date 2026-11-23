@@ -1,17 +1,7 @@
 import axe, { type Result } from 'axe-core';
 
-/**
- * Runs axe over a rendered container and fails with a readable report.
- *
- * axe-core is used directly rather than through a matcher package: the
- * published `vitest-axe` ships an empty `extend-expect` file, so its matcher
- * silently never registers.
- *
- * `color-contrast` is disabled because jsdom does not compute layout or
- * colour — the check would be meaningless here, not passing. Contrast stays on
- * the manual checklist in ../../README.md, together with visible focus and tap
- * target size.
- */
+// axe-core is used directly: the vitest-axe matcher never registers.
+// color-contrast is off: jsdom computes no colour, so it would pass vacuously.
 export async function expectNoA11yViolations(
   container: HTMLElement,
 ): Promise<void> {

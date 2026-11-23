@@ -12,18 +12,8 @@ import org.springframework.stereotype.Component;
 
 import de.ichbinhier.volunteerformservice.staff.Staff;
 
-/**
- * Every open Sign-in, keyed by the opaque token that travels in the
- * {@code ibh_session} cookie.
- *
- * <p>Two shapes here are decisions rather than details (`A17`). The store is
- * the backend's memory rather than a table, so a restart ends every Sign-in at
- * once — at five staff members that is cheaper than a Sign-in entity nobody
- * queries. And a Sign-in holds a Staff member's <em>id</em>, not the row: a
- * detached entity kept for twelve hours would answer {@code GET /me} with a
- * name that has since been corrected, and a Staff member deleted mid-Sign-in
- * would live on as a ghost in this map.
- */
+// In memory, so a restart ends every Sign-in. Holds the Staff id, so a corrected
+// or deleted member shows on the next request.
 @Component
 public class SignIns {
 
@@ -39,19 +29,14 @@ public class SignIns {
         this.inactivity = properties.getInactivity();
     }
 
-    /** Opens a Sign-in and answers the token the cookie carries. */
     public String open(Staff staff) {
         String token = freshToken();
         byToken.put(token, new OpenSignIn(staff.getId(), Instant.now()));
         return token;
     }
 
-    /**
-     * The Staff member this token signs in, sliding the Sign-in's expiry forward
-     * in the same step — reading a Sign-in <em>is</em> the activity that keeps it
-     * alive. An expired Sign-in is dropped here rather than by a sweep: at this
-     * volume the only entry worth evicting is one someone has just asked for.
-     */
+    // Reading a Sign-in slides its expiry. Expired entries are dropped on access,
+    // with no sweep.
     public Optional<UUID> touch(String token) {
         if (token == null || token.isBlank()) {
             return Optional.empty();
@@ -68,14 +53,12 @@ public class SignIns {
         return Optional.ofNullable(open).map(OpenSignIn::staffId);
     }
 
-    /** Ends the Sign-in. Answers alike whether or not the token named one. */
     public void close(String token) {
         if (token != null) {
             byToken.remove(token);
         }
     }
 
-    /** How long a cookie may live before inactivity would have ended the Sign-in. */
     public Duration getInactivity() {
         return inactivity;
     }

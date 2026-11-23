@@ -14,12 +14,11 @@ import type { Category } from '@/domain/category';
 
 import { CategoriesScreen } from './CategoriesScreen';
 
-/** The reference date the mock Applications are built against elsewhere. */
 const NOW = new Date('2026-09-07T10:00:00.000Z');
 
 const MOCK_APPLICATIONS = createMockApplications(NOW);
 
-/** Mirrors how `App` owns the Categories list and hands it down. */
+// The screen is controlled, so a host holds the list the way App does.
 function Host({
   applications = MOCK_APPLICATIONS,
 }: {
@@ -66,7 +65,6 @@ function Host({
   );
 }
 
-/** The Categories on screen, top to bottom — the order the form would use. */
 function rowNames(): string[] {
   return screen
     .getAllByRole('button')
@@ -75,7 +73,7 @@ function rowNames(): string[] {
     .map((label) => label.replace(/ bearbeiten$/, ''));
 }
 
-/** The three tabs carry a count in their label, so they are read by position. */
+// Tab labels carry counts, so the tabs are found by position.
 function tab(index: number): HTMLElement {
   const tabs = within(
     screen.getByRole('tablist', { name: de.categories.title }),
@@ -243,9 +241,8 @@ describe('CategoriesScreen', () => {
 
     render(<Host applications={applications} />);
 
-    // Two Applications name "Rechtliche Unterstützung" in the mock set, both
-    // discarded here: the column drops to zero, the delete button does not
-    // unlock (`API.md`, `A15`).
+    // Both Applications that name it are discarded: the column drops to zero,
+    // the delete button stays locked.
     expect(
       screen.getByRole('button', {
         name: de.categories.deleteOne('Rechtliche Unterstützung'),

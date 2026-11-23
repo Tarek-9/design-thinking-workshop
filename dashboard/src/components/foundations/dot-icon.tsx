@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/foundations/dot-icon.tsx`, unchanged.
- */
-
 import type { HTMLAttributes } from 'react';
 
 const sizes = {

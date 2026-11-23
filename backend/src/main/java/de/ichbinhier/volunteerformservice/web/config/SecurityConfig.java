@@ -18,7 +18,6 @@ import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /** Bcrypt work factor for staff password hashes. */
     static final int BCRYPT_STRENGTH = 12;
 
     @Bean

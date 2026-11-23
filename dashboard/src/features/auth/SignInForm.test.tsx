@@ -8,13 +8,8 @@ import { mockStaffMember } from '@/data/mockApplications';
 
 import { SignInForm } from './SignInForm';
 
-/**
- * `base/input` keeps the required marker in the DOM and hides it with a
- * Tailwind class, so under jsdom — where no stylesheet runs — the accessible
- * label reads "E-Mail *". The field is matched on the label copy alone rather
- * than on that artefact, and `selector` keeps the loose match off the password
- * field's own visibility toggle, whose label starts with the same word.
- */
+// jsdom keeps the required marker in the label ("E-Mail *"), so match the
+// label copy alone; `selector` keeps the password toggle out.
 function field(label: string): HTMLElement {
   return screen.getByLabelText(label, { exact: false, selector: 'input' });
 }
@@ -80,13 +75,7 @@ describe('SignInForm', () => {
     expect(field(de.auth.passwordLabel)).toHaveFocus();
   });
 
-  /**
-   * Where a rejection sits is the decision issue #37 recorded: the two the
-   * backend can raise are about the submission rather than about one field,
-   * so they read above the form. `INVALID_CREDENTIALS` is also the reason
-   * neither says which field was wrong — it refuses to tell an outsider which
-   * addresses have an account.
-   */
+  // INVALID_CREDENTIALS names no field, by design: it must not reveal which addresses exist.
   it('words a rejected Sign-in above the form, not under a field', () => {
     render(
       <SignInForm
@@ -99,7 +88,6 @@ describe('SignInForm', () => {
     const email = field(de.auth.emailLabel);
 
     expect(alert).toHaveTextContent(de.errors.codes.INVALID_CREDENTIALS);
-    // Above the form, and above the field it deliberately does not blame.
     expect(alert.closest('form')).toBe(email.closest('form'));
     expect(email).not.toHaveAttribute('aria-invalid', 'true');
     expect(field(de.auth.passwordLabel)).not.toHaveAttribute(
@@ -128,11 +116,7 @@ describe('SignInForm', () => {
     );
   });
 
-  /**
-   * A request the network never delivered carries no `code`, and the screen
-   * still has to say something — the general wording, because the dashboard
-   * genuinely does not know what happened.
-   */
+  // No problem code arrives, so only the general wording fits.
   it('words a request that never reached the backend generally', () => {
     render(
       <SignInForm onSignIn={vi.fn()} failure={new TypeError('offline')} />,
@@ -177,10 +161,7 @@ describe('SignInForm', () => {
     ).toBeInTheDocument();
   });
 
-  /**
-   * The cover fills the address in, because the Staff member whose Sign-in ran
-   * out is signing in again rather than choosing an account (issue #40).
-   */
+  // The cover fills the address in: the Staff member is signing in again.
   it('starts with the address it was given', () => {
     render(
       <SignInForm onSignIn={vi.fn()} initialEmail={mockStaffMember.email} />,

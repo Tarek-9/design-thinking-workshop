@@ -1,15 +1,3 @@
-/**
- * The Applications list as Anfragen and as Übersicht's "Offene Anfragen"
- * panel render it: one `ApplicationTable`, the same per-row discard action,
- * and — on Anfragen — the screen's toolbar above the card.
- *
- * One component rather than a `ApplicationsGrid`/`OpenApplicationsGrid` pair,
- * which differed only in the props they forwarded while both spelled out the
- * same `rowActions` descriptor. What each screen still decides is what it
- * disagrees about: the accessible name of the table, whether the list pages,
- * which end of the queue leads, and whether there is a toolbar at all.
- */
-
 import { Archive } from '@untitledui/icons';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
@@ -23,25 +11,19 @@ type ApplicationsListProps = {
   categories: readonly Category[];
   owners: readonly Owner[];
   now: Date;
-  /** The "Lange offen" queue reads oldest-first; every other view is newest-first. */
   oldestFirst?: boolean;
-  /** Übersicht's panel is already cut to five rows by its caller, so it pages nothing. */
+  // Übersicht's panel is already cut to five rows by its caller.
   paginated?: boolean;
   ariaLabel: string;
   onSelect: (application: Application) => void;
-  /** Ids checked via the row/header checkboxes, lifted so the screen's bulk discard button can read the same set. */
+  // Lifted so the screen's bulk discard button reads the same set.
   selectedIds: ReadonlySet<string>;
   onSelectedIdsChange: (ids: ReadonlySet<string>) => void;
   onDiscard: (application: Application) => void;
-  /** The Application the drawer shows, marked in the list. */
   activeId?: string | null;
-  /** The named views and the search/filter controls, rendered above the table card. */
   toolbar?: ReactNode;
-  /**
-   * Shown in place of the rows while the list is empty. Anfragen passes one;
-   * Übersicht's panel answers emptiness above the list instead, because it
-   * also has a filter bar to take out of the way (issue #53).
-   */
+  // Übersicht's panel shows its empty state above the list, since its filter bar
+  // would be in the way.
   emptyState?: ReactNode;
 };
 
@@ -64,8 +46,7 @@ export function ApplicationsList({
   const rowActions = useMemo(
     () => [
       {
-        // Discarding is reversible on the fourth screen (`A16`), so the row
-        // action asks nothing and does not read as destructive.
+        // Discarding is reversible, so the row asks nothing and is not destructive.
         id: 'discard',
         icon: Archive,
         label: (application: Application) =>

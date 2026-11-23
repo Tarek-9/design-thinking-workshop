@@ -10,12 +10,7 @@ import org.springframework.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * The initial passwords for the seeded accounts, one per Staff member, supplied
- * as environment variables and never as a literal in this repo (`A17`). The
- * placeholders live in {@code application.properties}, so an unset variable
- * arrives here as an empty string rather than as a missing property.
- */
+// An unset variable binds as an empty string, so blank passwords count as missing.
 @Component
 @Getter
 @Setter
@@ -24,15 +19,7 @@ public class StaffSeedProperties {
 
     private List<String> seedPasswords = new ArrayList<>();
 
-    /**
-     * The password for the account at {@code position} — 1-based, matching the
-     * name of the variable a person has to set.
-     *
-     * @throws IllegalStateException when the variable is unset, naming it. An
-     *     account that cannot be created is worth refusing to start over: the
-     *     alternative is a dashboard nobody can sign in to, failing later and
-     *     less clearly.
-     */
+    // Fail fast: without seeded accounts nobody can sign in.
     public String passwordFor(int position) {
         String password = position <= seedPasswords.size() ? seedPasswords.get(position - 1) : null;
         if (!StringUtils.hasText(password)) {

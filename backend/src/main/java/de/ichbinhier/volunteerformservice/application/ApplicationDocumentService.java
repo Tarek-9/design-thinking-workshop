@@ -46,7 +46,6 @@ public class ApplicationDocumentService {
     private final DocumentProperties properties;
 
 
-    /** Stores every file or none; removes written files if validation or persistence fails. */
     @Transactional
     public void attach(UUID applicationId, List<MultipartFile> files) {
         Application application = applications.findByIdForUpdate(applicationId)
@@ -76,7 +75,7 @@ public class ApplicationDocumentService {
         }
     }
 
-    /** Files are deleted only after commit, so a rollback leaves no rows for gone files. */
+    // Files go only after commit, so a rollback never leaves rows for missing files.
     @Transactional
     public void eraseAll(UUID applicationId) {
         List<ApplicationDocument> rows = documents.findByApplicationId(applicationId);
@@ -145,7 +144,7 @@ public class ApplicationDocumentService {
     }
 
     private static boolean containsWordStream(Path file) throws IOException {
-        // Scan the whole size-limited file; OLE directory names use UTF-16LE.
+        // OLE directory names are UTF-16LE, so both encodings are searched.
         byte[] bytes = Files.readAllBytes(file);
         return contains(bytes,
                 "WordDocument".getBytes(StandardCharsets.US_ASCII))
@@ -182,7 +181,7 @@ public class ApplicationDocumentService {
         }
     }
 
-    /** Take only the last segment so a client-supplied folder cannot choose the write path. */
+    // Only the last segment is kept, so a client folder cannot pick the write path.
     private static String originalNameOf(MultipartFile file) {
         String sent = Objects.requireNonNullElse(file.getOriginalFilename(), "");
         String leaf = sent.substring(Math.max(sent.lastIndexOf('/'), sent.lastIndexOf('\\')) + 1).strip();
@@ -192,7 +191,7 @@ public class ApplicationDocumentService {
         return leaf.substring(0, Math.min(leaf.length(), ORIGINAL_NAME_LENGTH));
     }
 
-    /** A file that cannot be removed is logged by kind only, not path. */
+    // Logged by exception kind only, so no file path reaches the log.
     private static void deleteFile(Path file) {
         try {
             Files.deleteIfExists(file);

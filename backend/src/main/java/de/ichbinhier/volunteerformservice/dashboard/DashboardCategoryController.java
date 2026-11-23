@@ -135,10 +135,7 @@ public class DashboardCategoryController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Two Categories may not share a name: an applicant reads it. Compared
-     * case-insensitively after trimming, ignoring the Category being renamed.
-     */
+    // Applicants read the name, so two Categories must not share one.
     private void requireNameIsFree(String name, UUID renaming) {
         Category existing = categoryRepo.findByNameIgnoreCase(name);
         if (existing != null && !existing.getId().equals(renaming)) {

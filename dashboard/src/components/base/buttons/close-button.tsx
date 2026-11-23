@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/base/buttons/close-button.tsx`, unchanged.
- */
-
 import { X as CloseIcon } from '@untitledui/icons';
 import {
   Button as AriaButton,
@@ -27,13 +23,7 @@ interface CloseButtonProps extends AriaButtonProps {
   theme?: 'light' | 'dark';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   label?: string;
-  /**
-   * The React Aria slot the button fills. Defaults to `"close"` so it
-   * automatically closes a parent `Dialog`/`Modal` without an explicit handler.
-   * Pass `null` to opt out (e.g. when used as a `SearchField` clear button it
-   * is picked up regardless of slot).
-   * @default "close"
-   */
+  /** Defaults to "close", so it closes a parent Dialog or Modal. null opts out. */
   slot?: string | null;
 }
 

@@ -1,4 +1,4 @@
-# ichbinhier — Form Design Specification
+# ichbinhier: Form Design Specification
 
 > Design specification for the new volunteer application form for **ichbinhier e.V.**
 >
@@ -20,7 +20,7 @@ Core UX principle:
 
 > **Every additional field costs submissions.**
 
-The form should be completable on a phone in approximately **two minutes**. Anything that can be asked later — during an Info-Runde, a conversation, or the first task — must be asked later.
+The form should be completable on a phone in approximately **two minutes**. Anything that can be asked later (during an Info-Runde, a conversation, or the first task) must be asked later.
 
 The experience should communicate:
 
@@ -83,7 +83,7 @@ Avoid:
 - glassmorphism;
 - unrelated gradients;
 - blue enterprise UI as a primary palette;
-- large 24–32px rounded cards;
+- large 24 to 32px rounded cards;
 - floating labels;
 - icon-heavy inputs;
 - unnecessary progress steps;
@@ -199,7 +199,7 @@ Line-height ~1.4
 
 ```text
 13px
-Line-height ~1.35–1.4
+Line-height ~1.35 to 1.4
 ```
 
 Avoid introducing many additional sizes.
@@ -231,7 +231,7 @@ Header block → form         36px
 Form → submit               36px
 Panel inner padding         36px
 Desktop card padding        54px
-Large section spacing       54–81px
+Large section spacing       54 to 81px
 ```
 
 Do not introduce a parallel spacing system unless necessary.
@@ -425,7 +425,7 @@ Use generous whitespace without making the page feel empty.
 
 The two-minute promise is part of the UX value proposition and must remain visually prominent.
 
-The concrete next step — the date of the next Info-Runde, an individual appointment for Rechtliche Unterstützung, or an honest waitlist message — is carried by the confirmation email, not by the screen. The subheading therefore promises an email, and the screen must not promise anything it cannot show.
+The concrete next step (the date of the next Info-Runde, an individual appointment for Rechtliche Unterstützung, or an honest waitlist message) is carried by the confirmation email, not by the screen. The subheading therefore promises an email, and the screen must not promise anything it cannot show.
 
 ---
 
@@ -446,7 +446,7 @@ No additional application fields should be introduced.
 
 ---
 
-# 17. Field 1 — Route Selector
+# 17. Field 1: Route Selector
 
 ### Label
 
@@ -463,19 +463,20 @@ No additional application fields should be introduced.
 ### Options
 
 Two fixed options plus the backend-owned Vereinsarbeit categories (`A12`, see
-API.md — `GET /api/v1/categories`), in this order:
+API.md, `GET /api/v1/categories`), in this order:
 
 ```text
-1. Bei #ichbinhier mitmachen (Aktionsgruppe)     — fixed, this document
-2..n. one option per active category             — backend, display order
-n+1. Fördermitglied werden                        — fixed, this document
+1. Bei #ichbinhier mitmachen (Aktionsgruppe): fixed, this document
+2..n. one option per active category: backend, display order
+n+1. Fördermitglied werden: fixed, this document
 ```
 
 Social Media, Redaktion / Öffentlichkeitsarbeit, Rechtliche Unterstützung and
 Etwas anderes are the initial categories, not permanent options: staff members
 can rename, reorder or deactivate them, and the label shown is whatever the
-backend returns. This document no longer specifies their wording or count —
-only that they sit between the two fixed options, in the order the backend
+backend returns. This document no longer specifies their wording or count. It
+specifies only that they sit between the two fixed options, in the order the
+backend
 sends them.
 
 This field is the central decision point of the experience.
@@ -494,7 +495,7 @@ Selection:
 
 Result:
 
-- do not show fields 2–6;
+- do not show fields 2 to 6;
 - do not show application submit;
 - show direct-route CTA panel.
 
@@ -508,7 +509,7 @@ Selection:
 
 Result:
 
-- do not show fields 2–6;
+- do not show fields 2 to 6;
 - do not show application submit;
 - show membership CTA panel.
 
@@ -516,7 +517,7 @@ Result:
 
 ## Vereinsarbeit
 
-These selections open fields 2–6:
+These selections open fields 2 to 6:
 
 ```text
 Social Media
@@ -691,15 +692,15 @@ Create 12 frames/variants.
 12 Document Step
 ```
 
-The first four are mandatory for a complete design. 09–11 cover field 1
-before the applicant can do anything with it — see states 33a–33c — and are
+The first four are mandatory for a complete design. 09 to 11 cover field 1
+before the applicant can do anything with it (see states 33a to 33c) and are
 mandatory too, since the backend can return any of the three on page open
 (`A12`, API.md). 12 is the optional step after submit (section 31). It is not
 part of the form, but its copy is specified and built, so it needs a frame.
 
 ---
 
-# 27. State 01 — Initial
+# 27. State 01: Initial
 
 Visible:
 
@@ -710,7 +711,7 @@ Visible:
 
 Hidden:
 
-- fields 2–6;
+- fields 2 to 6;
 - submit button.
 
 The page must not look accidentally empty.
@@ -726,13 +727,13 @@ Do **not** solve the empty state by adding more questions.
 
 ---
 
-# 28. State 02 — Aktionsgruppe
+# 28. State 02: Aktionsgruppe
 
 Selected:
 
 **Bei #ichbinhier mitmachen (Aktionsgruppe)**
 
-Do not show fields 2–6.
+Do not show fields 2 to 6.
 
 Show a blue direct-action panel.
 
@@ -762,7 +763,7 @@ Blue is route-specific only; it is not a new primary brand color.
 
 ---
 
-# 29. State 03 — Vereinsarbeit
+# 29. State 03: Vereinsarbeit
 
 Example selected route:
 
@@ -784,7 +785,7 @@ Do not add numbered steps or progress indicators.
 
 ---
 
-# 30. State 04 — Confirmation
+# 30. State 04: Confirmation
 
 Replace the editable form with a confirmation view.
 
@@ -802,15 +803,15 @@ Replace the editable form with a confirmation view.
 
 Rules:
 
-- one confirmation for all four Vereinsarbeit categories — there is no separate variant for Rechtliche Unterstützung;
+- one confirmation for all four Vereinsarbeit categories: there is no separate variant for Rechtliche Unterstützung;
 - the only substitution is `[email]`, the address the applicant typed;
-- emphasize `[email]` so a typo is noticeable — this is the one mistake that sends an applicant back into silence;
+- emphasize `[email]` so a typo is noticeable: this is the one mistake that sends an applicant back into silence;
 - the screen shows no date, no queue position and no next step: those belong to the confirmation email, and the server sends none of them to the form (see [`API.md`](./API.md));
 - do not add vague reassurance beyond the specified copy.
 
 ---
 
-# 31. State 12 — Document Step
+# 31. State 12: Document Step
 
 Optional step after a successful submit, before the confirmation (state 04).
 The Application exists at this point, and its `applicationId` comes from the
@@ -864,7 +865,7 @@ Rules:
 
 ---
 
-# 32. State 05 — Validation Error
+# 32. State 05: Validation Error
 
 Errors appear directly below the relevant control.
 
@@ -887,7 +888,7 @@ Do not use color alone: error text must explicitly explain the issue.
 
 ---
 
-# 33. State 06 — Loading
+# 33. State 06: Loading
 
 Button label:
 
@@ -903,10 +904,10 @@ Requirements:
 
 ---
 
-# 33a. State 09 — Categories Loading
+# 33a. State 09: Categories Loading
 
 Field 1 while `GET /api/v1/categories` is in flight (API.md). Not the same as
-State 06 — this happens once, on page open, before the applicant has touched
+State 06: this happens once, on page open, before the applicant has touched
 anything.
 
 Requirements:
@@ -915,11 +916,11 @@ Requirements:
   …"), instead of the normal option list;
 - field 1 itself is disabled;
 - hint text stays visible;
-- the rest of the page is unaffected — nothing else waits on this request.
+- the rest of the page is unaffected: nothing else waits on this request.
 
 ---
 
-# 33b. State 10 — Categories Error
+# 33b. State 10: Categories Error
 
 A network failure or non-2xx response to `GET /api/v1/categories` (API.md).
 
@@ -927,34 +928,34 @@ Requirements:
 
 - field 1 stays disabled;
 - field 1 shows a single disabled option in place of the placeholder
-  ("Nicht verfügbar" — needs a copy review), instead of the normal option
+  ("Nicht verfügbar", which needs a copy review), instead of the normal option
   list, the same way State 09 does for "Lädt …";
 - an inline error message appears below field 1, stating the load failed and
-  what to do — never colour alone (section 32);
+  what to do; never colour alone (section 32);
 - a retry action (button) is offered next to the error message;
-- the frontend never falls back to a built-in category list — this state has
+- the frontend never falls back to a built-in category list: this state has
   no partial option list, only the two fixed routes are absent along with the
   categories.
 
 ---
 
-# 33c. State 11 — Categories Empty
+# 33c. State 11: Categories Empty
 
-`GET /api/v1/categories` succeeds with `{ "categories": [] }` — the
+`GET /api/v1/categories` succeeds with `{ "categories": [] }`. The
 association is not currently accepting Vereinsarbeit applications (API.md).
 This is a normal state, not an error.
 
 Requirements:
 
 - field 1 is enabled and shows exactly the two fixed options (Aktionsgruppe,
-  Fördermitglied) — no category options, no error;
+  Fördermitglied): no category options, no error;
 - a short note near field 1 explains that no Vereinsarbeit categories are
   currently open;
-- no retry action — there is nothing to retry.
+- no retry action: there is nothing to retry.
 
 ---
 
-# 34. State 07 — Mobile 375px
+# 34. State 07: Mobile 375px
 
 Required frame:
 
@@ -966,7 +967,7 @@ Requirements:
 
 - native select behaviour;
 - vertical stacked controls;
-- 54–56px field height;
+- 54 to 56px field height;
 - page gutter ~20px;
 - full-width primary CTA;
 - sticky submit area;
@@ -978,7 +979,7 @@ The mobile design is not a reduced desktop screenshot. It must be designed as a 
 
 ---
 
-# 35. State 08 — Fördermitglied
+# 35. State 08: Fördermitglied
 
 Selected:
 
@@ -1123,7 +1124,7 @@ Minimum tap target:
 Preferred form control:
 
 ```text
-54–56px
+54 to 56px
 ```
 
 Validation must never rely on color alone.
@@ -1167,7 +1168,7 @@ Card padding    ~54px
 Title            42px
 ```
 
-## Tablet 641–1024px
+## Tablet 641 to 1024px
 
 ```text
 Page gutter      32px
@@ -1412,10 +1413,10 @@ type=Fördermitglied
 
 Figma Route Panel component values: `480px` desktop width, `8px` radius and
 `36px` padding. Both variants are horizontal (icon left, content right) and
-collapse to vertical below `640px`, sharing one `80px` icon size — Aktionsgruppe
+collapse to vertical below `640px`, sharing one `80px` icon size: Aktionsgruppe
 uses a `32px` icon-to-content gap, Fördermitglied `20px`. Both use `28px` Arimo
 Bold headings, `20px` body copy, `12px` content gaps, and the existing 56px
-Button — rendered as a pill (`999px` radius, no underline, `16px` label) in
+Button, rendered as a pill (`999px` radius, no underline, `16px` label) in
 this component, blue for Aktionsgruppe and purple for Fördermitglied. The
 trailing `→` in the CTA copy renders as a drawn arrow icon, not the literal
 character, so it stays vertically centered against the label regardless of
@@ -1438,7 +1439,7 @@ white background. Logo mark is `154px` wide desktop, `120px` mobile, fixed
 4:1 aspect ratio. Desktop shows red Arimo `13px` uppercase nav links
 (`32px` gap), a `40px` gap to the actions group, the existing secondary
 Button as the `SPENDE` CTA, and a `24px` search icon; mobile shows the logo
-and a `24px` menu icon only. One markup tree serves both — the nav/actions
+and a `24px` menu icon only. One markup tree serves both: the nav/actions
 row and menu button toggle by media query at the content-driven header
 breakpoint (`900px`), not by swapping components. The form keeps its separate
 section 42 mobile breakpoint (`640px`).
@@ -1521,7 +1522,7 @@ Motion should be restrained.
 ### Revealing Vereinsarbeit fields
 
 ```text
-150–220ms
+150 to 220ms
 ease-out
 opacity + small vertical movement
 ```
@@ -1531,7 +1532,7 @@ Reveal the block together. Do not animate each field slowly.
 ### Route panel
 
 ```text
-150–200ms fade/slide
+150 to 200ms fade/slide
 ```
 
 ### Loading
@@ -1629,7 +1630,7 @@ Field 1 is therefore the core structural element of the page, not merely the fir
 - [ ] Initial state shows only field 1
 - [ ] Aktionsgruppe bypasses application submission
 - [ ] Fördermitglied bypasses application submission
-- [ ] Vereinsarbeit reveals fields 2–6
+- [ ] Vereinsarbeit reveals fields 2 to 6
 - [ ] Datenschutz checkbox is required
 - [ ] Errors are inline and specific
 - [ ] Loading prevents duplicate submission
@@ -1678,9 +1679,9 @@ API.md
 src/styles/tokens.css
 ```
 
-- `DESIGN.md` — behaviour, composition, UX rules, and Figma structure.
-- `token.json` — design variables and token source, and the input for Figma variables.
-- [`API.md`](./API.md) — what the form sends to the backend and what it gets back.
-- `src/styles/tokens.css` — the implemented token layer. Every value in the code resolves to a variable from this file; literal colours and sizes in component CSS are rejected by the linter.
+- `DESIGN.md`: behaviour, composition, UX rules, and Figma structure.
+- `token.json`: design variables and token source, and the input for Figma variables.
+- [`API.md`](./API.md): what the form sends to the backend and what it gets back.
+- `src/styles/tokens.css`: the implemented token layer. Every value in the code resolves to a variable from this file; literal colours and sizes in component CSS are rejected by the linter.
 
 The former `theme.css` has been split: its `:root` block is now `src/styles/tokens.css`, its reset is `src/styles/base.css`, and its component classes live in the CSS module of the component they style. Keeping a second copy of component styling outside the components would guarantee the two drift apart.

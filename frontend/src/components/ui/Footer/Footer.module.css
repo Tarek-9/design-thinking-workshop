@@ -4,9 +4,7 @@
   padding-block: var(--footer-padding-block);
   background: var(--color-primary);
 
-  /* Bold white text on the saturated red background renders visibly
-     thinner under subpixel antialiasing (most noticeable on macOS); force
-     grayscale smoothing so the weight actually reads as bold. */
+  /* Subpixel antialiasing thins bold white text on red; grayscale keeps the weight. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

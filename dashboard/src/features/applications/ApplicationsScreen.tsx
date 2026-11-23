@@ -1,15 +1,4 @@
-/**
- * The Anfragen screen: page header, named views, filter bar, list, drawer.
- *
- * No metric cards here — Übersicht's `OverviewStats` owns those, and links
- * into this screen via `initialFilters` so a card's count and its list agree.
- *
- * Every Application, Category and Owner it shows is handed in: `App` owns the
- * one list the four screens share, so an edit here and one made through
- * Übersicht's panel touch the same Application rather than independent copies,
- * and the day the backend replaces the mock (issue #16) nothing in this file
- * changes.
- */
+// Data is handed in: App owns the one list the four screens share.
 
 import { Archive, Inbox01 } from '@untitledui/icons';
 import type { ReactNode } from 'react';
@@ -40,31 +29,17 @@ import type { NotesField } from './useNotesDraft';
 import { notesValueFor } from './useNotesDraft';
 
 type ApplicationsScreenProps = {
-  /** The reference date the relative ages and the "Lange offen" view are read against. */
   now: Date;
-  /** The view/status a Übersicht metric card linked in with, if any. */
   initialFilters?: Partial<ApplicationFilters>;
   applications: readonly Application[];
-  /** Changes Status, Owner or internal notes on one Application — a `PATCH`, not a new list. */
   onEdit: (id: string, change: ApplicationEdit) => void;
-  /**
-   * Discards the named Applications (`A16`) — they leave this list and appear
-   * on the fourth screen.
-   */
   onDiscard: (ids: ReadonlySet<string>) => void;
-  /** Owned by Kategorien, so a Category renamed there is renamed in the filter, the list and the drawer at once. */
+  // Owned by Kategorien: a rename there shows in the filter, the list and the drawer.
   categories: readonly Category[];
   owners: readonly Owner[];
-  /**
-   * The internal-notes draft, held by the container above (`useNotesDraft`):
-   * the note is the one field that is not read from the cache while it is
-   * being typed.
-   */
+  // Held by the container: the note is not read from the cache while it is typed.
   notes: NotesField;
-  /**
-   * The drawer's Documents section for one Application, built by the container
-   * above (`ApplicationDocumentsContainer`) so this screen never reads the cache.
-   */
+  // Built by the container, so this screen never reads the cache.
   renderDocuments: (applicationId: string) => ReactNode;
 };
 
@@ -106,10 +81,7 @@ export function ApplicationsScreen({
     [applications, filters, now],
   );
 
-  /**
-   * The "of" figure counts the working list only: a discarded Application is
-   * not one of the Anfragen this screen is about (`A16`).
-   */
+  // The "of" figure excludes discarded Applications.
   const workingCount = useMemo(
     () =>
       applications.filter((application) => !isDiscarded(application)).length,
@@ -118,12 +90,8 @@ export function ApplicationsScreen({
 
   const { selected } = actions;
 
-  /**
-   * Two empty states, the pair Kategorien and Aussortiert already draw: a
-   * backend with no Applications at all is the platform's first day, while an
-   * empty list under a view, a search or a filter is a narrowing the Staff
-   * member can undo.
-   */
+  // An empty backend and an empty filter result need different copy: only the
+  // second can be undone by changing the filters.
   const nothingAtAll = applications.length === 0;
 
   return (
@@ -191,13 +159,7 @@ export function ApplicationsScreen({
               onChange={setFilters}
             />
 
-            {/*
-             * Always on the bar, disabled while nothing is checked, so the
-             * bulk action stays discoverable instead of appearing out of
-             * nowhere and shifting the toolbar the moment a row is ticked.
-             * It discards rather than deletes (`A16`) — hence the label and
-             * the archive icon, not a trash can.
-             */}
+            {/* Always shown, disabled while nothing is checked, so the toolbar does not shift. */}
             <Button
               size="md"
               color="secondary"
