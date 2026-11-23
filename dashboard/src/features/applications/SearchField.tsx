@@ -1,9 +1,3 @@
-/**
- * The compact search control in `ApplicationsToolbar`, and on Kategorien.
- * Purely presentational — each screen owns what counts as a hit, and the ⌘K
- * hint it renders is wired by `useSearchShortcut` in the screen above it.
- */
-
 import { SearchLg } from '@untitledui/icons';
 import { forwardRef } from 'react';
 

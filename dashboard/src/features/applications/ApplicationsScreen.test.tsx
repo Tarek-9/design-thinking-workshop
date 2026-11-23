@@ -17,12 +17,6 @@ import type { NotesDraft } from './useNotesDraft';
 
 const NOW = new Date('2026-09-05T12:00:00.000Z');
 
-/**
- * Mirrors what `ApplicationsContainer` hands down, so a test exercises the
- * screen against the same wiring the application uses. The notes draft is held
- * here for the same reason it is held there: while one exists the field shows
- * it rather than the list's value.
- */
 function Host({ initial }: { initial?: Application[] } = {}) {
   const [applications, setApplications] = useState<Application[]>(
     () => initial ?? createMockApplications(NOW),
@@ -64,7 +58,6 @@ describe('ApplicationsScreen', () => {
 
     expect(screen.getByText(de.applications.empty)).toBeInTheDocument();
     expect(screen.getByText(de.applications.emptyHint)).toBeInTheDocument();
-    // The pager offered "Zurück | 1 | Weiter" under the empty state before.
     expect(
       screen.queryByRole('button', { name: de.pagination.next }),
     ).not.toBeInTheDocument();
@@ -211,7 +204,7 @@ describe('ApplicationsScreen', () => {
     expect(row()).toHaveClass('bg-bg-unread');
     expect(name()).toHaveClass('font-semibold');
 
-    /** Zuständigkeit is a listbox, not a `select`: open it, then pick a row. */
+    // Zuständigkeit is a listbox: open it, then pick the option.
     async function assignOwner(ownerName: string): Promise<void> {
       await user.click(
         screen.getByRole('button', {

@@ -1,11 +1,4 @@
-/**
- * Focuses a search input on ⌘K / Ctrl+K.
- *
- * `SearchField` renders the ⌘K hint unconditionally, so every screen that
- * mounts one owes the reader the shortcut behind it — a key cap that does
- * nothing is worse than no key cap. This hook is that behaviour, shared by
- * Anfragen's toolbar and Kategorien rather than written twice.
- */
+// SearchField shows the ⌘K hint on every screen, so the shortcut works on all of them.
 
 import type { RefObject } from 'react';
 import { useEffect } from 'react';

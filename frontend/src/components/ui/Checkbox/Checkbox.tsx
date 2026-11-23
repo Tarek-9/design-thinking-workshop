@@ -10,12 +10,7 @@ interface CheckboxProps extends Omit<
   children: ReactNode;
 }
 
-/**
- * Domain-free consent-style checkbox matching the Figma Checkbox component.
- *
- * Its label is supplied as children so callers can provide their own text and
- * links without coupling this UI component to applicant-facing copy.
- */
+/** The label arrives as children, so no applicant copy lives in this component. */
 export function Checkbox({
   children,
   className,

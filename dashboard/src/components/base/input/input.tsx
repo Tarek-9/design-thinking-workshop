@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/base/input/input.tsx`, unchanged.
- */
-
 import { Eye, EyeOff, HelpCircle, InfoCircle } from '@untitledui/icons';
 import {
   type ComponentType,
@@ -30,34 +26,19 @@ import { de } from '@/content/de';
 import { cx, sortCx } from '@/utils/cx';
 
 export interface InputBaseProps extends Omit<AriaInputProps, 'size'> {
-  /** Tooltip message on hover. */
   tooltip?: string;
-  /** Whether the input is invalid. */
   isInvalid?: boolean;
-  /** Whether the input is disabled. */
   isDisabled?: boolean;
-  /** Whether the input is required. */
   isRequired?: boolean;
-  /**
-   * Input size.
-   * @default "sm"
-   */
   size?: 'sm' | 'md' | 'lg';
-  /** Placeholder text. */
   placeholder?: string;
-  /** Class name for the icon. */
   iconClassName?: string;
-  /** Class name for the input. */
   inputClassName?: string;
-  /** Class name for the input wrapper. */
   wrapperClassName?: string;
-  /** Class name for the tooltip. */
   tooltipClassName?: string;
-  /** Keyboard shortcut to display. */
   shortcut?: string | boolean;
   ref?: Ref<HTMLInputElement>;
   groupRef?: Ref<HTMLDivElement>;
-  /** Icon component to display on the left side of the input. */
   icon?: ComponentType<HTMLAttributes<HTMLOrSVGElement>>;
 }
 
@@ -81,11 +62,9 @@ export const InputBase = ({
 }: InputBaseProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  // Check if the input has a leading icon or tooltip
   const hasTrailingIcon = tooltip || isInvalid;
   const hasLeadingIcon = Icon;
 
-  // If the input is inside a `TextFieldContext`, use its context to simplify applying styles
   const context = useContext(TextFieldContext);
 
   const inputSize = context?.size || size;
@@ -133,15 +112,12 @@ export const InputBase = ({
 
           isFocusWithin && !isDisabled && 'ring-brand ring-2',
 
-          // Disabled state styles
           isDisabled && 'cursor-not-allowed opacity-50',
           'group-disabled:cursor-not-allowed group-disabled:opacity-50',
 
-          // Invalid state styles
           isInvalid && 'ring-error_subtle',
           'group-invalid:ring-error_subtle',
 
-          // Invalid state with focus-within styles
           isInvalid && isFocusWithin && 'ring-error ring-2',
           isFocusWithin && 'group-invalid:ring-error group-invalid:ring-2',
 
@@ -150,7 +126,6 @@ export const InputBase = ({
         )
       }
     >
-      {/* Leading icon and Payment icon */}
       {Icon && (
         <Icon
           className={cx(
@@ -162,7 +137,6 @@ export const InputBase = ({
         />
       )}
 
-      {/* Input field */}
       <AriaInput
         {...inputProps}
         ref={ref}
@@ -177,7 +151,6 @@ export const InputBase = ({
         )}
       />
 
-      {/* Tooltip and help icon */}
       {tooltip && type !== 'password' && (
         <Tooltip title={tooltip} placement="top">
           <TooltipTrigger
@@ -193,7 +166,6 @@ export const InputBase = ({
         </Tooltip>
       )}
 
-      {/* Invalid icon */}
       {type !== 'password' && (
         <InfoCircle
           className={cx(
@@ -205,10 +177,9 @@ export const InputBase = ({
         />
       )}
 
-      {/* Password visibility toggle */}
       {type === 'password' && (
         <AriaButton
-          // German, like every other label a Staff member reads (`A6`).
+          // German, like every other label a Staff member reads.
           aria-label={de.fields.togglePassword}
           onClick={() => {
             setIsPasswordVisible(!isPasswordVisible);
@@ -226,7 +197,6 @@ export const InputBase = ({
         </AriaButton>
       )}
 
-      {/* Shortcut */}
       {shortcut && (
         <div
           className={cx(
@@ -317,11 +287,8 @@ export interface InputProps
       | 'iconClassName'
       | 'tooltipClassName'
     > {
-  /** Label text for the input */
   label?: string;
-  /** Helper text displayed below the input */
   hint?: ReactNode;
-  /** Whether to hide required indicator from label */
   hideRequiredIndicator?: boolean;
 }
 

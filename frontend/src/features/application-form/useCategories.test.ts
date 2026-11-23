@@ -8,7 +8,6 @@ vi.mock('./api', () => ({ fetchCategories: vi.fn() }));
 
 const mockFetchCategories = vi.mocked(fetchCategories);
 
-/** A promise plus the callbacks to settle it on demand, from outside. */
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>((r) => {
@@ -37,7 +36,7 @@ describe('useCategories', () => {
     expect(mockFetchCategories).toHaveBeenCalledTimes(2);
     expect(firstSignal?.aborted).toBe(true);
 
-    // The newer (retry) request settles first...
+    // The newer (retry) request settles first.
     await act(async () => {
       second.resolve({
         status: 'success',
@@ -52,9 +51,7 @@ describe('useCategories', () => {
       });
     });
 
-    // ...and the older, superseded request settles afterwards, with data that
-    // must never win — this is exactly what the abort/staleness guard in
-    // useCategories.ts exists to prevent.
+    // The older, superseded request settles afterwards; its data must never win.
     await act(async () => {
       first.resolve({
         status: 'success',
@@ -91,8 +88,7 @@ describe('useCategories', () => {
       expect(result.current.status).toBe('loaded');
     });
 
-    // The stale request failing must not flip an already-correct, loaded
-    // state back to an error.
+    // A stale failure must not flip the loaded state back to an error.
     await act(async () => {
       first.resolve({ status: 'failed' });
       await Promise.resolve();

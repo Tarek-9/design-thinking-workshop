@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-/** Bytes live on the upload volume under {@link #storedName}; the database keeps the original name. */
+// Bytes sit on the upload volume under storedName, not in the database.
 @Entity
 @Table(name = "application_documents")
 @Getter

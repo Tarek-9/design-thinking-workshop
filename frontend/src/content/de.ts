@@ -114,7 +114,6 @@ export const de = {
     closing: 'Vielen Dank für dein Interesse!',
   },
 
-  /** DESIGN.md section 31. */
   documents: {
     title: 'Möchtest du noch Unterlagen beifügen?',
     subtitle: 'Das ist freiwillig. Deine Bewerbung ist bereits gespeichert.',

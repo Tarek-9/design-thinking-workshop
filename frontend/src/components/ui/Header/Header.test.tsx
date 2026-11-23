@@ -38,9 +38,8 @@ describe('Header', () => {
       'https://example.org/spende',
     );
     expect(screen.getByRole('button', { name: 'Suche' })).toBeVisible();
-    // The menu button is mobile-only — CSS hides it above the 640px
-    // breakpoint, which is the width jsdom renders at in this test, so its
-    // accessible name isn't computed; assert on the attribute directly.
+    // The menu button is mobile-only and jsdom does not compute its name,
+    // so assert on the attribute.
     expect(
       container.querySelector('[aria-label="Menü öffnen"]'),
     ).toBeInTheDocument();

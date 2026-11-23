@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/base/input/label.tsx`, unchanged.
- */
-
 import { HelpCircle } from '@untitledui/icons';
 import type { ReactNode, Ref } from 'react';
 import type { LabelProps as AriaLabelProps } from 'react-aria-components';
@@ -29,10 +25,7 @@ export const Label = ({
 }: LabelProps) => {
   return (
     <AriaLabel
-      // Used for conditionally hiding/showing the label element via CSS:
-      // <Input label="Visible only on mobile" className="lg:**:data-label:hidden" />
-      // or
-      // <Input label="Visible only on mobile" className="lg:label:hidden" />
+      // Lets a className hide the label per breakpoint, e.g. lg:label:hidden.
       data-label="true"
       {...props}
       className={cx(
@@ -63,9 +56,7 @@ export const Label = ({
           placement="top"
         >
           <TooltipTrigger
-            // `TooltipTrigger` inherits the disabled state from the parent form field
-            // but we don't that. We want the tooltip be enabled even if the parent
-            // field is disabled.
+            // Stay enabled even when the parent field is disabled.
             isDisabled={false}
             className="text-fg-quaternary hover:text-fg-quaternary_hover focus:text-fg-quaternary_hover cursor-pointer transition duration-200"
           >

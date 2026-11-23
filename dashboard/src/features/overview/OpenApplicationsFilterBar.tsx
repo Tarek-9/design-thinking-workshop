@@ -1,15 +1,3 @@
-/**
- * The filter bar for Übersicht's "Offene Anfragen" panel: search, Category,
- * owner. No status or period filter, and no reset button here — those stay
- * either in Anfragen's own `FilterBar` or in the panel's header, which shows
- * reset only while a filter is active.
- *
- * Styled as a compact pill row (trigger shows the active value, no caption
- * above it) rather than labelled form fields — Category and owner open as a
- * checkmarked option menu via the Radix-backed `Select` instead of a native
- * `<select>`.
- */
-
 import { SearchLg } from '@untitledui/icons';
 
 import {
@@ -37,9 +25,7 @@ export function OpenApplicationsFilterBar({
   owners,
   onChange,
 }: OpenApplicationsFilterBarProps) {
-  // Radix `Select.Item` rejects an empty-string value (it is reserved
-  // internally to mean "no selection"), so the "all" option uses a sentinel
-  // that is mapped back to `null` on change.
+  // Radix Select.Item rejects an empty value, so "all" uses a sentinel that maps back to null.
   const ALL_VALUE = 'all';
 
   const categoryOptions = [

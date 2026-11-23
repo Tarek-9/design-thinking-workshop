@@ -1,21 +1,16 @@
 import { getJson, postJson, postMultipart } from '../../lib/http';
 import { isUuid } from '../../lib/uuid';
 import type { SubmitErrorCode } from './errors';
-import type { FixedRoute, WeeklyTime } from './routes';
+import type { WeeklyTime } from './routes';
 import { CONSENT_TEXT_VERSION } from './routes';
 import type { ApplicationValues } from './schema';
 
-/**
- * The transport layer for the form. The whole contract with the backend lives
- * here and in API.md — no other module builds a request or reads a response.
- */
+/** The whole backend contract lives here: no other module builds a request or reads a response. */
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 const APPLICATIONS_URL = `${BASE_URL}/api/v1/applications`;
-const ROUTE_SELECTIONS_URL = `${BASE_URL}/api/v1/route-selections`;
 const CATEGORIES_URL = `${BASE_URL}/api/v1/categories`;
 
-/** Category labels are 1–120 characters after trimming (`A6`, see API.md). */
 const LABEL_MAX = 120;
 
 const HTTP_CREATED = 201;
@@ -23,11 +18,7 @@ const HTTP_BAD_REQUEST = 400;
 const HTTP_TOO_MANY_REQUESTS = 429;
 const HTTP_TOO_LARGE = 413;
 
-/**
- * A field of work the backend currently accepts applications for. The
- * backend owns this data (`A12`, see ../../../CONTEXT.md, "Category") — the
- * frontend only displays it.
- */
+/** The backend owns this list, so the frontend only displays it. */
 export interface Category {
   id: string;
   label: string;
@@ -65,7 +56,7 @@ export function buildApplicationRequest(
     name: values.name,
     email: values.email,
     weeklyTime: values.weeklyTime,
-    // Omitted rather than sent empty, so the backend stores null and not ""
+    // Omitted when empty: the backend then stores null.
     ...(values.about.length > 0 ? { about: values.about } : {}),
     privacyConsent: true,
     consentTextVersion: CONSENT_TEXT_VERSION,
@@ -107,11 +98,7 @@ function readApplicationId(body: unknown): string | null {
     : null;
 }
 
-/**
- * `submissionId` must stay the same across retries of the same submission —
- * that is what lets the backend discard a duplicate caused by a dropped
- * connection instead of creating a second application.
- */
+/** Same submissionId on every retry, so a retry after a dropped connection cannot create a second application. */
 export async function submitApplication(
   values: ApplicationValues,
   submissionId: string,
@@ -154,10 +141,7 @@ export type UploadResult =
   | { status: 'field-errors'; errors: ServerFieldError[] }
   | { status: 'failed' };
 
-/**
- * Attaches the applicant's files (`API.md`); the backend stores all or none,
- * and a proxy `413` reads as an oversized file.
- */
+/** The backend stores all or none of the files. A proxy 413 also means an oversized file. */
 export async function uploadDocuments(
   applicationId: string,
   files: readonly File[],
@@ -198,11 +182,7 @@ export async function uploadDocuments(
 export type FetchCategoriesResult =
   { status: 'success'; categories: Category[] } | { status: 'failed' };
 
-/**
- * `null` means the body does not match the contract at all — a missing or
- * non-array `categories`, or an entry without a string `id`/`label` — and
- * must surface as a load failure, never as a silent empty list.
- */
+/** null means the body breaks the contract. It must fail the load, never become an empty list. */
 function readCategories(body: unknown): Category[] | null {
   if (typeof body !== 'object' || body === null) return null;
   const { categories } = body as Record<string, unknown>;
@@ -236,13 +216,7 @@ function readCategories(body: unknown): Category[] | null {
   return result;
 }
 
-/**
- * Fetches the categories currently open for applications, already in display
- * order (see API.md), once per call — cancel `signal` to drop a stale
- * request instead of letting it resolve into state. A non-2xx response, a
- * malformed body, or a network failure all surface as `failed` — the caller
- * must offer a retry, never a built-in fallback list.
- */
+/** Every failure returns failed: the caller must offer a retry, never a built-in list. */
 export async function fetchCategories(
   signal?: AbortSignal,
 ): Promise<FetchCategoriesResult> {
@@ -260,27 +234,4 @@ export async function fetchCategories(
   const categories = readCategories(body);
   if (categories === null) return { status: 'failed' };
   return { status: 'success', categories };
-}
-
-export type RouteSelection =
-  | { type: 'fixed'; route: FixedRoute }
-  | { type: 'category'; categoryId: string };
-
-/**
- * Reports which fixed route or category the applicant picked, so that A5 —
- * the assumption that roughly four in five requests want the community
- * rather than association work — becomes an observed number instead of an
- * invention (see API.md).
- *
- * Fire-and-forget by design: a broken counter must never affect an applicant,
- * so every failure is swallowed.
- */
-export function reportRouteSelection(selection: RouteSelection): void {
-  const body =
-    selection.type === 'fixed'
-      ? { route: selection.route }
-      : { route: 'CATEGORY', categoryId: selection.categoryId };
-  void postJson(ROUTE_SELECTIONS_URL, body, { keepalive: true }).catch(
-    () => undefined,
-  );
 }

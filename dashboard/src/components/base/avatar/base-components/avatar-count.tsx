@@ -1,8 +1,3 @@
-/**
- * Clone path: `components/base/avatar/base-components/avatar-count.tsx`,
- * unchanged.
- */
-
 import { cx } from '@/utils/cx';
 
 interface AvatarCountProps {

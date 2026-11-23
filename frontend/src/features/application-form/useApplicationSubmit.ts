@@ -5,16 +5,7 @@ import { type Category, submitApplication } from './api';
 import { formFieldFor } from './errors';
 import { asApplicationValues, type FormValues } from './schema';
 
-/**
- * Submits the application: calls the API, maps server field errors back onto
- * the form, and tracks the in-flight/failure state the submit row shows.
- *
- * `categoriesById` is the currently loaded category list. A route that is not
- * in it is caught here, before any network call, the same way the backend
- * would reject it with `CATEGORY_UNKNOWN` — the list can go stale between
- * page load and submit, so this is a courtesy, not a replacement for the
- * server check.
- */
+/** The category list can go stale, so this local check is only a courtesy; the server check decides. */
 export function useApplicationSubmit(
   setError: UseFormSetError<FormValues>,
   setValue: UseFormSetValue<FormValues>,
@@ -22,10 +13,7 @@ export function useApplicationSubmit(
   retryCategories: () => void,
 ) {
   const submissionId = useRef(crypto.randomUUID());
-  // A ref, not `isSubmitting` state: state only updates on the next render,
-  // but this is checked synchronously at the top of `onSubmit`, before that
-  // render happens — the ref is what makes the double-submit guard hold even
-  // for two clicks that land back-to-back.
+  // Back-to-back clicks must see the flag before the next render, so it is a ref.
   const isSubmittingRef = useRef(false);
   const [confirmed, setConfirmed] = useState<{
     applicationId: string;
@@ -69,9 +57,8 @@ export function useApplicationSubmit(
         if (!formField) continue;
         setError(formField, { message: fieldError.code, type: 'server' });
 
-        // The category the applicant picked was deactivated between page
-        // load and submit. Their other answers stay; only the choice they
-        // can no longer act on is cleared, against a freshly reloaded list.
+        // The picked category was deactivated after load. Only that answer is
+        // cleared; the rest of the form stays.
         if (fieldError.code === 'CATEGORY_UNAVAILABLE') {
           setValue('route', '');
           retryCategories();

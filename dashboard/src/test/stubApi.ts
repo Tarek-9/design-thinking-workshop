@@ -1,24 +1,6 @@
 /**
- * The backend, stubbed at `fetch` and at `EventSource`.
- *
- * There is no Mock Service Worker (issue #29) and `src/data/` is fixtures
- * only, so a test that renders the whole application stubs the two globals
- * the wire uses and answers from those fixtures. It is deliberately stateful:
- * signing out has to make `GET /me` answer `401`, or the sign-out test would
- * sign straight back in.
- *
- * The `EventSource` is inert until a test drives it. Nothing fires `open` on
- * its own, so a test that does not care about the stream is not surprised by
- * the refetch every `open` triggers — and a test that does care fires it
- * itself.
- *
- * The writes really write, which is what makes a whole-application test worth
- * running: an optimistic discard that was never sent, or one the server
- * refused, both look identical on screen until the refetch behind them asks
- * this object what happened. `writeFailure` is how a test makes every write
- * fail, so the rollback and the one notice above the screens can be watched,
- * and `readFailure` is how it makes the four reads fail while the Sign-in
- * still holds — a backend restart, from the reads' side.
+ * The backend, stubbed at `fetch` and `EventSource`. It is stateful:
+ * after sign-out, `GET /me` must answer 401, or the test signs straight back in.
  */
 
 import { vi } from 'vitest';
@@ -35,10 +17,10 @@ import type { Category } from '@/domain/category';
 import type { StaffMember } from '@/domain/staffMember';
 import type { StateChange } from '@/domain/stateChange';
 
+// Inert until a test calls fireOpen, so tests that ignore the stream get no refetch.
 export class StubEventSource {
   static latest: StubEventSource | null = null;
 
-  /** The browser's own constants, which the hook reads off the global. */
   static readonly CONNECTING = 0;
   static readonly OPEN = 1;
   static readonly CLOSED = 2;
@@ -46,12 +28,8 @@ export class StubEventSource {
   onopen: ((event: Event) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
   closed = false;
-  /**
-   * Which of the two failures a test is driving. A dropped connection leaves
-   * the source `CONNECTING` and the browser repairs it; a response — a `502`
-   * or a `401` — leaves it `CLOSED` for good, and the hook has to reopen it
-   * itself (`queries/useApplicationStream.ts`).
-   */
+  // A dropped connection stays CONNECTING and the browser repairs it. A 502 or
+  // 401 leaves it CLOSED for good, so the hook must reopen it itself.
   readyState: number = StubEventSource.CONNECTING;
 
   private readonly listeners = new Map<string, Set<EventListener>>();
@@ -75,26 +53,22 @@ export class StubEventSource {
     this.readyState = StubEventSource.CLOSED;
   }
 
-  /** What the browser does when the stream connects, and on every reconnect. */
   fireOpen(): void {
     this.readyState = StubEventSource.OPEN;
     this.onopen?.(new Event('open'));
   }
 
-  /** A dropped connection: the browser will try again by itself. */
   fireError(): void {
     this.readyState = StubEventSource.CONNECTING;
     this.onerror?.(new Event('error'));
   }
 
-  /** A response the browser gives up on — a `502` or a `401`. */
   fireErrorAndClose(): void {
     this.readyState = StubEventSource.CLOSED;
     this.closed = true;
     this.onerror?.(new Event('error'));
   }
 
-  /** One event, carrying the complete Application the contract promises. */
   emit(type: string, application: Application): void {
     const event = new MessageEvent(type, {
       data: JSON.stringify(application),
@@ -107,35 +81,19 @@ export class StubEventSource {
 }
 
 export type StubbedApi = {
-  /** Flipped by `DELETE /session`, read by `GET /me`. */
   signedIn: boolean;
   applications: Application[];
   categories: Category[];
   owners: Owner[];
   changes: StateChange[];
-  /** The Documents each Application carries, by id; an id not listed has none. */
   documents: Record<string, ApplicationDocument[]>;
-  /** What the Documents reads answer with instead of a list, when set. */
   documentsFailure: { status: number; code: string } | null;
   staffMember: StaffMember;
-  /** What `POST /session` answers with instead of a Sign-in, when set. */
   signInFailure: { status: number; code: string } | null;
-  /** What `GET /me` answers while a stream recovery check is in flight. */
   signInCheckFailure: { status: number; code: string } | null;
-  /** What every write answers with instead of doing the work, when set. */
   writeFailure: { status: number; code: string } | null;
-  /**
-   * What the four dashboard reads answer with instead of a list, when set —
-   * a backend that has gone away mid-Sign-in, which is what a `502` from
-   * nginx during a restart is.
-   *
-   * `GET /me` is deliberately left out of it, so that a test can fail the
-   * reads while the Sign-in still holds: that is the whole difference between
-   * a stale list said once above the screens and the cover coming up over
-   * them.
-   */
+  // Fails the four reads but not GET /me, so the Sign-in holds and only the lists fail.
   readFailure: { status: number; code: string } | null;
-  /** The stream the application opened, once it has opened one. */
   stream: () => StubEventSource | null;
 };
 
@@ -155,7 +113,6 @@ function problem(status: number, code: string): Response {
 
 const NO_CONTENT = () => new Response(null, { status: 204 });
 
-/** The reference date the fixtures and the application agree on. */
 export const REFERENCE_DATE = new Date('2026-09-08T09:00:00Z');
 
 export function stubApi(overrides: Partial<StubbedApi> = {}): StubbedApi {
@@ -191,7 +148,6 @@ export function stubApi(overrides: Partial<StubbedApi> = {}): StubbedApi {
         typeof init?.body === 'string'
           ? (JSON.parse(init.body) as Record<string, unknown>)
           : {})();
-      /** The path under `/api/v1/staff`, so a route reads as it does in `API.md`. */
       const path = url.slice(url.indexOf('/staff') + '/staff'.length);
 
       if (path === '/session' && method === 'POST') {
@@ -253,11 +209,7 @@ export function stubApi(overrides: Partial<StubbedApi> = {}): StubbedApi {
         );
       }
 
-      /**
-       * `PATCH …/applications/{id}` — any subset of the four fields, and the
-       * complete Application back. `discarded` is a boolean on the wire and a
-       * timestamp on the row, stamped here the way the server stamps it.
-       */
+      // The wire sends `discarded` as a boolean; the row keeps a timestamp.
       const patched = /^\/applications\/([^/]+)$/.exec(path);
       if (patched !== null && method === 'PATCH') {
         const id = patched[1];
@@ -323,7 +275,7 @@ export function stubApi(overrides: Partial<StubbedApi> = {}): StubbedApi {
         return Promise.resolve(json({ categories: api.categories }));
       }
 
-      /** The id is the server's to mint, which is half of why this awaits it. */
+      // The server mints the id, so the client has to wait for it.
       if (path === '/categories' && method === 'POST') {
         const created: Category = {
           id: crypto.randomUUID(),

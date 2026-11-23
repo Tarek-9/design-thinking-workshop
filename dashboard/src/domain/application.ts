@@ -1,10 +1,6 @@
-/**
- * The Application domain types, as `CONTEXT.md` defines them. Identifiers and
- * enum values are English (ADR-0003); every German string the staff member
- * reads lives in `src/content/de.ts`.
- */
+/** Identifiers and enum values are English; German wording lives in content/de.ts. */
 
-/** The status flow proposed in `A9`. `categorised` is deliberately not a status. */
+/** `categorised` is not a status. */
 export const APPLICATION_STATUSES = [
   'NEW',
   'IN_REVIEW',
@@ -16,11 +12,7 @@ export const APPLICATION_STATUSES = [
 
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 
-/**
- * How much time an Applicant offers per week. A band, not a number of hours:
- * the form asks for one of these four and `IRREGULAR` is not a quantity at
- * all (`API.md`, "Wire names").
- */
+/** Bands: IRREGULAR is no quantity, so hours cannot express it. */
 export const WEEKLY_TIMES = [
   'HOURS_1_2',
   'HOURS_3_5',
@@ -30,33 +22,16 @@ export const WEEKLY_TIMES = [
 
 export type WeeklyTime = (typeof WEEKLY_TIMES)[number];
 
-/**
- * The statuses that mean an Application is done, one way or the other.
- * Übersicht's "Offene Anfragen" panel (`A13`) excludes these; every other
- * status counts as open, so this list — not a single status — is what "open"
- * means.
- */
+/** Done one way or the other. Every other status counts as open. */
 export const COMPLETED_APPLICATION_STATUSES: readonly ApplicationStatus[] = [
   'ACTIVE',
   'DECLINED',
 ];
 
-/**
- * A Category always names Vereinsarbeit. The backend owns the list (`A12`);
- * the mock stands in for it until the contract in issue #16 exists. The type
- * and the rules over it live in `domain/category.ts` — re-exported here
- * because every Application-facing component already reads it from this file.
- */
+/** Re-exported: every Application-facing component reads it from here. */
 export type { Category } from './category';
 
-/**
- * The Staff member who owns an Application. An Application may have none.
- *
- * A name and an id, which is all `GET /api/v1/staff/members` sends: no
- * address, because the selector and the filter show names and an address per
- * row would spread personal data further than either screen needs, and no
- * photo, because there is none to send (`domain/staffMember.ts`).
- */
+/** Name and id only: no address, so personal data stays off the selector. */
 export type Owner = {
   id: string;
   name: string;
@@ -68,73 +43,40 @@ export type Application = {
   email: string;
   submittedAt: string;
   categoryId: string;
-  /** The time band the Applicant picked on the form. */
   weeklyTime: WeeklyTime;
   status: ApplicationStatus;
   ownerId: string | null;
-  /**
-   * What the Applicant wrote about themselves. `null` when they wrote
-   * nothing — the backend stores an empty text as no text (`API.md`), so a
-   * row must not assume a string here.
-   */
+  /** Null when nothing was written: the backend stores empty text as no text. */
   about: string | null;
-  /**
-   * What a Staff member wrote about the Application. The column is nullable,
-   * but the wire never is — the backend coalesces a stored `null` to `""`
-   * (`API.md`) — so the textarea always binds to a string.
-   */
+  /** Never null on the wire: the backend turns a stored null into "". */
   internalNotes: string;
-  /**
-   * When a Staff member discarded it, or `null` while it is in the working
-   * list (`A16`). Server-stamped on the wire (`API.md`); the mock stamps it
-   * here. Discarded is not a Status — an Application carries both at once.
-   */
+  /** Null while in the working list. Discarded is not a Status. */
   discardedAt: string | null;
-  /** When the Applicant agreed to the consent text, server-stamped. */
   consentAt: string;
-  /** Which wording of the consent text they agreed to, e.g. `2026-09`. */
+  /** Which consent wording they agreed to, e.g. `2026-09`. */
   consentTextVersion: string;
 };
 
-/**
- * What a Staff member may change about an Application; the rest is
- * server-owned. It is the body of `PATCH /applications/{id}` (`API.md`), which
- * is why the screens hand one of these up rather than a replacement list — a
- * per-field change is not recoverable from a new array.
- */
+/** The three fields a Staff member may change. The rest is server-owned. */
 export type ApplicationEdit = Partial<
   Pick<Application, 'status' | 'ownerId' | 'internalNotes'>
 >;
 
-/**
- * An Application nobody has taken on yet. The Applications list reads this as
- * its unread state (`A14`): as long as no Staff member owns the Application,
- * the row stays emphasised; assigning an Owner — or clearing one — flips it.
- */
+/** No Owner yet: the row stays emphasised until one is assigned. */
 export function isUnassigned(
   application: Pick<Application, 'ownerId'>,
 ): boolean {
   return application.ownerId === null;
 }
 
-/**
- * An Application a Staff member has taken out of the working list without
- * erasing it (`A16`). It keeps its Category, Status, Owner and notes, and only
- * the fourth screen shows it: Anfragen, Übersicht's panel, the metric cards
- * and the view counts all read the working list, which is every Application
- * this predicate says no to.
- */
+/** Out of the working list but kept, shown only on the fourth screen. */
 export function isDiscarded(
   application: Pick<Application, 'discardedAt'>,
 ): boolean {
   return application.discardedAt !== null;
 }
 
-/**
- * Discards the named Applications, or restores them when `discardedAt` is
- * `null`. One function for both directions, because they are one field and
- * the wire has one endpoint for them too (`PATCH … { discarded }`).
- */
+/** One function for both directions: discarding and restoring are one field. */
 export function setDiscarded(
   applications: readonly Application[],
   ids: ReadonlySet<string>,
@@ -145,40 +87,18 @@ export function setDiscarded(
   );
 }
 
-/**
- * How much a Staff member may write into `internalNotes` before the backend
- * answers `NOTES_TOO_LONG` (`API.md`). The German wording of that code counts
- * from this number, and the textarea will cap at it.
- */
+/** The backend's NOTES_TOO_LONG limit, and the textarea cap. */
 export const INTERNAL_NOTES_MAX_LENGTH = 4000;
 
-/**
- * How long typing has to pause before the note is sent. `API.md` requires the
- * debounce rather than merely suggesting it: a request per keystroke looks,
- * from the server, like a flood, and the note is the one field a Staff member
- * writes a paragraph into.
- */
+/** A request per keystroke would look like a flood to the server. */
 export const NOTES_DEBOUNCE_MS = 800;
 
-/** The named views over the Applications list that issue #10 asks for. */
 export const APPLICATION_VIEWS = ['all', 'unassigned', 'stale'] as const;
 
 export type ApplicationView = (typeof APPLICATION_VIEWS)[number];
 
-/**
- * The age at which an Application counts as stale (`A19`). The German label
- * on the "stale" view is built from this number, so the two cannot disagree.
- */
+/** The German label of the "stale" view is built from this number. */
 export const STALE_AFTER_DAYS = 7;
 
-/**
- * The whole body of `PATCH /api/v1/staff/applications/{id}`: an edit plus the
- * discard flag (`API.md`). `discarded` is not a field on an Application — the
- * server stamps `discardedAt` from its own clock and sends the stamp back — so
- * it cannot be picked out of the type the way the three editable fields are.
- *
- * An absent key means "leave it alone" and `ownerId: null` means "clear the
- * Owner", which is why every caller builds one of these with only the keys it
- * means rather than spreading a whole Application over it.
- */
+/** Absent keys are left alone and `ownerId: null` clears the Owner, so never spread an Application. */
 export type ApplicationPatch = ApplicationEdit & { discarded?: boolean };

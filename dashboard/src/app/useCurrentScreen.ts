@@ -1,8 +1,4 @@
-/**
- * Reads which screen the sidebar's `#fragment` links point at. `useSyncExternalStore`
- * over `window.location.hash` rather than an effect + `useState`, since the hash is
- * external state React does not own.
- */
+/** The hash is external state, so it is read through `useSyncExternalStore`. */
 
 import { useSyncExternalStore } from 'react';
 

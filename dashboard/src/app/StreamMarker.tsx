@@ -1,23 +1,4 @@
-/**
- * Whether the dashboard is live.
- *
- * `API.md` rules out a polling fallback and asks for this instead: a
- * dashboard that silently displays yesterday's queue is worse than one that
- * admits it is disconnected. So the marker is not decoration — it is the only
- * thing that distinguishes "no new Anfragen" from "no connection", and it
- * says what to do about the second.
- *
- * `aria-live="polite"` rather than `assertive`: losing the stream does not
- * interrupt what a Staff member is doing, and the row they are reading stays
- * correct.
- *
- * It reads from the left, not the right end of the strip, because an open
- * `ApplicationDrawer` lies over that corner and "Nicht verbunden" is the only
- * reason the marker exists (issue #64). A quiet status in the corner was the
- * nicer arrangement and loses to the corner being occupied. `DRAWER_RESERVE`
- * finishes the job: the wording wraps before the drawer's column instead of
- * running under it, since the hint is the half that says what to do.
- */
+/** No polling fallback, so a lost connection must be visible; left-aligned, as the drawer covers the right end. */
 
 import { de } from '@/content/de';
 import { cx } from '@/utils/cx';

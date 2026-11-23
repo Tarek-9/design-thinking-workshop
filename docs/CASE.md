@@ -1,8 +1,8 @@
 # Case: "Ich bin hier e.V."
 
-- [`CONTEXT.md`](../CONTEXT.md) — canonical terms (association, applicant, volunteer, onboarding, platform)
-- [`DISNEY.md`](./DISNEY.md) — Walt Disney method: Dreamer, Realist, Critic (Questioner)
-- [`ASSUMPTIONS.md`](./ASSUMPTIONS.md) — every number and process step we invented, and why (the client does not answer us)
+- [`CONTEXT.md`](../CONTEXT.md): canonical terms (association, applicant, volunteer, onboarding, platform)
+- [`DISNEY.md`](./DISNEY.md): Walt Disney method with Dreamer, Realist, Critic (Questioner)
+- [`ASSUMPTIONS.md`](./ASSUMPTIONS.md): every number and process step we invented, and why (the client does not answer us)
 
 Quotes from the Team Canvas below are kept verbatim as recorded in the session,
 even where they use a non-canonical term.
@@ -52,7 +52,7 @@ Our solution should deliver a system that
 
 # Team Canvas
 
-## Goals — Shared & Personal Goals
+## Goals: Shared & Personal Goals
 
 **What do we want to achieve together?**
 
@@ -83,7 +83,7 @@ prototype platform that can be displayed.
 | Anna | Goals |
 | Lawrence | Business Model, Presentation |
 
-## Purpose — Team Motivation
+## Purpose: Team Motivation
 
 **Why does this project matter?**
 

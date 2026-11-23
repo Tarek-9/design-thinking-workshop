@@ -7,15 +7,7 @@ type CategoriesState =
   | { status: 'loaded'; categories: Category[] }
   | { status: 'error'; categories: Category[] };
 
-/**
- * Loads the category list once when the form opens (see API.md) and exposes
- * a `retry` for both the manual retry button and a `CATEGORY_UNAVAILABLE`
- * response, which must reload the list rather than trust the stale one.
- *
- * Each load aborts whatever request came before it, so a superseded fetch
- * (StrictMode's double mount in dev, an unmount mid-flight, or a retry fired
- * while the previous request is still in flight) never lands in state.
- */
+/** Each load aborts the one before it, so a superseded fetch (StrictMode double mount, retry) never lands. */
 export function useCategories() {
   const [state, setState] = useState<CategoriesState>({
     status: 'loading',

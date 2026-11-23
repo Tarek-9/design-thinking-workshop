@@ -14,19 +14,13 @@ import de.ichbinhier.volunteerformservice.FieldLimits;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Bound field by field through the setters — no all-args constructor, because
- * Jackson would take it as a creator and never call {@link #setOwnerId}, which
- * is what tells an absent {@code ownerId} from an explicit {@code null}.
- */
+// No all-args constructor: Jackson would use it and skip setOwnerId, and an
+// absent ownerId must differ from an explicit null.
 @Data
 @NoArgsConstructor
 public class UpdateApplicationRequest {
 
-    /**
-     * What an applicant wrote. Present in a request means rejected, not ignored:
-     * silently dropping it would let a future bug look like it worked.
-     */
+    // Sent immutable fields are rejected; ignoring them would hide client bugs.
     private static final Set<String> IMMUTABLE_FIELDS = Set.of(
         "name", "email", "about", "weeklyTime", "categoryId", "consentAt", "consentTextVersion");
 
@@ -44,12 +38,7 @@ public class UpdateApplicationRequest {
     @JsonIgnore
     private final Set<String> immutableFieldsSent = new LinkedHashSet<>();
 
-    /**
-     * Absent and {@code null} differ for {@code ownerId}: absent leaves the
-     * Owner alone, {@code null} clears it. Jackson calls the setter only for a
-     * field the request actually carries, so the setter is what tells them
-     * apart.
-     */
+    // Absent leaves the Owner alone and null clears it: the setter records which was sent.
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
         this.fieldsSent.add("ownerId");

@@ -5,10 +5,7 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.StringUtils;
 
-// True exactly when resend.api-key resolves to a non-blank value. Shared by
-// ResendEmailSender (@Conditional(HasResendApiKey.class)) and NoopEmailSender
-// (its negation), so exactly one EmailSender bean always exists — see the
-// comment on ResendEmailSender for why this isn't @ConditionalOnMissingBean.
+// Shared with NoopEmailSender (its negation): exactly one EmailSender bean exists.
 class HasResendApiKey implements Condition {
 
     @Override

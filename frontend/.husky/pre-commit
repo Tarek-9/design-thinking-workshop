@@ -1,5 +1,3 @@
-# Formatting and auto-fixable lint only. Typecheck, stylelint in full and the
-# test suite run in CI — a hook that takes half a minute gets bypassed with
-# --no-verify, and then it protects nothing.
+# Only fast checks here; a slow hook gets bypassed. The full suite runs in CI.
 cd frontend || exit 0
 npx lint-staged

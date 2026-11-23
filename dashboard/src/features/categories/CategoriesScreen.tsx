@@ -1,19 +1,3 @@
-/**
- * The Kategorien screen: the list an Applicant picks from on the form, edited
- * by a Staff member without a release (`A12`).
- *
- * It is built out of the same three parts Anfragen is — page header, tab strip
- * over a search bar, one table card — so moving between the two screens is a
- * change of content, not of layout. What Anfragen keeps and this screen drops:
- * sorting, selection and pagination, none of which a list of four rows that
- * carries its own order can use.
- *
- * The summary strip above the table is the one thing Anfragen has no
- * counterpart for. It answers the question this screen exists for and the
- * table alone cannot: how much of the form is actually reachable right now,
- * and which Categories nobody has ever chosen.
- */
-
 import { Plus, Tag01 } from '@untitledui/icons';
 import { useMemo, useRef, useState } from 'react';
 
@@ -38,25 +22,16 @@ import { CategoriesTable } from './CategoriesTable';
 import { CategoryDialog } from './CategoryDialog';
 
 type CategoriesScreenProps = {
-  /**
-   * Owned by `App`, so a Category renamed here is the same one Anfragen's
-   * filter, its rows and the drawer read.
-   */
+  // Owned by App, so a rename here shows on the other screens too.
   categories: readonly Category[];
-  /** Appends a Category; the id is the server's to mint (`API.md`), never this screen's. */
   onCreate: (draft: CategoryDraft) => void;
-  /** Renames or redescribes one Category. */
   onEdit: (id: string, draft: CategoryDraft) => void;
-  /** Takes a Category out of the form, or puts it back (`A15`). */
   onSetActive: (id: string, active: boolean) => void;
   onDelete: (id: string) => void;
-  /** The whole display order, the body of `PUT …/categories/order` (`API.md`). */
   onReorder: (orderedIds: readonly string[]) => void;
-  /** Read-only here — only for the "Anfragen" column and the delete guard. */
   applications: readonly Application[];
 };
 
-/** `null` while the dialog is closed, a Category while editing, `'new'` while adding. */
 type Editing = Category | 'new' | null;
 
 function matchesView(category: Category, view: CategoryView): boolean {
@@ -92,19 +67,13 @@ export function CategoriesScreen({
   const [view, setView] = useState<CategoryView>('all');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Editing>(null);
-  /** The Category whose deletion is waiting on its confirmation. */
   const [deleting, setDeleting] = useState<Category | null>(null);
 
   const searchRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchRef);
 
-  /**
-   * Two counts, because they answer different questions (`API.md`): the
-   * column shows how many Anfragen a Staff member can actually open under
-   * this Category, while the delete guard counts every Application that names
-   * it — a discarded one included, since restoring it must not land on a
-   * Category that no longer exists (`A15`).
-   */
+  // The column skips discarded Applications; the delete guard counts them, because
+  // a restored one must not point at a deleted Category.
   const usage = useMemo(
     () =>
       countApplicationsPerCategory(
@@ -143,12 +112,12 @@ export function CategoriesScreen({
   );
 
   const activeCount = categories.filter((category) => category.active).length;
-  /** "Bisher nie ausgewählt" — a discarded Application was still a choice. */
+  // A discarded Application still counts as a choice here.
   const unusedCount = categories.filter(
     (category) => (namedBy.get(category.id) ?? 0) === 0,
   ).length;
 
-  /** Swapping with a neighbour only makes sense while every row is on screen. */
+  // Swapping with a neighbour only makes sense while every row is on screen.
   const canReorder = view === 'all' && search.trim() === '';
 
   function save(draft: CategoryDraft): void {
@@ -165,11 +134,8 @@ export function CategoriesScreen({
     setEditing(null);
   }
 
-  /** Opens the question; the dialog's confirming button is what deletes. */
   function remove(category: Category): void {
-    // The row's delete button is already disabled in this case; the guard is
-    // here as well because "no Application loses its Category" is a rule of
-    // the data (`A15`), not a property of one button.
+    // The row button is disabled too; this check guards the data rule.
     if ((namedBy.get(category.id) ?? 0) > 0) {
       return;
     }
@@ -217,11 +183,6 @@ export function CategoriesScreen({
         }
       />
 
-      {/*
-        One card split into three, rather than three cards: these are parts of
-        the same count, and Übersicht's separate cards are separate because
-        each opens a different list. Nothing here is a link.
-      */}
       <div className="border-border-secondary bg-bg-primary grid grid-cols-1 overflow-hidden rounded-xl border sm:grid-cols-3">
         {summary.map((cell, index) => (
           <div
@@ -320,8 +281,7 @@ export function CategoriesScreen({
 
       {editing !== null && (
         <CategoryDialog
-          // The dialog holds the draft in its own state; the key makes editing
-          // a second Category a fresh dialog rather than a stale one.
+          // Keyed so a second edit starts from fresh draft state.
           key={editing === 'new' ? 'new' : editing.id}
           category={editing === 'new' ? null : editing}
           categories={categories}

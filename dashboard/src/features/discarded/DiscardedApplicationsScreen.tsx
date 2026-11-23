@@ -1,34 +1,3 @@
-/**
- * The fourth screen: the Discarded Applications (`A16`).
- *
- * Discarding on Anfragen or on Übersicht's panel takes an Application out of
- * the working list and leaves it here, with its Category, Status, Owner and
- * notes intact. From here a Staff member either restores it, or erases it in a
- * second, deliberate action — the only path in the dashboard that actually
- * deletes what a person wrote, and the reason `API.md` gives it an endpoint of
- * its own.
- *
- * Assembled from the same parts the other two list screens are — page header,
- * a bar over the table card, one `ApplicationTable` — so moving here is a
- * change of content, not of layout. What it does differently, and why:
- *
- * - **two row actions instead of one.** Wiederherstellen is the way back and
- *   asks nothing; endgültig löschen names its consequence in the confirmation;
- * - **no named views, no filter.** Status and Zuständigkeit are the queues a
- *   Staff member works; this list is looked through by name, so the bar
- *   carries the search field alone;
- * - **no drawer.** Everything a Staff member can do to a discarded
- *   Application is on its row — Status, Owner and notes are not editable
- *   while it is out of the working list — so a row here opens nothing and is
- *   not clickable;
- * - **no unread emphasis.** A discarded Application without an Owner is not
- *   waiting for one, so the tint and the bold name of `A14` would point at
- *   nothing here.
- *
- * Both bulk buttons stay on the bar and disable while nothing is checked, the
- * same rule Anfragen follows, so ticking a row never shifts the bar.
- */
-
 import { Archive, FlipBackward, Trash01, Trash03 } from '@untitledui/icons';
 import { useMemo, useRef, useState } from 'react';
 
@@ -45,19 +14,11 @@ import { SearchField } from '@/features/applications/SearchField';
 import { useSearchShortcut } from '@/hooks/use-search-shortcut';
 
 type DiscardedApplicationsScreenProps = {
-  /**
-   * The discarded Applications, already selected by `App` — this screen shows
-   * every row it is handed.
-   */
   applications: readonly Application[];
-  /** Back into the working list, unchanged. */
   onRestore: (ids: ReadonlySet<string>) => void;
-  /** Gone for good; nothing keeps a copy. */
   onErase: (ids: ReadonlySet<string>) => void;
-  /** Handed down so a row reads the Category name Kategorien holds. */
   categories: readonly Category[];
   owners: readonly Owner[];
-  /** The reference date the rows' relative ages are read against. */
   now: Date;
 };
 
@@ -73,11 +34,7 @@ export function DiscardedApplicationsScreen({
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
     new Set(),
   );
-  /**
-   * Whether the bulk erase is waiting on its confirmation. A flag rather than
-   * the ids: the dialog asks about the selection as it stands, and the bar
-   * behind it cannot be ticked while the dialog holds focus.
-   */
+  // A flag: the dialog asks about the selection as it stands.
   const [eraseConfirmOpen, setEraseConfirmOpen] = useState(false);
 
   const searchRef = useRef<HTMLInputElement>(null);
@@ -89,7 +46,6 @@ export function DiscardedApplicationsScreen({
     [applications, search],
   );
 
-  /** Ids checked but no longer here cannot be acted on any more. */
   function forget(ids: ReadonlySet<string>): void {
     setSelectedIds((current) => {
       const next = new Set(current);
@@ -155,11 +111,7 @@ export function DiscardedApplicationsScreen({
             <SearchField ref={searchRef} value={search} onChange={setSearch} />
           </div>
 
-          {/*
-           * Wiederherstellen leads: it is the reason this screen exists, and
-           * the irreversible action sits after it in the danger colour, so the
-           * two never read as a pair of equals.
-           */}
+          {/* Restore leads: the irreversible action sits after it in the danger colour. */}
           <Button
             size="md"
             color="secondary"

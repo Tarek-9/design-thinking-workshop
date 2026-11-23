@@ -1,20 +1,3 @@
-/**
- * The Categories list, in the same table card Anfragen uses — same card, same
- * row height, same header treatment — so the two screens read as one product.
- *
- * Three things are deliberately different from `ApplicationTable`:
- *
- * - no sorting. The order of the rows *is* the order of the form (`A12`), so
- *   a click on a column heading would show a list that no longer matches what
- *   an Applicant sees. Reordering happens through the arrows in the first
- *   column instead;
- * - no selection column. Deleting Categories in bulk has no use here — the
- *   list is four rows long, and a Category with Applications behind it cannot
- *   be deleted at all (`A15`);
- * - the row is not clickable. Each row carries a switch and two icon buttons;
- *   a fourth, invisible click target under them would be a guess.
- */
-
 import { ArrowDown, ArrowUp, Edit01, Trash01 } from '@untitledui/icons';
 import type { ComponentType, ReactNode } from 'react';
 
@@ -25,39 +8,23 @@ import type { Category } from '@/domain/category';
 import { cx } from '@/utils/cx';
 
 type CategoriesTableProps = {
-  /** The Categories to render, already filtered by the screen. */
   categories: readonly Category[];
-  /** Applications per Category id for the usage column, discarded ones excluded. */
   usage: ReadonlyMap<string, number>;
-  /**
-   * Applications naming each Category id, discarded ones **included** — the
-   * delete guard only (`API.md`: `applicationCount` excludes them,
-   * `deletable` does not). A discarded Application still needs its Category's
-   * name for the day it is restored (`A15`).
-   */
+  // Includes discarded Applications, because the delete guard must see them.
   namedBy: ReadonlyMap<string, number>;
-  /**
-   * Position and neighbours are read from the full list, so a filtered view
-   * still numbers its rows the way the form orders them.
-   */
+  // Positions come from the full list, so filtered rows keep the form's numbering.
   allCategories: readonly Category[];
-  /**
-   * Reordering needs every row on screen; a search or a tab hides part of the
-   * list, and swapping with a neighbour nobody can see is a move a Staff
-   * member cannot predict.
-   */
+  // Only true with every row on screen, so a move stays predictable.
   canReorder: boolean;
   onEdit: (category: Category) => void;
   onDelete: (category: Category) => void;
   onToggleActive: (category: Category, active: boolean) => void;
   onMove: (category: Category, direction: -1 | 1) => void;
-  /** Rendered inside the card when `categories` is empty. */
   emptyState: ReactNode;
 };
 
 const PERCENT = 100;
 
-/** The widest usage bar, so the column compares Categories against each other. */
 function maxUsage(usage: ReadonlyMap<string, number>): number {
   return Math.max(1, ...usage.values());
 }
@@ -98,14 +65,8 @@ export function CategoriesTable({
           <Table.Head id="actions" aria-label={de.categories.columns.actions} />
         </Table.Header>
 
-        {/*
-         * `dependencies` is not optional here. React Aria caches a rendered
-         * row against its item, so a row whose `Category` object has not
-         * changed keeps the closure it was first built with — and the
-         * position, the usage bar and the disabled state of the arrows are
-         * all read from outside the item. Without this, switching to Aktiv
-         * would leave the arrows enabled.
-         */}
+        {/* React Aria caches rows by item, so anything read from outside the item
+            (position, usage, arrow state) must be listed as a dependency. */}
         <Table.Body
           items={categories}
           dependencies={[allCategories, usage, namedBy, canReorder]}
@@ -118,7 +79,6 @@ export function CategoriesTable({
             const isFirst = position <= 0;
             const isLast = position === allCategories.length - 1;
             const count = usage.get(category.id) ?? 0;
-            /** What blocks deletion; not what the column shows. */
             const blocking = namedBy.get(category.id) ?? 0;
 
             return (
@@ -158,10 +118,7 @@ export function CategoriesTable({
                 </Table.Cell>
 
                 <Table.Cell>
-                  {/*
-                   * The name is the row's own edit affordance, so the common
-                   * action needs no aim at a 16px icon at the far right.
-                   */}
+                  {/* The name is the edit affordance, so no small icon needs aiming at. */}
                   <button
                     type="button"
                     onClick={() => {
@@ -194,11 +151,7 @@ export function CategoriesTable({
                         onToggleActive(category, active);
                       }}
                     />
-                    {/*
-                     * The switch on its own is a colour. The word beside it is
-                     * what a colour-blind reader has instead, and it follows
-                     * the status badge's rule: plain text, no second highlight.
-                     */}
+                    {/* The word is for colour-blind readers; the switch alone is only a colour. */}
                     <span
                       aria-hidden="true"
                       className={cx(
@@ -270,17 +223,13 @@ export function CategoriesTable({
 
 type IconButtonProps = {
   icon: ComponentType<{ className?: string }>;
-  /** The accessible name; the visible `title` is the short version of it. */
   label: string;
   title: string;
   isDisabled?: boolean;
   onClick: () => void;
 };
 
-/**
- * The reorder arrows. Padded to a 32px box and kept in the DOM when disabled,
- * so the column never changes width as a row moves to an end of the list.
- */
+// Stays in the DOM when disabled, so the column does not shift at the ends.
 function MoveButton({
   icon: Icon,
   label,

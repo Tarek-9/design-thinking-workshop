@@ -1,11 +1,3 @@
-/**
- * Registry path: `registry/new-york-v4/ui/card.tsx` (shadcn/ui). Wired to this
- * application's `cx` helper in place of shadcn's `cn`, to the `sd-*` tokens of
- * `shadcn-ui-theme.css`, and reduced to the four parts the dashboard renders —
- * the registry's `CardAction` and `CardFooter` came with the `dashboard-01`
- * block that is no longer part of this application.
- */
-
 import type { HTMLAttributes } from 'react';
 
 import { cx } from '@/utils/cx';

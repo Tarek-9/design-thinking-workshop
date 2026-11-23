@@ -8,12 +8,8 @@ import de.ichbinhier.volunteerformservice.application.ApplicationStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/*
- * Tells an applicant that their Application moved to another Status (A24):
- * every change sends a mail, the rejection included (A8). Text is German
- * (AGENTS.md, "Language split"). No texts name a Category: it is a lazy
- * association and no session is open after the commit.
- */
+// Every Status change mails the applicant. No text names the Category: it is a
+// lazy association and no session is open after the commit.
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -22,9 +18,7 @@ public class StatusChangeMailer {
     private final EmailSender sender;
 
 
-    // The change is already stored when this runs; a provider failure is
-    // logged, not thrown, so a saved change never becomes an error for the
-    // staff member (same as ConfirmationMailer).
+    // The change is already stored, so a mail failure is only logged.
     public void sendStatusChange(Application application) {
         Text text = textFor(application.getStatus());
         String body = """

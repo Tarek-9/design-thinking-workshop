@@ -1,8 +1,4 @@
-/**
- * The Documents an Application carries, as the drawer lists them; prop-driven
- * (`ADR-0006`). Each file is a plain same-origin link, so the Sign-in cookie
- * travels and nothing here fetches the bytes.
- */
+// Plain same-origin links: the Sign-in cookie travels, nothing here fetches the bytes.
 
 import { Download01 } from '@untitledui/icons';
 
@@ -12,7 +8,6 @@ import type { ApplicationDocument } from '@/domain/applicationDocument';
 import { formatFileSize } from '@/utils/fileSize';
 
 export type ApplicationDocumentEntry = ApplicationDocument & {
-  /** The attachment endpoint for this file, as a same-origin path. */
   href: string;
 };
 

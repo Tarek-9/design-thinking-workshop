@@ -1,8 +1,4 @@
-/**
- * Every German string a Staff member reads. The dashboard UI is German (`A6`,
- * ADR-0003); code, documents and the glossary stay English. This is the only
- * file in `dashboard/` allowed to hold applicant- or staff-facing German.
- */
+/** Every German string a Staff member reads, so the wording stays in one place. */
 
 import type { FieldErrorCode, TopLevelErrorCode } from '@/domain/apiError';
 import type {
@@ -22,40 +18,15 @@ import {
 export const de = {
   association: 'ichbinhier',
 
-  /**
-   * The states the application answers once for every screen, rather than each
-   * screen answering them again (ADR-0006): the boot fetch, its failure, a
-   * later update that failed over a list already on screen, and whether the
-   * live stream is carrying changes.
-   *
-   * The disconnected wording says what to do about it. `API.md` is explicit
-   * that there is no polling fallback — a dashboard that silently displays
-   * yesterday's queue is worse than one that admits it is disconnected — and
-   * a marker that only admits it, without naming the remedy, leaves the
-   * Staff member guessing.
-   */
+  /** No polling fallback: a silently stale list would look live. */
   dashboard: {
     loading: 'Anfragen werden geladen …',
     loadFailed: 'Die Anfragen konnten nicht geladen werden.',
-    /**
-     * The other half of the same pair, and the reason there are two wordings
-     * rather than one (issue #58). `loadFailed` belongs to the panel, where
-     * nothing really did load; this one belongs to the notice above the
-     * screens, where a list is still on display and only the update failed. So
-     * it speaks of updating rather than loading, and it names the consequence
-     * in the same words `disconnectedHint` does, because it is the same
-     * consequence.
-     */
+    /** A list is still on screen here, so this one says "updating". */
     updateFailed:
       'Die Anfragen konnten nicht aktualisiert werden. Die Liste kann veraltet sein.',
     retry: 'Erneut versuchen',
-    /**
-     * The dismiss control on the notice a failed request raises — a visible
-     * button label since issue #64 took the corner `XClose` away, so it is
-     * read rather than only announced. A failed write's sentence is `errors`:
-     * the backend sends a `code` and the dashboard words it in one place
-     * (`API.md`, "Errors").
-     */
+    /** Visible text: a screen reader needs the label. */
     dismissFailure: 'Meldung ausblenden',
     live: 'Live',
     disconnected: 'Nicht verbunden',
@@ -86,11 +57,7 @@ export const de = {
       ownerLabel: 'Zuständigkeit',
       allCategories: 'Alle Kategorien',
       allOwners: 'Alle Zuständigen',
-      /**
-       * The panel's own two states, worded from "offen" rather than from the
-       * whole list: an Application that is Declined or Active is not open, so
-       * "keine offenen" can be true while Anfragen is full (issue #53).
-       */
+      /** Worded from "offen": a Declined or Active Application is not open. */
       empty: 'Keine offenen Anfragen.',
       emptyHint:
         'Neue Anfragen aus dem Formular erscheinen hier, die neuesten zuerst.',
@@ -107,7 +74,6 @@ export const de = {
     overview: 'Übersicht',
     applications: 'Anfragen',
     categories: 'Kategorien',
-    /** The fourth screen: Discarded Applications (`A16`). */
     discarded: 'Aussortiert',
     collapse: 'Navigation einklappen',
     expand: 'Navigation ausklappen',
@@ -130,82 +96,36 @@ export const de = {
     passwordLabel: 'Passwort',
     submit: 'Anmelden',
 
-    /**
-     * The boot question. The Sign-in is an `HttpOnly` cookie, so whether one
-     * exists is `GET /me` rather than something the dashboard can read for
-     * itself (`API.md`) — a request, and therefore a wait worth naming.
-     */
+    /** Boot question: the Sign-in cookie is HttpOnly, so only GET /me can answer it. */
     checking: 'Anmeldung wird geprüft …',
 
-    /**
-     * The cover an expired Sign-in puts over the dashboard (issue #40). It
-     * says why the form is here, because "Anmelden" over a dashboard that was
-     * working a moment ago reads as a fault rather than as the twelve hours
-     * running out (`A17`) — and it promises the work is still there, which is
-     * what the cover exists to make true.
-     *
-     * "Sitzung" is not the word: the glossary spends *Session* on Intro
-     * session (`CONTEXT.md`), and the sentence a Staff member reads keeps the
-     * same distinction the documents do.
-     */
+    /** Says why the form is back, so "Anmelden" does not read as a fault. */
     expiredTitle: 'Anmeldung abgelaufen',
     expiredSubtitle:
       'Melde dich erneut an, um weiterzuarbeiten. Deine Eingaben bleiben erhalten.',
 
-    /**
-     * The three wordings the screen can raise on its own, before a request is
-     * made — and the reason they are the only ones that sit under a field.
-     * Each names the field the Staff member has to change, so the message
-     * belongs next to it and that field takes focus.
-     *
-     * A rejected Sign-in is not among them. `INVALID_CREDENTIALS` and
-     * `RATE_LIMITED` are about the submission as a whole — the first refuses
-     * to say which of the two fields was wrong, the second says nothing about
-     * either — so once a request raises one, `errors.codes` words it above
-     * the form rather than under a field (issue #37).
-     */
+    /** Only these sit under a field: a rejected Sign-in names neither field. */
     emailRequired: 'Bitte gib deine E-Mail-Adresse ein.',
     emailInvalid: 'Diese E-Mail-Adresse ist unvollständig.',
     passwordRequired: 'Bitte gib dein Passwort ein.',
 
-    /**
-     * Stated instead of a "Passwort vergessen?" link, because there is no
-     * reset flow behind such a link — issue #16 owns the one that will be.
-     */
+    /** Shown as text: there is no reset flow behind a link yet. */
     passwordResetHint:
       'Konten legt der Vorstand an, und er setzt auch Passwörter zurück.',
   },
 
   fields: {
-    /** The password input's own visibility toggle, in every form. */
     togglePassword: 'Passwort anzeigen oder verbergen',
-    /**
-     * The countdown under a capped field. One wording for the Category
-     * description and for the internal notes: both count down to a limit the
-     * backend enforces too (`API.md`), and two sentences for one idea would
-     * drift apart.
-     */
+    /** One wording for both capped fields, so the two countdowns cannot drift apart. */
     remaining: (count: number) => `Noch ${String(count)} Zeichen`,
   },
 
-  /**
-   * The one word every confirmation dialog shares. The confirming button is
-   * worded per action — it names what the click does, so "OK" appears
-   * nowhere — but the way out of the question is the same everywhere, and one
-   * wording is what makes it recognisable as the way out.
-   */
+  /** Same wording in every dialog, so the way out is always recognisable. */
   confirm: {
     cancel: 'Abbrechen',
   },
 
-  /**
-   * What a Staff member reads when a request fails. The backend sends a `code`
-   * and no German (`API.md`, "Errors"), so this block is the one place a
-   * failure is worded, and `content/errorMessage.ts` is what looks a code up
-   * in it. A code neither table names — a `405` Spring raises before a
-   * controller sees the body, or one the contract grows later — falls back to
-   * `general`, so an unknown code never leaves a screen wordless.
-   */
+  /** Unknown codes fall back to general, so a screen is never left wordless. */
   errors: {
     general: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
 
@@ -213,11 +133,7 @@ export const de = {
       VALIDATION_FAILED: 'Bitte prüfe die markierten Felder.',
       NOT_DISCARDED:
         'Diese Anfrage ist nicht aussortiert. Die Liste wurde neu geladen.',
-      /**
-       * One wording for both causes — a wrong password and an address no
-       * account has read identically, because the Sign-in refuses to say
-       * which of the two it was (`API.md`).
-       */
+      /** Same for a wrong password and an unknown address: the Sign-in must not say which. */
       INVALID_CREDENTIALS: 'E-Mail-Adresse oder Passwort stimmt nicht.',
       UNAUTHENTICATED:
         'Deine Anmeldung ist abgelaufen. Bitte melde dich erneut an.',
@@ -231,12 +147,7 @@ export const de = {
         'Beim Server ist etwas schiefgegangen. Bitte versuche es noch einmal.',
     } satisfies Record<TopLevelErrorCode, string>,
 
-    /**
-     * Read next to the field the backend names, so each one is a sentence
-     * about that field alone. The three limits are the constants the dialog
-     * and the notes field count down from — the wording and the input cannot
-     * disagree about a number.
-     */
+    /** The limits are the constants the inputs count down from. */
     fields: {
       STATUS_UNKNOWN: 'Diesen Status gibt es nicht.',
       OWNER_UNKNOWN: 'Diese zuständige Person gibt es nicht mehr.',
@@ -257,28 +168,12 @@ export const de = {
     subtitle: 'Anfragen aus dem Formular, nach Eingang sortiert.',
     count: (shown: number, total: number) =>
       `${String(shown)} von ${String(total)} Anfragen`,
-    /**
-     * Not "löschen": the action takes the Application out of the working list
-     * and leaves it on the fourth screen (`A16`), and only the button there
-     * really deletes. Names the Applicant, because every row carries this one
-     * button and one label repeated eight times tells a screen reader nothing
-     * about which row it is on.
-     */
+    /** The button only moves the row; the name tells the rows apart. */
     discardOne: (name: string) => `Anfrage von ${name} aussortieren`,
-    /** The confirming button in the bulk dialog: the action, not "OK". */
     discard: 'Aussortieren',
-    /** Bare while nothing is checked, counted once the selection is non-empty. */
     discardSelected: (count: number) =>
       count === 0 ? 'Aussortieren' : `Aussortieren (${String(count)})`,
-    /**
-     * Only the bulk action asks. A single row is one click from being back —
-     * the fourth screen is the undo — while ticking rows and hitting the bar
-     * moves several at once.
-     *
-     * The question is the dialog's heading and the hint the line under it:
-     * this is the confirmation that is not about losing anything, so it says
-     * where the rows go rather than warning.
-     */
+    /** Only the bulk action asks: a single row is undone on the fourth screen. */
     confirmDiscardSelected: (count: number) =>
       count === 1
         ? '1 markierte Anfrage aussortieren?'
@@ -288,16 +183,10 @@ export const de = {
         ? 'Die Anfrage wandert mit Status, Zuständigkeit und Kategorie nach „Aussortiert“ und lässt sich von dort wiederherstellen.'
         : 'Die Anfragen wandern mit Status, Zuständigkeit und Kategorie nach „Aussortiert“ und lassen sich von dort wiederherstellen.',
 
-    /**
-     * The first day: the backend runs without the demo week (`A21`), so there
-     * is nothing here until somebody submits the form. The hint names the
-     * stream, because the next Application really does arrive without a
-     * reload.
-     */
+    /** The backend starts empty, so this shows until the first submission. */
     empty: 'Noch keine Anfrage eingegangen.',
     emptyHint:
       'Sobald jemand das Formular abschickt, erscheint die Anfrage hier, ohne Neuladen.',
-    /** Applications exist, but none in this view, search or filter. */
     noMatches: 'Keine Anfrage in dieser Ansicht.',
     noMatchesHint:
       'Andere Ansicht wählen oder Suche und Filter zurücksetzen. Aussortierte Anfragen liegen unter „Aussortiert“.',
@@ -313,7 +202,6 @@ export const de = {
 
     restore: 'Wiederherstellen',
     restoreOne: (name: string) => `Anfrage von ${name} wiederherstellen`,
-    /** Bare while nothing is checked, counted once the selection is non-empty. */
     restoreSelected: (count: number) =>
       count === 0 ? 'Wiederherstellen' : `Wiederherstellen (${String(count)})`,
 
@@ -323,13 +211,7 @@ export const de = {
       count === 0
         ? 'Endgültig löschen'
         : `Endgültig löschen (${String(count)})`,
-    /**
-     * Both confirmations ask which rows they are about; `eraseWarning` names
-     * the consequence under either question. This is the only action in the
-     * dashboard that erases what a person wrote, and there is no undo behind
-     * it (`A16`), so the consequence is one sentence in one place rather than
-     * a clause repeated in three questions.
-     */
+    /** Both questions share one consequence line: erasing has no undo. */
     confirmEraseOne: (name: string) => `Anfrage von ${name} endgültig löschen?`,
     confirmEraseSelected: (count: number) =>
       count === 1
@@ -387,11 +269,7 @@ export const de = {
     delete: 'Löschen',
     deleteOne: (name: string) => `${name} löschen`,
     confirmDelete: (name: string) => `Kategorie „${name}“ wirklich löschen?`,
-    /**
-     * Deleting is only offered for a Category no Application names (`A15`),
-     * so nothing about the Applications changes — what is lost is the wording
-     * in the form, which would have to be written again.
-     */
+    /** Only offered when no Application names the Category. */
     confirmDeleteHint:
       'Die Kategorie verschwindet aus dem Formular. Das lässt sich nicht rückgängig machen. Sie müsste neu angelegt werden.',
 
@@ -409,7 +287,7 @@ export const de = {
     noDescription: 'Keine Beschreibung',
     usageCount: (count: number) =>
       count === 1 ? '1 Anfrage' : `${String(count)} Anfragen`,
-    /** A Category behind Applications is deactivated, never deleted (`A15`). */
+    /** A Category in use is deactivated, never deleted. */
     deleteBlocked: (count: number) =>
       count === 1
         ? 'Nicht löschbar: 1 Anfrage nutzt diese Kategorie. Stattdessen deaktivieren.'
@@ -443,32 +321,16 @@ export const de = {
       save: 'Speichern',
       cancel: 'Abbrechen',
       close: 'Schließen',
-      /*
-       * No wording here for the dialog's own two checks: the backend answers
-       * `CATEGORY_NAME_REQUIRED` and `CATEGORY_NAME_TAKEN` for the same two
-       * failures, and one failure is worded once — in `errors.fields`. The
-       * description's countdown is `fields.remaining`, shared with the
-       * internal notes.
-       */
+      // The name checks are worded once, in errors.fields.
     },
   },
 
-  /**
-   * The pager under a table. The clone ships these strings in English inside
-   * the component; they are copy a Staff member reads, so they live here and
-   * `PaginationCardDefault` takes them from this file.
-   */
+  /** Read from here, so no English default reaches a Staff member. */
   pagination: {
     previous: 'Zurück',
     next: 'Weiter',
-    /**
-     * The narrow-screen counter, where the numbered pages do not fit. Kept as
-     * one sentence with placeholders rather than three fragments the component
-     * concatenates — the pager sets both numbers in medium weight, and it is
-     * the sentence, not the code, that decides where they sit.
-     */
+    /** One sentence: the pager styles both numbers. */
     position: 'Seite {page} von {total}',
-    /** Accessible name of a numbered page button. */
     page: (page: number) => `Seite ${String(page)}`,
   },
 
@@ -508,13 +370,7 @@ export const de = {
     DECLINED: 'Abgelehnt',
   } satisfies Record<ApplicationStatus, string>,
 
-  /**
-   * The four time bands the form offers, worded as the form words them
-   * (`frontend/src/content/de.ts`) so a Staff member reads what the Applicant
-   * picked. They carry no "pro Woche" suffix: `IRREGULAR` is not a quantity,
-   * and the Verfügbarkeit column and the drawer's chip already say which
-   * question these answer.
-   */
+  /** As the public form words them. IRREGULAR is no quantity, so no "pro Woche". */
   weeklyTimes: {
     HOURS_1_2: '1 bis 2 Stunden',
     HOURS_3_5: '3 bis 5 Stunden',
@@ -535,14 +391,12 @@ export const de = {
   detail: {
     title: 'Anfrage',
     close: 'Schließen',
-    /** Heading over the two controls that change the Application itself. */
     workflow: 'Workflow',
     about: 'Nachricht',
     internalNotes: 'Interne Notizen',
-    /** Stated as a hint, not as placeholder text, so it survives the first keystroke. */
+    /** Kept as a hint: placeholder text disappears on the first keystroke. */
     notesHint: 'Nur für Mitarbeitende sichtbar',
     notesPlaceholder: 'Notiz hinzufügen …',
-    /** The files the Applicant attached (`A23`). Read-only, and listed in the drawer. */
     documents: 'Unterlagen',
     documentsLoading: 'Unterlagen werden geladen …',
     documentsFailed: 'Die Unterlagen konnten nicht geladen werden.',
@@ -557,7 +411,7 @@ export const de = {
     status: 'Status',
     writeMail: 'E-Mail schreiben',
     copyMail: 'E-Mail-Adresse kopieren',
-    /** The footer button's visible label; `copyMail` stays its accessible name. */
+    /** Visible label only: copyMail stays the accessible name. */
     copyMailShort: 'Kopieren',
     copied: 'Kopiert',
   },

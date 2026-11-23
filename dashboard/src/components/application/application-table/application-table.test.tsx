@@ -66,10 +66,6 @@ describe('ApplicationTable', () => {
     expect(row?.querySelector('.bg-fuut-purple')).toBeNull();
   });
 
-  /**
-   * There is no photo anywhere: `GET /api/v1/staff/members` carries none
-   * (`API.md`), so the Zuständigkeit column has one rendering rather than two.
-   */
   it('shows an Owner as initials, with no image in the row', () => {
     const rowFor = renderTable([
       application({ id: 'owned', ownerId: 'staff-2' }),

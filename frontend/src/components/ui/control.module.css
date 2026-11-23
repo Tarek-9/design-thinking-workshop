@@ -1,7 +1,4 @@
-/**
- * Shared control surface for input, select and textarea. Each control imports
- * these classes explicitly so the three controls cannot drift apart visually.
- */
+/** Shared by input, select and textarea so the three cannot drift apart. */
 
 .control {
   width: 100%;

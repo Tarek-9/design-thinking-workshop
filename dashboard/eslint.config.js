@@ -36,7 +36,7 @@ export default tseslint.config(
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
 
-      // A literal number is a named constant (see docs/CODE_STANDARDS.md).
+      // A literal number is a named constant.
       '@typescript-eslint/no-magic-numbers': [
         'error',
         {
@@ -48,13 +48,8 @@ export default tseslint.config(
         },
       ],
 
-      // `no-magic-numbers` misses a number written directly as a JSX prop
-      // value (`offset={4}`), which the parser reads as a prop, not a literal
-      // expression. This selector closes that gap.
-      //
-      // Design tokens live in CSS. An inline style bypasses the token layer
-      // and cannot be linted for literal values. The exceptions are listed
-      // below and at each site.
+      // `no-magic-numbers` misses numbers written as JSX prop values (`offset={4}`).
+      // Inline styles bypass the CSS design tokens and cannot be linted for literal values.
       'no-restricted-syntax': [
         'error',
         {
@@ -82,10 +77,8 @@ export default tseslint.config(
     },
   },
 
-  /* Third-party component code copied in from Untitled UI (see
-     THIRD_PARTY_LICENSES). We keep it close to upstream so it stays easy to
-     re-sync, so its house style is exempt from our stricter rules rather than
-     rewritten. Code we author ourselves is not covered here. */
+  /* Copied from Untitled UI and kept close to upstream to ease re-syncing,
+     so its house style is exempt from our stricter rules. */
   {
     files: [
       'src/components/application/app-navigation/**',
@@ -114,9 +107,8 @@ export default tseslint.config(
     },
   },
 
-  /** Tests may assert on internals and use non-null assertions. Fixtures and
-     test helpers spell out literal values on purpose, so a test reads as the
-     data it runs against. */
+  // Tests may use non-null assertions. Fixtures spell out literal values on
+  // purpose, so a test reads as the data it runs against.
   {
     files: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/data/**'],
     rules: {

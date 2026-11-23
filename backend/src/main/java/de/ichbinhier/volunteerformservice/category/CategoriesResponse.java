@@ -14,9 +14,7 @@ import lombok.NoArgsConstructor;
 public class CategoriesResponse {
     List<Item> categories;
 
-    // Field is "label", not "name" — see frontend/API.md, GET
-    // /api/v1/categories. The frontend rejects any other shape as a load
-    // failure rather than guessing (readCategories in application-form/api.ts).
+    // The frontend rejects any other shape, so the field must stay "label".
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

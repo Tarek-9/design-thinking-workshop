@@ -12,41 +12,19 @@ import { de } from '@/content/de';
 import type { StaffMember } from '@/domain/staffMember';
 import { cx } from '@/utils/cx';
 
-/**
- * Copied from the Untitled UI clone
- * (`components/application/app-navigation/sidebar-navigation/sidebar-simple.tsx`).
- *
- * Two changes. The association wordmark stands in for `UntitledLogo`. The
- * clone's two search inputs are gone: the Anfragen screen has its own filter
- * bar, and a second search box that searches nothing is dead UI.
- */
-
 interface SidebarNavigationProps {
-  /** URL of the currently active item. */
   activeUrl?: string;
-  /** List of items to display. */
   items: NavItemType[];
-  /** List of footer items to display. */
   footerItems?: NavItemType[];
-  /** The signed-in Staff member shown in the account card. */
   account?: StaffMember;
-  /** Passed to the account card's Abmelden item. */
   onSignOut?: () => void;
-  /** Whether to hide the right side border. */
   hideBorder?: boolean;
-  /** Additional CSS classes to apply to the sidebar. */
   className?: string;
 }
 
 const MAIN_SIDEBAR_WIDTH = 280;
 const SLIM_SIDEBAR_WIDTH = 72;
-/**
- * Gap between the viewport's left edge and the fixed sidebar, matching the
- * page's 30px margin rhythm. Exported because `AppShell` uses the same value
- * for the screen's own inset — that is what puts the content's left edge
- * exactly this far from the sidebar's right edge rather than a Tailwind step
- * away from it.
- */
+/** AppShell insets its content by the same value, so the two stay in step. */
 export const SIDEBAR_GUTTER = 30;
 
 export const SidebarNavigationSimple = ({

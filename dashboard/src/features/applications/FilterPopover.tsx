@@ -1,11 +1,3 @@
-/**
- * Kategorie and Status, tucked behind a single "Filter" trigger instead of two
- * permanently visible selects. Selecting a value writes straight through
- * `onChange` — there is no second, popover-local filter state to keep in
- * sync. "Filter zurücksetzen" only clears `categoryId`/`status`; Search and
- * the current ViewTab are untouched.
- */
-
 import { ChevronDown, FilterLines } from '@untitledui/icons';
 import { useEffect, useRef, useState } from 'react';
 
