@@ -15,8 +15,8 @@ domain. The addresses are sign-in identities and nothing else. No mail is ever
 sent to a staff member, so none of these mailboxes has to exist.
 
 **The five initial passwords come from the environment**, `STAFF_1_PASSWORD`
-through `STAFF_5_PASSWORD` in `.env` (see `../.env.example`); there is no
-password literal anywhere in this repo. Each is read once, when its account is
+through `STAFF_5_PASSWORD` in `.env` (see `../.env.example`); the only password
+literal in this repo is the demo login below. Each is read once, when its account is
 created, and hashed with bcrypt. Set them to five distinct values before the
 first start and hand each staff member their own. Passwords are hashed with
 bcrypt at cost 12. After a change to the cost factor, existing passwords must be
@@ -56,6 +56,12 @@ SPRING_PROFILES_ACTIVE=demo ./mvnw spring-boot:run
 environment; `SPRING_PROFILES_ACTIVE=` in `.env` turns it off again. The seeder
 is skipped whole once there is any Application at all, so a restart mid-demo
 neither duplicates the week nor brings back a set somebody cleared.
+
+`demo/DemoAccountSeeder.java` adds the presentation login **`test@test.de` /
+`test`** (name "Test") when it is missing, also under the `demo` profile only.
+It runs after the demo week, because `DemoSeeder` picks Owners by their position
+in the staff list. A fresh volume therefore has a working dashboard login without
+any manual step.
 
 Every Application carries the **State changes that lead to it**, dated when they
 happened, which is what makes Übersicht's sparklines a real trend rather than
