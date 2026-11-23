@@ -76,9 +76,9 @@ class DashboardErrorContractTests {
     @Test
     void answersAMissingSignInWithUnauthenticated() throws Exception {
         mvc.perform(get("/api/v1/staff/applications"))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith("application/problem+json"))
-                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.status").value(403))
                 .andExpect(jsonPath("$.title").value("Unauthenticated"))
                 .andExpect(jsonPath("$.type").value("https://ichbinhier.eu/problems/unauthenticated"))
                 .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
@@ -87,12 +87,12 @@ class DashboardErrorContractTests {
     @Test
     void answersAnUnknownAddressAndAWrongPasswordAlike() throws Exception {
         signInWith("ashton.blackwell@ichbinhier.online", "wrong")
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith("application/problem+json"))
                 .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
 
         signInWith("nobody@ichbinhier.online", "correct horse")
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
     }
 

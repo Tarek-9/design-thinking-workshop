@@ -178,7 +178,7 @@ a proxy in front of the API must not strip `Set-Cookie` from ordinary `GET`
 responses. Sign-ins live in the backend's memory, so a restart ends all of them
 at once and every staff member meets the sign-in screen (`A17`).
 
-On failure: `401` with `code: INVALID_CREDENTIALS`, and **the same response for
+On failure: `403` with `code: INVALID_CREDENTIALS`, and **the same response for
 an unknown address as for a wrong password**. The dashboard has no
 "registered?" question to answer. After five failures from one address inside
 fifteen minutes, `429` with `code: RATE_LIMITED` and a `Retry-After` in seconds,
@@ -226,11 +226,13 @@ personal data further than the screen needs.
 
 ### When a Sign-in expires
 
-Any protected endpoint answers `401` with `code: UNAUTHENTICATED`. The
-dashboard then covers itself with the sign-in screen and, after a successful
-sign-in, continues where the staff member was, keeping unsent internal notes.
-That is the dashboard's own behaviour, mentioned here so the backend knows that
-`401` is expected mid-session and is not an error to work around.
+Any protected endpoint answers `403` with `code: UNAUTHENTICATED`. The status is
+403, not 401, because the hosted pages sit behind HTTP Basic Auth and a 401 makes
+browsers forget those credentials. The dashboard then covers itself with the
+sign-in screen and, after a successful sign-in, continues where the staff member
+was, keeping unsent internal notes. That is the dashboard's own behaviour,
+mentioned here so the backend knows that `403` is expected mid-session and is not
+an error to work around.
 
 ## Applications
 
@@ -733,15 +735,15 @@ timeout:
 
 ```
 
-When the Sign-in expires the server closes the stream with `401`. The dashboard
+When the Sign-in expires the server closes the stream with `403`. The dashboard
 never reads that status: an `EventSource` reports only `error`, so it asks
-`GET /me`, and only a `401` there covers the dashboard with the sign-in screen.
+`GET /me`, and only a `403` there covers the dashboard with the sign-in screen.
 
 `EventSource` reconnects on its own only after a _dropped_ connection. A
-response it can see (the `401` above, or a `502` from the proxy while the
+response it can see (the `403` above, or a `502` from the proxy while the
 backend restarts) closes it for good, and reconnecting is then the
 dashboard's own job; it opens a fresh stream every five seconds until one
-connects or the Sign-in turns out to be gone. This is what makes a `401` on
+connects or the Sign-in turns out to be gone. This is what makes a `403` on
 this endpoint safe to answer plainly: it costs the dashboard a reconnect, not
 the connection.
 
@@ -778,8 +780,8 @@ Top-level codes:
 | ------------- | --------------------- | ------------------------------------------------------- |
 | 400           | `VALIDATION_FAILED`   | inline errors from `errors`                             |
 | 400           | `NOT_DISCARDED`       | one general message, the list is refetched              |
-| 401           | `INVALID_CREDENTIALS` | sign-in screen shows one general message                |
-| 401           | `UNAUTHENTICATED`     | sign-in screen covers the dashboard, work is kept       |
+| 403           | `INVALID_CREDENTIALS` | sign-in screen shows one general message                |
+| 403           | `UNAUTHENTICATED`     | sign-in screen covers the dashboard, work is kept       |
 | 404           | `NOT_FOUND`           | one general message, the list is refetched              |
 | 409           | `CATEGORY_IN_USE`     | the Category cannot be deleted, deactivation is offered |
 | 429           | `RATE_LIMITED`        | one general message, the action stays retryable         |

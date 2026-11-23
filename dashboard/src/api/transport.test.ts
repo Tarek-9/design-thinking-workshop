@@ -108,9 +108,9 @@ describe('request', () => {
   it('recognises an expired Sign-in', async () => {
     fetchMock(
       respond(
-        { status: 401, code: 'UNAUTHENTICATED' },
+        { status: 403, code: 'UNAUTHENTICATED' },
         {
-          status: 401,
+          status: 403,
           headers: { 'Content-Type': 'application/problem+json' },
         },
       ),

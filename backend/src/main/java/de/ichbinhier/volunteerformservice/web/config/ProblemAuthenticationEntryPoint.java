@@ -20,10 +20,10 @@ public class ProblemAuthenticationEntryPoint implements AuthenticationEntryPoint
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException exception) throws IOException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(ApiProblem.asJson(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED"));
+        response.getWriter().write(ApiProblem.asJson(HttpStatus.FORBIDDEN, "UNAUTHENTICATED"));
     }
 
 }

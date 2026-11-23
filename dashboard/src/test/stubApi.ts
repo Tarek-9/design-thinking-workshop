@@ -1,6 +1,6 @@
 /**
  * The backend, stubbed at `fetch` and `EventSource`. It is stateful:
- * after sign-out, `GET /me` must answer 401, or the test signs straight back in.
+ * after sign-out, `GET /me` must answer 403, or the test signs straight back in.
  */
 
 import { vi } from 'vitest';
@@ -29,7 +29,7 @@ export class StubEventSource {
   onerror: ((event: Event) => void) | null = null;
   closed = false;
   // A dropped connection stays CONNECTING and the browser repairs it. A 502 or
-  // 401 leaves it CLOSED for good, so the hook must reopen it itself.
+  // 403 leaves it CLOSED for good, so the hook must reopen it itself.
   readyState: number = StubEventSource.CONNECTING;
 
   private readonly listeners = new Map<string, Set<EventListener>>();
@@ -166,7 +166,7 @@ export function stubApi(overrides: Partial<StubbedApi> = {}): StubbedApi {
       }
 
       if (!api.signedIn) {
-        return Promise.resolve(problem(401, 'UNAUTHENTICATED'));
+        return Promise.resolve(problem(403, 'UNAUTHENTICATED'));
       }
 
       if (method !== 'GET' && api.writeFailure !== null) {
