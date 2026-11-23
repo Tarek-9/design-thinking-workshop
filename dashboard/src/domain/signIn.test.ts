@@ -9,7 +9,7 @@ const staffMember: StaffMember = {
   email: 'ashton.blackwell@ichbinhier.online',
 };
 
-/** A 401 must neither invent a Sign-in nor re-decide one that is gone. */
+/** A 403 must neither invent a Sign-in nor re-decide one that is gone. */
 describe('expireSignIn', () => {
   it('expires an active Sign-in, keeping the Staff member', () => {
     expect(expireSignIn(activeSignIn(staffMember))).toEqual({

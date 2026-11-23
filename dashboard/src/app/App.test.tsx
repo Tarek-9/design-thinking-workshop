@@ -64,7 +64,7 @@ describe('App', () => {
       screen.getByRole('menuitem', { name: de.account.signOut }),
     );
 
-    // `DELETE /session` clears the cookie, so `GET /me` now answers `401`.
+    // `DELETE /session` clears the cookie, so `GET /me` now answers `403`.
     expect(
       await screen.findByRole('heading', { name: de.auth.title }),
     ).toBeInTheDocument();
@@ -616,7 +616,7 @@ describe('App', () => {
       );
     }
 
-    it('covers the dashboard and keeps the work when a write answers 401', async () => {
+    it('covers the dashboard and keeps the work when a write answers 403', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
 
@@ -694,7 +694,7 @@ describe('App', () => {
       ).not.toBeInTheDocument();
     });
 
-    /** An `EventSource` reports only `error`: repeated failures ask `GET /me`, and only a 401 there puts the cover up. */
+    /** An `EventSource` reports only `error`: repeated failures ask `GET /me`, and only a 403 there puts the cover up. */
     it('asks whether the Sign-in is still there after repeated stream failures', async () => {
       await renderSignedIn();
       const asked = calls('GET', '/me').length;
@@ -714,7 +714,7 @@ describe('App', () => {
       expect(api.stream()?.closed).toBe(true);
     });
 
-    /** A response (nginx's 502, or the 401) closes the source for good, so the question is asked at once. */
+    /** A response (nginx's 502, or the 403) closes the source for good, so the question is asked at once. */
     it('asks at once when a response closed the stream for good', async () => {
       await renderSignedIn();
       const asked = calls('GET', '/me').length;
@@ -916,8 +916,8 @@ describe('App', () => {
       expect(calls('GET', '/staff/applications').length).toBeGreaterThan(asked);
     });
 
-    /** The 502 is one sentence; the 401 that follows covers the work, which stays mounted. */
-    it('lets the 401 behind it cover the same work', async () => {
+    /** The 502 is one sentence; the 403 that follows covers the work, which stays mounted. */
+    it('lets the 403 behind it cover the same work', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
 

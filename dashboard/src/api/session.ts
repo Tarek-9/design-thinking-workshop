@@ -25,7 +25,7 @@ export async function fetchSignedInStaffMember(): Promise<StaffMember> {
   return toStaffMember(await request<StaffMemberWire>('GET', '/me'));
 }
 
-/** Wrong password and unknown address both answer 401, so the screen cannot reveal which addresses exist. */
+/** Wrong password and unknown address both answer 403, so the screen cannot reveal which addresses exist. */
 export async function signIn(credentials: Credentials): Promise<StaffMember> {
   return toStaffMember(
     await request<StaffMemberWire>('POST', '/session', credentials),

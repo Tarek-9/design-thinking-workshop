@@ -98,7 +98,7 @@ class SignInTests {
         Thread.sleep(1200);
 
         mvc.perform(get("/api/v1/staff/me").cookie(signIn))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
     }
 
@@ -115,7 +115,7 @@ class SignInTests {
         assertThat(cookies.getFirst()).contains("Max-Age=0");
 
         mvc.perform(get("/api/v1/staff/me").cookie(signIn))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
     }
 
@@ -131,7 +131,7 @@ class SignInTests {
 
         for (int attempt = 1; attempt <= 3; attempt++) {
             signIn(EMAIL, "wrong", address)
-                    .andExpect(status().isUnauthorized())
+                    .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
         }
 
@@ -166,13 +166,13 @@ class SignInTests {
     @Test
     void forgetsAnAddressThatGetsIn() throws Exception {
         String address = "203.0.113.9";
-        signIn(EMAIL, "wrong", address).andExpect(status().isUnauthorized());
-        signIn(EMAIL, "wrong", address).andExpect(status().isUnauthorized());
+        signIn(EMAIL, "wrong", address).andExpect(status().isForbidden());
+        signIn(EMAIL, "wrong", address).andExpect(status().isForbidden());
 
         signIn(EMAIL, PASSWORD, address).andExpect(status().isOk());
 
         for (int attempt = 1; attempt <= 3; attempt++) {
-            signIn(EMAIL, "wrong", address).andExpect(status().isUnauthorized());
+            signIn(EMAIL, "wrong", address).andExpect(status().isForbidden());
         }
     }
 
@@ -191,7 +191,7 @@ class SignInTests {
 
     private void exhaust(String address) throws Exception {
         for (int attempt = 1; attempt <= 3; attempt++) {
-            signIn(EMAIL, "wrong", address).andExpect(status().isUnauthorized());
+            signIn(EMAIL, "wrong", address).andExpect(status().isForbidden());
         }
     }
 
@@ -201,7 +201,7 @@ class SignInTests {
                             .header("X-Forwarded-For", address)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(credentials(EMAIL, "wrong")))
-                    .andExpect(status().isUnauthorized());
+                    .andExpect(status().isForbidden());
         }
         mvc.perform(post("/api/v1/staff/session")
                         .header("X-Forwarded-For", address)

@@ -20,8 +20,8 @@ class StatusChangeMailerTests {
     @CsvSource(delimiter = '|', textBlock = """
             NEW | Deine Bewerbung bei ichbinhier ist wieder offen
             IN_REVIEW | Deine Bewerbung bei ichbinhier wird geprüft
-            INTRO_BOOKED | Dein Termin bei ichbinhier ist vorgemerkt
-            ACTIVE | Willkommen bei ichbinhier
+            INTRO_BOOKED | Dein Kennenlerntermin bei ichbinhier ist vorgemerkt
+            ACTIVE | Willkommen im Team von ichbinhier
             WAITLISTED | Deine Bewerbung bei ichbinhier steht auf der Warteliste
             DECLINED | Zu deiner Bewerbung bei ichbinhier
             """)
@@ -37,7 +37,22 @@ class StatusChangeMailerTests {
         assertThat(mail.subject()).isEqualTo(subject);
         assertThat(mail.body())
                 .startsWith("<p>Hallo Anna Müller,</p>")
-                .contains("<p>Dein #ichbinhier-Team</p>");
+                .contains("info@ichbinhier.online")
+                .contains("Dein #ichbinhier-Team</p>");
+    }
+
+    @Test
+    void escapesTheApplicantsName() {
+        RecordingSender sender = new RecordingSender();
+        StatusChangeMailer mailer = new StatusChangeMailer(sender);
+        Application application = application(ApplicationStatus.IN_REVIEW);
+        application.setName("<b>Anna</b>");
+
+        mailer.sendStatusChange(application);
+
+        assertThat(sender.sent.get(0).body())
+                .startsWith("<p>Hallo &lt;b&gt;Anna&lt;/b&gt;,</p>")
+                .doesNotContain("<b>Anna</b>");
     }
 
     @Test

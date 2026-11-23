@@ -104,7 +104,7 @@ function Dashboard({ now }: { now?: Date }) {
   );
 }
 
-/** Mounted only while signed in: the sign-in screen would fire four requests that can only answer 401. */
+/** Mounted only while signed in: the sign-in screen would fire four requests that can only answer 403. */
 function Screens({
   current,
   staffMember,

@@ -469,7 +469,7 @@ a dialog over a dashboard that is _still mounted_: `app/SignInCover.tsx`, a
 sibling of `AppShell` rather than a replacement for it, which is the whole
 mechanism: the filters, the open drawer and the unsent note survive because
 nothing was ever unmounted. Two things follow the cover rather than being
-decoration: the shell behind it is `inert`, and `DashboardGate` skips a `401`
+decoration: the shell behind it is `inert`, and `DashboardGate` skips a `403`
 so its failure panel cannot tear down the screens the cover is protecting.
 
 Signing in out of the cover splits by who did it. The same Staff member is
@@ -480,7 +480,7 @@ machine, so the cache goes, for the same reason "Abmelden" clears it.
 
 The stream reaches the same transition by asking rather than guessing. An
 `EventSource` reports only `error`, so `readyState` is what tells a dropped
-connection (the browser repairs it; wait) from a response (`502` or `401`; the
+connection (the browser repairs it; wait) from a response (`502` or `403`; the
 browser is done, and this hook opens a fresh stream itself). Either way the
 verdict comes from `GET /me`, so a backend that is merely down never asks a
 Staff member for a password.
@@ -511,7 +511,7 @@ marker waits out a grace period before admitting the stream is down (`A18`).
   `App.test.tsx` can drive a `application.created` event, either kind of
   stream failure, or an expired Sign-in and watch what reaches the screen. Its
   cache is `createQueryClient`'s, with `retry` and `gcTime` overridden per
-  render, so the `401` recognition is under test rather than stubbed out.
+  render, so the `403` recognition is under test rather than stubbed out.
 
 There is no Mock Service Worker, and `src/data/` is fixtures only.
 

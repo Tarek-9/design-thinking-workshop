@@ -1,5 +1,5 @@
 /**
- * A 401 on boot means nobody is signed in; a 401 later means the Sign-in ran out
+ * A 403 on boot means nobody is signed in; a 403 later means the Sign-in ran out
  * under someone working, which markSignInExpired turns into the cover.
  */
 
@@ -31,7 +31,7 @@ export const signInQuery = queryOptions({
       throw failure;
     }
   },
-  /** A 401 is a final answer: retrying would only delay the sign-in screen. */
+  /** A 403 is a final answer: retrying would only delay the sign-in screen. */
   retry: false,
 });
 
@@ -40,7 +40,7 @@ export function useCurrentSignIn() {
 }
 
 /**
- * Callers that see a 401 do not know who was signed in, so this takes no Staff
+ * Callers that see a 403 do not know who was signed in, so this takes no Staff
  * member: it only expires the Sign-in the cache holds, and waits for boot.
  */
 export function markSignInExpired(queryClient: QueryClient): void {
@@ -82,7 +82,7 @@ export function useSignIn() {
 
 /**
  * Clears on either outcome: another Staff member on a shared machine must not
- * see the previous list. A 401 burst afterwards is not an expiry: the Sign-in is gone.
+ * see the previous list. A 403 burst afterwards is not an expiry: the Sign-in is gone.
  */
 export function useSignOut() {
   const queryClient = useQueryClient();

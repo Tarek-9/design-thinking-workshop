@@ -10,15 +10,17 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import lombok.extern.slf4j.Slf4j;
+
 // Calls the Resend HTTP API directly: one POST, so an SDK would add more than it saves.
 // Not @ConditionalOnMissingBean: plain @Component classes have no guaranteed order.
+@Slf4j
 @Component
 @Conditional(HasResendApiKey.class)
 public class ResendEmailSender implements EmailSender {
 
     private final RestClient client;
     private final String fromAddress;
-
 
     // The change is already stored, so the timeouts must stay far below any gateway limit.
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
@@ -38,7 +40,6 @@ public class ResendEmailSender implements EmailSender {
                 .build();
     }
 
-
     @Override
     public void send(String toAddress, String subject, String htmlBody) {
         client.post()
@@ -50,6 +51,8 @@ public class ResendEmailSender implements EmailSender {
                         "html", htmlBody))
                 .retrieve()
                 .toBodilessEntity();
+        // No address in the log: the subject is enough to trace which mail went out.
+        log.info("Resend accepted the email \"{}\"", subject);
     }
 
 }

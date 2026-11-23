@@ -80,7 +80,7 @@ describe('SignInForm', () => {
     render(
       <SignInForm
         onSignIn={vi.fn()}
-        failure={new ApiProblem({ status: 401, code: 'INVALID_CREDENTIALS' })}
+        failure={new ApiProblem({ status: 403, code: 'INVALID_CREDENTIALS' })}
       />,
     );
 
@@ -129,7 +129,7 @@ describe('SignInForm', () => {
     render(
       <SignInForm
         onSignIn={vi.fn()}
-        failure={new ApiProblem({ status: 401, code: 'INVALID_CREDENTIALS' })}
+        failure={new ApiProblem({ status: 403, code: 'INVALID_CREDENTIALS' })}
       />,
     );
 
