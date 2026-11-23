@@ -6,7 +6,7 @@ turning them into active volunteers.
 ## Language
 
 **Association**:
-"Ich bin hier e.V." itself — a registered German _eingetragener Verein_.
+"Ich bin hier e.V." itself, a registered German _eingetragener Verein_.
 _Avoid_: Foundation, organisation, NGO, Stiftung
 
 **Staff member**:
@@ -24,20 +24,20 @@ _Avoid_: Candidate, lead, interested person
 
 **Community member**:
 Someone who joins the #ichbinhier community to act against online hate. Needs no
-staff involvement — the platform admits them end to end. Called _Aktionsgruppe_
+staff involvement: the platform admits them end to end. Called _Aktionsgruppe_
 in the German copy the applicant reads (`A6`); code and documents say community
 member.
 _Avoid_: Volunteer, follower, participant
 
 **Supporting member**:
 Someone who funds the association with a recurring contribution instead of doing
-work. Files no application and needs no staff involvement — the platform sends
+work. Files no application and needs no staff involvement. The platform sends
 them to the association's membership form. Called _Fördermitglied_ in the German
 copy the applicant reads (`A6`).
 _Avoid_: Donor, sponsor, patron, paying member
 
 **Vereinsarbeit**:
-Work inside the association itself — Social Media, Redaktion /
+Work inside the association itself: Social Media, Redaktion /
 Öffentlichkeitsarbeit, Rechtliche Unterstützung. Requires review by a staff
 member. Distinct from community participation.
 _Avoid_: Internal work, association work, staff work
@@ -46,8 +46,8 @@ _Avoid_: Internal work, association work, staff work
 The field of work an applicant selects for themselves on the form. Categories
 are backend-owned data that staff members maintain (`A12`); the initial set
 was seeded from the association's own public calls for volunteers (`A7`), but
-the backend — not the frontend — is the source of truth for which categories
-exist. A category always names Vereinsarbeit — community participation and
+the backend, not the frontend, is the source of truth for which categories
+exist. A category always names Vereinsarbeit; community participation and
 supporting membership are routes, not categories.
 _Avoid_: Department, area, tag, position
 
@@ -96,7 +96,7 @@ _Avoid_: Assignee, handler
 An Application a staff member has taken out of the working list without
 deleting it. It keeps its Category, Status and Owner, and stays on file until a
 staff member either restores it or erases it deliberately (`A16`). Discarded is
-not a Status — an Application carries both at once.
+not a Status: an Application carries both at once.
 _Avoid_: Deleted, removed, trashed, archived
 
 **State change**:
@@ -113,13 +113,13 @@ _Avoid_: Question, general mail
 
 **Onboarding**:
 Everything between an application arriving and the applicant becoming a
-volunteer — screening, the appointment, and introduction to the work.
+volunteer: screening, the appointment, and introduction to the work.
 _Avoid_: Intake, activation, signup
 
 **Sign-in**:
 A staff member's authenticated period of work in the dashboard. Bounded, and
 ended either by the staff member or by expiry (`A17`).
-_Avoid_: Session — the glossary already spends that word on Intro session, and
+_Avoid_: Session. The glossary already spends that word on Intro session, and
 a document that says "session" twice for two unrelated things is worse than a
 longer term. Also avoid: login, auth
 
