@@ -19,7 +19,6 @@ import { outcomeOf } from './routes';
 import { emptyFormValues, formSchema, type FormValues } from './schema';
 import { useApplicationSubmit } from './useApplicationSubmit';
 import { useCategories } from './useCategories';
-import { useRouteAnalytics } from './useRouteAnalytics';
 
 export function ApplicationForm() {
   const { content } = useLocale();
@@ -47,7 +46,6 @@ export function ApplicationForm() {
   const route = useWatch({ control, name: 'route' });
   const outcome = route === '' ? null : outcomeOf(route);
 
-  useRouteAnalytics(route);
   const { onSubmit, confirmed, isSubmitting, submitErrorCode } =
     useApplicationSubmit(
       setError,
