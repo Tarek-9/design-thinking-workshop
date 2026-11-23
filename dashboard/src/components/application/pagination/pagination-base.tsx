@@ -1,10 +1,3 @@
-/**
- * Clone path: `components/application/pagination/pagination-base.tsx`. Only
- * change: a page button's accessible name comes from `content/de.ts` rather
- * than the clone's English `Page n` literal. The pager variants built on this
- * live in `pagination.tsx`.
- */
-
 import type { CSSProperties, FC, HTMLAttributes, ReactNode } from 'react';
 import {
   cloneElement,
@@ -19,11 +12,8 @@ import {
 import { de } from '@/content/de';
 
 type PaginationPage = {
-  /** The type of the pagination item. */
   type: 'page';
-  /** The value of the pagination item. */
   value: number;
-  /** Whether the pagination item is the current page. */
   isCurrent: boolean;
 };
 
@@ -35,13 +25,9 @@ type PaginationEllipsisType = {
 type PaginationItemType = PaginationPage | PaginationEllipsisType;
 
 interface PaginationContextType {
-  /** The pages of the pagination. */
   pages: PaginationItemType[];
-  /** The current page of the pagination. */
   currentPage: number;
-  /** The total number of pages. */
   total: number;
-  /** The function to call when the page changes. */
   onPageChange: (page: number) => void;
 }
 
@@ -50,18 +36,12 @@ const PaginationContext = createContext<PaginationContextType | undefined>(
 );
 
 export interface PaginationRootProps {
-  /** Number of sibling pages to show on each side of the current page */
   siblingCount?: number;
-  /** Current active page number */
   page: number;
-  /** Total number of pages */
   total: number;
   children: ReactNode;
-  /** The style of the pagination root. */
   style?: CSSProperties;
-  /** The class name of the pagination root. */
   className?: string;
-  /** Callback function that's called when the page changes with the new page number. */
   onPageChange?: (page: number) => void;
 }
 
@@ -78,11 +58,8 @@ const PaginationRoot = ({
 
   const createPaginationItems = useCallback((): PaginationItemType[] => {
     const items: PaginationItemType[] = [];
-    // Calculate the maximum number of pagination elements (pages, potential ellipsis, first and last) to show
     const totalPageNumbers = siblingCount * 2 + 5;
 
-    // If the total number of items to show is greater than or equal to the total pages,
-    // we can simply list all pages without needing to collapse with ellipsis
     if (totalPageNumbers >= total) {
       for (let i = 1; i <= total; i++) {
         items.push({
@@ -92,17 +69,13 @@ const PaginationRoot = ({
         });
       }
     } else {
-      // Calculate left and right sibling boundaries around the current page
       const leftSiblingIndex = Math.max(page - siblingCount, 1);
       const rightSiblingIndex = Math.min(page + siblingCount, total);
 
-      // Determine if we need to show ellipsis on either side
       const showLeftEllipsis = leftSiblingIndex > 2;
       const showRightEllipsis = rightSiblingIndex < total - 1;
 
-      // Case 1: No left ellipsis, but right ellipsis is needed
       if (!showLeftEllipsis && showRightEllipsis) {
-        // Calculate how many page numbers to show starting from the beginning
         const leftItemCount = siblingCount * 2 + 3;
         const leftRange = range(1, leftItemCount);
 
@@ -114,21 +87,16 @@ const PaginationRoot = ({
           }),
         );
 
-        // Insert ellipsis after the left range and add the last page
         items.push({ type: 'ellipsis', key: leftItemCount + 1 });
         items.push({
           type: 'page',
           value: total,
           isCurrent: total === page,
         });
-      }
-      // Case 2: Left ellipsis needed, but right ellipsis is not needed
-      else if (showLeftEllipsis && !showRightEllipsis) {
-        // Determine how many items from the end should be shown
+      } else if (showLeftEllipsis && !showRightEllipsis) {
         const rightItemCount = siblingCount * 2 + 3;
         const rightRange = range(total - rightItemCount + 1, total);
 
-        // Always show the first page, then add an ellipsis to indicate skipped pages
         items.push({
           type: 'page',
           value: 1,
@@ -142,19 +110,14 @@ const PaginationRoot = ({
             isCurrent: pageNum === page,
           }),
         );
-      }
-      // Case 3: Both left and right ellipsis are needed
-      else if (showLeftEllipsis && showRightEllipsis) {
-        // Always show the first page
+      } else if (showLeftEllipsis && showRightEllipsis) {
         items.push({
           type: 'page',
           value: 1,
           isCurrent: page === 1,
         });
-        // Insert left ellipsis after the first page
         items.push({ type: 'ellipsis', key: leftSiblingIndex - 1 });
 
-        // Show a range of pages around the current page
         const middleRange = range(leftSiblingIndex, rightSiblingIndex);
         middleRange.forEach((pageNum) =>
           items.push({
@@ -164,7 +127,6 @@ const PaginationRoot = ({
           }),
         );
 
-        // Insert right ellipsis and finally the last page
         items.push({ type: 'ellipsis', key: rightSiblingIndex + 1 });
         items.push({
           type: 'page',
@@ -206,12 +168,6 @@ const PaginationRoot = ({
   );
 };
 
-/**
- * Creates an array of numbers from start to end.
- * @param start - The start number.
- * @param end - The end number.
- * @returns An array of numbers from start to end.
- */
 const range = (start: number, end: number): number[] => {
   const length = end - start + 1;
 
@@ -224,17 +180,11 @@ interface TriggerRenderProps {
 }
 
 interface TriggerProps {
-  /** The children of the trigger. Can be a render prop or a valid element. */
   children: ReactNode | ((props: TriggerRenderProps) => ReactNode);
-  /** The style of the trigger. */
   style?: CSSProperties;
-  /** The class name of the trigger. */
   className?: string | ((args: { isDisabled: boolean }) => string);
-  /** If true, the child element will be cloned and passed down the prop of the trigger. */
   asChild?: boolean;
-  /** The direction of the trigger. */
   direction: 'prev' | 'next';
-  /** The aria label of the trigger. */
   ariaLabel?: string;
 }
 
@@ -270,12 +220,10 @@ const Trigger: FC<TriggerProps> = ({
 
   const defaultAriaLabel = direction === 'prev' ? 'Previous Page' : 'Next Page';
 
-  // If the children is a render prop, we need to pass the isDisabled and onClick to the render prop.
   if (typeof children === 'function') {
     return <>{children({ isDisabled, onClick: handleClick })}</>;
   }
 
-  // If the children is a valid element, we need to clone it and pass the isDisabled and onClick to the cloned element.
   if (asChild && isValidElement(children)) {
     return cloneElement(children, {
       onClick: handleClick,
@@ -326,19 +274,12 @@ interface PaginationItemRenderProps {
 }
 
 export interface PaginationItemProps {
-  /** The value of the pagination item. */
   value: number;
-  /** Whether the pagination item is the current page. */
   isCurrent: boolean;
-  /** The children of the pagination item. Can be a render prop or a valid element. */
   children?: ReactNode | ((props: PaginationItemRenderProps) => ReactNode);
-  /** The style object of the pagination item. */
   style?: CSSProperties;
-  /** The class name of the pagination item. */
   className?: string | ((args: { isSelected: boolean }) => string);
-  /** The aria label of the pagination item. */
   ariaLabel?: string;
-  /** If true, the child element will be cloned and passed down the prop of the item. */
   asChild?: boolean;
 }
 
@@ -369,7 +310,6 @@ const PaginationItem = ({
   const computedClassName =
     typeof className === 'function' ? className({ isSelected }) : className;
 
-  // If the children is a render prop, we need to pass the necessary props to the render prop.
   if (typeof children === 'function') {
     return (
       <>
@@ -384,7 +324,6 @@ const PaginationItem = ({
     );
   }
 
-  // If the children is a valid element, we need to clone it and pass the necessary props to the cloned element.
   if (asChild && isValidElement(children)) {
     return cloneElement(children, {
       onClick: handleClick,

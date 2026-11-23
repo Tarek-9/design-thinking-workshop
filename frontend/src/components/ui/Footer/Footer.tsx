@@ -40,9 +40,6 @@ interface FooterProps {
   onBackToTop: () => void;
 }
 
-/**
- * Domain-free site footer matching the Figma Footer component.
- */
 export function Footer({ content, onBackToTop }: FooterProps) {
   const {
     kontakt,

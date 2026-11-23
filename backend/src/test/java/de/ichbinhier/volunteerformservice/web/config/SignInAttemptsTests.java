@@ -7,11 +7,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * The counter behind `429 RATE_LIMITED` (`A20`). Tested without Spring, because
- * the invented numbers are the whole subject and a window measured in
- * milliseconds is the only way to watch one lapse.
- */
+// Tested without Spring: a window measured in milliseconds is the only way to
+// watch one lapse.
 class SignInAttemptsTests {
 
     private static final String ADDRESS = "203.0.113.7";
@@ -68,11 +65,7 @@ class SignInAttemptsTests {
         assertThat(attempts.throttleFor("198.51.100.4")).isEmpty();
     }
 
-    /**
-     * A throttle put up against password guessing must not become a way to fill
-     * the heap from a changing address, so the store is bounded and drops every
-     * run at once when it fills.
-     */
+    // Bounded, so a changing address cannot fill the heap. When full, every run goes.
     @Test
     void dropsEveryRunWhenItRunsOutOfRoomForAddresses() {
         SignInAttempts attempts = attempts(1, Duration.ofMinutes(15), 2);

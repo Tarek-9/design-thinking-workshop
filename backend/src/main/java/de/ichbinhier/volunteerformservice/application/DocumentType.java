@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 
-/** Accepted kinds (`A23`); declared type must match the leading bytes. */
+// Accepted kinds. The declared type must also match the leading bytes.
 public enum DocumentType {
 
     PDF("application/pdf", bytes(0x25, 0x50, 0x44, 0x46)),
@@ -41,7 +41,6 @@ public enum DocumentType {
                 && Arrays.equals(head, 0, signature.length, signature, 0, signature.length);
     }
 
-    /** The type a declared media type names, ignoring parameters and case. */
     public static Optional<DocumentType> forContentType(String declared) {
         if (declared == null) {
             return Optional.empty();

@@ -9,16 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-/**
- * Failed sign-ins per address, so that repeated guessing meets
- * {@code 429 RATE_LIMITED} (`A20`). Deliberately not an account lockout: with
- * five staff members and no administrator, a locked account stays locked
- * (`A17`).
- *
- * <p>Separate from {@link SignIns} because a failed attempt and an open Sign-in
- * are different things with different lifetimes — a quarter of an hour against
- * twelve hours — and because this is read before a Sign-in exists at all.
- */
+// Throttles by address: with no administrator, a lock on an account could never
+// be released.
 @Component
 public class SignInAttempts {
 
@@ -38,11 +30,7 @@ public class SignInAttempts {
         this.addressLimit = properties.getAttemptAddressLimit();
     }
 
-    /**
-     * How long this address has to wait, or empty when it may try. Read before
-     * the password is verified, so a throttled address is told nothing about
-     * whether it guessed right and costs us no bcrypt comparison (`A20`).
-     */
+    // Checked before the password, so a throttled address learns nothing and costs no bcrypt.
     public Optional<Duration> throttleFor(String address) {
         Instant now = Instant.now();
         FailureRun run = byAddress.compute(address, (ignored, existing) -> {
@@ -58,7 +46,6 @@ public class SignInAttempts {
         return Optional.of(run.remainingOf(now, window));
     }
 
-    /** Records a failure, starting a fresh run when the last one has lapsed. */
     public void failed(String address) {
         Instant now = Instant.now();
         forgetEverythingIfFull(address);
@@ -70,18 +57,12 @@ public class SignInAttempts {
         });
     }
 
-    /** A Staff member who got in is not guessing, so the address is cleared. */
+    // A successful sign-in is not guessing, so the address starts fresh.
     public void succeeded(String address) {
         byAddress.remove(address);
     }
 
-    /**
-     * The bound from {@code sign-in.attempt-address-limit}. Dropping every run
-     * at once, rather than sweeping the oldest, keeps this store free of an
-     * eviction order to maintain; the cost of being wrong is that a guessing
-     * address gets its allowance back, which is what an unbounded map would
-     * have given it anyway.
-     */
+    // Clears all entries when full, which needs no eviction order.
     private void forgetEverythingIfFull(String address) {
         if (byAddress.size() >= addressLimit && !byAddress.containsKey(address)) {
             log.warn("Remembering {} addresses with failed sign-ins, the limit; dropping all of them",

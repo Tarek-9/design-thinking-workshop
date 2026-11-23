@@ -4,17 +4,17 @@ status: accepted
 
 # State changes are recorded without authorship, and the dashboard replays them
 
-Übersicht's three metric cards — "Neue Anfragen", "Ohne Zuständigkeit" and
-"Lange offen" — each show a seven-day sparkline beside their number. The number
+Übersicht's three metric cards ("Neue Anfragen", "Ohne Zuständigkeit" and
+"Lange offen") each show a seven-day sparkline beside their number. The number
 is a filter over the current list. The seven days are not: what a card read
 last Tuesday depends on what `status` and `ownerId` were last Tuesday, and an
 Application carries only its current pair. Replaying today's values across the
-week produces a curve that is confidently wrong — an Application moved to
+week produces a curve that is confidently wrong: an Application moved to
 `IN_REVIEW` this morning counts as "not new" for all seven days, and a restored
 Application counts as present on the days it was discarded.
 
 **Decision:** the backend records every change to the three fields those cards
-read — `status`, `owner` and `discarded` — as a State change: one row per
+read (`status`, `owner` and `discarded`) as a State change: one row per
 changed field, carrying `applicationId`, `at`, `field` and the new value.
 `GET /api/v1/staff/applications/changes?days=30` hands the raw rows over and
 the dashboard replays them backwards from the current state. A row records no
@@ -29,7 +29,7 @@ unassigned (`A14`), asked about a past date. Those definitions already live in
 the dashboard, in one function the whole application shares, because the
 dashboard holds the entire list. A server-side metrics endpoint would implement
 them a second time in Java, where the two copies would drift and the card's
-number would stop matching the list a click on it opens — which is the one
+number would stop matching the list a click on it opens, which is the one
 property the cards were built around.
 
 **Why no author:** with a record of who changed what, this becomes an audit log
@@ -39,7 +39,7 @@ it was easy to add. Recording _what_ and _when_ answers the trend; recording
 _who_ answers a question nobody asked and creates data to defend. This is what
 lets `API.md` keep saying "no audit log" while a history exists.
 
-**Consequences worth naming:** a sparkline's past is not immutable — erasing an
+**Consequences worth naming:** a sparkline's past is not immutable: erasing an
 Application lowers figures already shown for earlier days, because the cascade
 is the point of erasing and outranks the accuracy of a decorative curve. The
 stream gains no new event type: `application.updated` already carries the full

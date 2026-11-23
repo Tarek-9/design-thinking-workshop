@@ -14,10 +14,6 @@ export function toErrorText(
     : undefined;
 }
 
-/**
- * Binds `register` and `errors` from a single `useForm()` call once, so call
- * sites only name the field: `const { error, ...control } = fieldProps('email')`.
- */
 export function makeFieldProps(
   register: UseFormRegister<FormValues>,
   errors: FieldErrors<FormValues>,

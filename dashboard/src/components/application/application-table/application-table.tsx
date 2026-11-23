@@ -1,42 +1,4 @@
-/**
- * The Applications list.
- *
- * Clone path: `components/application/table/table-example.tsx`. The example's
- * markup — card, sortable headings, avatar cell, dot badge — is kept; its
- * hard-coded rows are replaced by the `Application` set the screen hands in,
- * and the columns are the ones `de.columns` names. The example's selection
- * checkbox column, per-row actions and card pagination are all kept, so Staff
- * can act on one or several Applications and page through the queue. All three
- * are opt-in, which is what lets every screen share this one component rather
- * than each growing its own table: Anfragen and Übersicht both take the
- * selection column and a discard action, Aussortiert takes the same column
- * with restore and permanent delete instead, and only the pager stays off in
- * Übersicht, whose list is already cut to five rows.
- *
- * The trailing actions are `rowActions` — a list of descriptors rather than
- * one `onDelete` callback, because the three screens do not agree on what a
- * row offers, and because the label and the confirmation belong to the screen
- * that owns the action, not to this component.
- *
- * `selectionBehavior="toggle"` is the reference's own setting: it renders the
- * leading checkbox column (header checkbox = whole page, row checkbox = that
- * row), and leaves a plain click on the row body to `onRowAction`, which opens
- * the drawer. Selection therefore never fights the row click.
- *
- * Selection is tracked across pages: `selectedIds` holds every checked id,
- * while the table itself only ever sees the ids on the current page.
- *
- * A row nobody owns reads as unread (`A14`): a dot at the row's left edge, the
- * applicant's name in bold, and a tinted row. Assigning an Owner in the drawer
- * flips the same row to its plain, read state, and clearing the Owner flips it
- * back — the style is derived from `ownerId` on every render, never stored.
- * `unreadState` turns the emphasis off for the one list where it says nothing:
- * in the bin, "nobody has taken this on" is no longer a call to act (`A17`).
- *
- * The row whose Application the drawer shows carries a rail at its leading
- * edge (`activeId`), which is what ties the panel to a row without competing
- * with either the unread tint or the checkbox selection.
- */
+/** Selection, row actions and the pager are opt-in, so each screen enables only what it needs. */
 
 import type { FC, Key, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
@@ -58,38 +20,19 @@ import { cx } from '@/utils/cx';
 import { daysSince } from '@/utils/dates';
 import { initialsOf } from '@/utils/initials';
 
-/**
- * What a row action asks before it runs, worded by the screen that owns the
- * action. Three parts rather than one string, because the dialog has room for
- * the consequence under the question and for a button that names the action.
- */
 export type ApplicationRowConfirmation = {
-  /** The question. Becomes the dialog's accessible name. */
   title: string;
-  /** The consequence, under the question. */
   description?: string;
-  /** The confirming button's label — the action, never "OK". */
   confirmLabel: string;
 };
 
-/**
- * One trailing icon button on every row. The screen owns the wording, so a
- * table on Anfragen can offer "aussortieren" and Aussortiert "endgültig
- * löschen" without either string living in this component.
- */
+/** Each list words its own actions, so the wording stays with the screen. */
 export type ApplicationRowAction = {
-  /** Stable key for the button; not shown. */
   id: string;
   icon: FC<{ className?: string }>;
-  /** Accessible name of the icon-only button. */
   label: (application: Application) => string;
-  /**
-   * Asked in a `ConfirmDialog` before the action runs. Omitted for an action
-   * a Staff member can simply undo — restoring an Application is one click
-   * away from being discarded again, so it asks nothing.
-   */
+  /** Undoable actions ask nothing: restoring is one click from discarding again. */
   confirm?: (application: Application) => ApplicationRowConfirmation;
-  /** Renders the button in the danger colour. */
   destructive?: boolean;
   onAction: (application: Application) => void;
 };
@@ -98,40 +41,20 @@ type ApplicationTableProps = {
   applications: readonly Application[];
   categories: readonly Category[];
   owners: readonly Owner[];
-  /** The reference date the relative age under each date is read against. */
   now: Date;
-  /** The "Lange offen" queue reads oldest-first; every other view is newest-first. */
+  /** The "Lange offen" queue reads oldest-first. */
   oldestFirst?: boolean;
-  /**
-   * Off by default: Übersicht's preview is already cut to five rows by its
-   * caller, so a pager under it would only ever read "Previous | 1 | Next".
-   */
+  /** Off in Übersicht, whose preview is already cut to five rows. */
   paginated?: boolean;
-  /**
-   * Opens the row's Application. Omitted where a row has nothing behind it —
-   * Aussortiert has no drawer — and then a row is not clickable at all.
-   */
+  /** Omitted where a row has no drawer, such as Aussortiert. */
   onSelect?: (application: Application) => void;
-  /**
-   * Ids checked via the row/header checkboxes. Controlled by the screen so
-   * the bulk buttons above the table can read the same set. Selection and the
-   * trailing actions only render when `rowActions` is non-empty.
-   */
+  /** Controlled by the screen, so the bulk buttons read the same set. */
   selectedIds?: ReadonlySet<string>;
   onSelectedIdsChange?: (ids: ReadonlySet<string>) => void;
   rowActions?: readonly ApplicationRowAction[];
-  /**
-   * Emphasise Applications without an Owner as unread (`A14`). On by default;
-   * Aussortiert turns it off, where the emphasis would point at nothing.
-   */
+  /** Off in Aussortiert, where the emphasis would point at nothing. */
   unreadState?: boolean;
-  /** Shown in place of the rows while the set is empty. */
   emptyState?: ReactNode;
-  /**
-   * The Application the drawer currently shows, marked with a rail at the
-   * row's leading edge. Distinct from `selectedIds`, which is the checkbox
-   * selection: one row is open, any number of rows can be checked.
-   */
   activeId?: string | null;
   ariaLabel: string;
 };
@@ -142,7 +65,6 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', {
   year: 'numeric',
 });
 
-/** Rows per page, matching the reference table card. */
 const PAGE_SIZE = 10;
 
 export function ApplicationTable({
@@ -166,12 +88,7 @@ export function ApplicationTable({
     direction: oldestFirst ? 'ascending' : 'descending',
   });
 
-  /**
-   * The row action waiting on its confirmation, with the row it was pressed
-   * on. Held here rather than in the screen because the button is here: the
-   * screen already said what to ask through `action.confirm`, and one piece
-   * of state per table is what keeps two rows from asking at once.
-   */
+  /** One pending action per table, so two rows cannot ask at once. */
   const [pendingAction, setPendingAction] = useState<{
     action: ApplicationRowAction;
     application: Application;
@@ -181,8 +98,6 @@ export function ApplicationTable({
     () => new Map(categories.map((category) => [category.id, category.name])),
     [categories],
   );
-  // The whole Owner, not just the name: the Zuständigkeit column also reads
-  // the photo off it.
   const ownersById = useMemo(
     () => new Map(owners.map((owner) => [owner.id, owner])),
     [owners],
@@ -196,8 +111,7 @@ export function ApplicationTable({
       email: (application) => application.email,
       category: (application) =>
         categoryNames.get(application.categoryId) ?? application.categoryId,
-      // Sorted by the band's own order — 1–2 hours before "irregular" —
-      // rather than by its label or its spelling.
+      // Sorts by WEEKLY_TIMES order: the labels do not sort.
       weeklyTime: (application) => WEEKLY_TIMES.indexOf(application.weeklyTime),
       status: (application) => de.statuses[application.status],
       submittedAt: (application) => new Date(application.submittedAt).getTime(),
@@ -232,9 +146,7 @@ export function ApplicationTable({
 
   const [page, setPage] = useState(1);
 
-  // A new filter/view hands in a different set — start it at its first page.
-  // Adjusted during render rather than in an effect so the first paint of the
-  // new set is already page one, with no flash of a stale page.
+  // A new set starts on page one. Adjusted during render, so no stale page flashes.
   const [pagedApplications, setPagedApplications] =
     useState<readonly Application[]>(applications);
   if (pagedApplications !== applications) {
@@ -273,8 +185,7 @@ export function ApplicationTable({
               selectedKeys: selectedOnPage,
               onSelectionChange: (keys: Selection) => {
                 const next = new Set(selectedIds ?? []);
-                // Re-derive this page's part of the selection from scratch,
-                // leaving ids checked on other pages untouched.
+                // Replace this page's part of the selection; other pages stay checked.
                 for (const id of pageIds) {
                   next.delete(id);
                 }
@@ -327,8 +238,7 @@ export function ApplicationTable({
           ) : null}
         </Table.Header>
 
-        {/* `activeId` is read by the row renderer but is not part of `items`,
-            so the collection has to be told to re-render rows when it moves. */}
+        {/* activeId is read by the row renderer, not part of items: the collection must re-render when it moves. */}
         <Table.Body
           items={pageItems}
           dependencies={[activeId]}
@@ -353,25 +263,13 @@ export function ApplicationTable({
                 className={cx(
                   onSelect && 'cursor-pointer',
                   unassigned && 'bg-bg-unread',
-                  // A rail rather than a tint: the row may already be tinted
-                  // for unread or for the checkbox selection, and neither of
-                  // those meanings may be overwritten by "this one is open".
-                  //
-                  // The rail hangs off the first cell, not off the `<tr>`: a
-                  // pseudo-element on a table row is wrapped in an anonymous
-                  // table cell by CSS table fixup, which pushed every real
-                  // cell of the open row one column to the right.
+                  // Sits on the first cell: a pseudo-element on a tr breaks the table.
                   application.id === activeId && 'row-rail',
                 )}
               >
                 <Table.Cell>
                   <div className="flex items-center gap-3">
-                    {/*
-                     * Decorative: the Zuständigkeit column already says
-                     * "Nicht zugewiesen" in words, so a screen reader would
-                     * only hear the same fact twice — and any text here would
-                     * land in the row header's accessible name.
-                     */}
+                    {/* Decorative: the Owner column already says it in words. */}
                     <span
                       aria-hidden="true"
                       className={cx(
@@ -379,7 +277,6 @@ export function ApplicationTable({
                         unassigned ? 'bg-fuut-purple' : 'bg-transparent',
                       )}
                     />
-                    {/* Initials repeat the name beside them — decorative. */}
                     <span aria-hidden="true" className="flex">
                       <Avatar
                         size="sm"
@@ -436,11 +333,7 @@ export function ApplicationTable({
 
                 <Table.Cell>
                   <div className="flex items-center gap-2.5">
-                    {/* Initials when an Owner is assigned, and the empty-user
-                        glyph when nobody is. There is no photo to show: the
-                        wire carries none (`API.md`). `alt=""` either way — the
-                        name is right beside it, so a screen reader would only
-                        hear it twice. */}
+                    {/* Initials, or the empty glyph. alt="" because the name sits right beside it. */}
                     <Avatar
                       size="xs"
                       alt=""
@@ -461,8 +354,7 @@ export function ApplicationTable({
 
                 {selectionEnabled ? (
                   <Table.Cell>
-                    {/* 8px between adjacent icon buttons, so a row with two
-                        actions cannot be mis-clicked into the wrong one. */}
+                    {/* 8px gap, so two adjacent actions cannot be mis-clicked. */}
                     <div className="flex items-center gap-2">
                       {rowActions.map((action) => (
                         <button
@@ -496,9 +388,7 @@ export function ApplicationTable({
         </Table.Body>
       </Table>
 
-      {/* No pager under an empty table: with no rows it reads
-          "Zurück | 1 | Weiter" under the empty state, which offers a page
-          that does not exist and makes the screen look half-loaded (issue #53). */}
+      {/* No pager on an empty table: it would offer a page that does not exist. */}
       {paginated && sorted.length > 0 ? (
         <PaginationCardDefault
           page={currentPage}
@@ -520,11 +410,7 @@ export function ApplicationTable({
   );
 }
 
-/**
- * The pending row action's question. A component of its own so the dialog is
- * built from a confirmation that exists — inside it, `action.confirm` is no
- * longer optional, and the row it was pressed on cannot have gone away.
- */
+/** Renders only with a confirmation, so the dialog never lacks its question. */
 function RowActionConfirmation({
   action,
   application,
@@ -532,7 +418,6 @@ function RowActionConfirmation({
 }: {
   action: ApplicationRowAction;
   application: Application;
-  /** Both answers land here: the dialog closes either way. */
   onSettled: () => void;
 }) {
   const confirmation = action.confirm?.(application);

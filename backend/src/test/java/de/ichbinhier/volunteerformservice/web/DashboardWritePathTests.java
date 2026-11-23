@@ -36,13 +36,8 @@ import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.config.SignIns;
 
-/**
- * What a `PATCH` writes, and what it leaves alone. The State changes it records
- * are replayed behind Übersicht's sparklines, so a row that records nothing is
- * a wrong number rather than a harmless extra. See `dashboard/API.md`
- * "PATCH /api/v1/staff/applications/{id}" and "The rules that make a replay
- * correct".
- */
+// Übersicht's sparklines replay the State changes, so a row that records
+// nothing shows a wrong number.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -84,10 +79,8 @@ class DashboardWritePathTests {
         signIn = new Cookie("ibh_session", signIns.open(ashton));
     }
 
-    /**
-     * A State change points at its Application, so the rows go first — and they
-     * go here too, so a class that runs after this one finds an empty table.
-     */
+    // State changes point at their Application, so they go first. The table must
+    // end empty for the classes that run after this one.
     @AfterEach
     void clear() {
         changes.deleteAll();

@@ -1,11 +1,4 @@
-/**
- * The Staff members an Application can be assigned to (`API.md`,
- * "GET /api/v1/staff/members").
- *
- * Names and ids, no addresses: the Owner selector and the Owner filter show
- * names, and an address per row would spread personal data further than
- * either screen needs. No photos either — every Owner renders as initials.
- */
+/** Names and ids only: addresses are personal data the selector does not need. */
 
 import type { Owner } from '@/domain/application';
 

@@ -2,7 +2,6 @@ package de.ichbinhier.volunteerformservice.application;
 
 import de.ichbinhier.volunteerformservice.category.Category;
 
-/** Converts validated form data to the Application stored on first submit. */
 final class ApplicationMapper {
 
     private ApplicationMapper() {

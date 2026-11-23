@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/base/avatar/avatar-label-group.tsx`, unchanged.
- */
-
 import { type ReactNode } from 'react';
 
 import { cx } from '@/utils/cx';

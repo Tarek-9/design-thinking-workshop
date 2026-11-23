@@ -1,7 +1,5 @@
 name: dashboard
 
-# Scoped to the dashboard so the frontend and backend workflows never trigger
-# on a change here, and vice versa.
 on:
   push:
     branches: [main]
@@ -30,9 +28,8 @@ jobs:
           cache: npm
           cache-dependency-path: dashboard/package-lock.json
 
-      # setup-node's cache only holds the downloaded tarballs, so npm ci still
-      # extracts and links every package on every run. Caching node_modules
-      # itself keyed on the lockfile skips that work whenever it is unchanged.
+      # setup-node caches only tarballs, so npm ci still links every package.
+      # Caching node_modules skips that while the lockfile is unchanged.
       - name: Cache node_modules
         id: node-modules-cache
         uses: actions/cache@v4

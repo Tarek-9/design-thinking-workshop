@@ -33,13 +33,8 @@ import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.config.SignIns;
 
-/**
- * What a permanent erase takes with it. The State changes own a non-nullable
- * foreign key on their Application, and the erase is the platform's only path
- * to actually removing what a person wrote, so it must not leave a trail of
- * their Application's life behind. See `dashboard/API.md`, "Erasing an
- * Application erases its state changes".
- */
+// The erase is the only path that removes what a person wrote, so it must not
+// leave a trail of the Application's life behind.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -79,10 +74,8 @@ class DashboardErasePathTests {
         signIn = new Cookie("ibh_session", signIns.open(ashton));
     }
 
-    /**
-     * A State change points at its Application, so the rows go first — and they
-     * go here too, so a class that runs after this one finds an empty table.
-     */
+    // State changes point at their Application, so they go first. The table must
+    // end empty for the classes that run after this one.
     @AfterEach
     void clear() {
         changes.deleteAll();

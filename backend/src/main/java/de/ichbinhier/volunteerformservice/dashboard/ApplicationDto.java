@@ -27,17 +27,8 @@ public class ApplicationDto {
     private String consentTextVersion;
     private Instant submittedAt;
 
-    /**
-     * The one mapping from an Application to its wire shape. The list endpoint
-     * and all three live-stream events go through it, because
-     * `dashboard/API.md` promises the stream's {@code data} is <em>exactly</em>
-     * what {@code GET /api/v1/staff/applications} returns — two mappings would
-     * drift.
-     *
-     * <p>Only identifiers are read off the lazy {@code category} and
-     * {@code owner} associations, which a Hibernate proxy answers without a
-     * session, so this is safe to call outside a transaction.
-     */
+    // The one mapping for the list and the stream, so the two cannot drift apart.
+    // It reads only ids off lazy associations, which works outside a transaction.
     static ApplicationDto of(Application application) {
         ApplicationDto dto = new ApplicationDto();
         dto.setId(application.getId());

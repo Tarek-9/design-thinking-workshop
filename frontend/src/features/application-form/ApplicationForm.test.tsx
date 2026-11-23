@@ -53,7 +53,7 @@ describe('ApplicationForm', () => {
 
     expect(
       screen.queryByLabelText('Name'),
-      // fields 2–6 only appear once a Vereinsarbeit route is picked
+      // fields 2 to 6 only appear once a Vereinsarbeit route is picked
     ).not.toBeInTheDocument();
   });
 
@@ -88,7 +88,7 @@ describe('ApplicationForm', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('opens fields 2–6 for a Vereinsarbeit route', async () => {
+  it('opens fields 2 to 6 for a Vereinsarbeit route', async () => {
     await pickRoute('Social Media');
 
     expect(screen.getByLabelText('Name')).toBeVisible();
@@ -320,9 +320,8 @@ describe('ApplicationForm', () => {
 
     const select = screen.getByLabelText('Wie möchtest du uns helfen?');
     await waitFor(() => expect(select).toHaveValue(''));
-    // Clearing the route hides fields 2–6, but their values stay in the form
-    // state (see useApplicationSubmit.ts) — picking a category again brings
-    // them straight back, unchanged.
+    // Clearing the route hides fields 2 to 6, but their values stay in form
+    // state; picking a category again restores them unchanged.
     expect(screen.queryByLabelText('Name')).not.toBeInTheDocument();
 
     await user.selectOptions(select, 'Redaktion / Öffentlichkeitsarbeit');
@@ -427,9 +426,7 @@ describe('ApplicationForm', () => {
       http.get('*/api/v1/categories', async () => {
         callCount += 1;
         if (callCount === 1) {
-          // The first (superseded) request resolves *after* the second one,
-          // with a payload that must never win — proves the staleness guard
-          // in useCategories, not just that the select ends up enabled.
+          // The superseded first request resolves last, with a payload that must never win.
           await delay(50);
           return HttpResponse.json({
             categories: [{ id: 'stale', label: 'Stale' }],
@@ -459,8 +456,7 @@ describe('ApplicationForm', () => {
         .map((option) => option.value);
     expect(optionValues()).toEqual(expectedOptionValues);
 
-    // Let the delayed, superseded response resolve too, and confirm it never
-    // overwrites the already-settled, correct list with the stale one.
+    // The delayed, superseded response must not overwrite the settled list.
     await delay(60);
     expect(optionValues()).toEqual(expectedOptionValues);
   });

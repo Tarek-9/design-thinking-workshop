@@ -106,9 +106,8 @@ class DashboardApplicationService {
         return updated;
     }
 
-    // The mail fires only after commit: sent before it, a failed commit would
-    // announce a change that never landed; sent here, it would hold the row
-    // lock for the whole attempt.
+    // Mail only after commit, so a rolled-back change never reaches the applicant.
+    // Sending inside the transaction would hold the row lock for the whole attempt.
     private void mailAfterCommit(Application application) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
@@ -118,11 +117,8 @@ class DashboardApplicationService {
         });
     }
 
-    /**
-     * Documents and State changes own non-nullable foreign keys, so they are erased first.
-     * All deletes keep the existing transaction; a failure rolls them back.
-     * The stream waits for that transaction to commit before announcing erase.
-     */
+    // One transaction, so a failure keeps every row. Documents and State changes
+    // hold non-null foreign keys and go first.
     @Transactional
     void deletePermanently(UUID id) {
         var application = applications.findById(id)

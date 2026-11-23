@@ -1,36 +1,4 @@
-/**
- * The visual shell: the Untitled UI sidebar and the screen it frames.
- *
- * The sidebar is copied from the clone (`README.md` records which files, and
- * `THIRD_PARTY_LICENSES` the licence). Its three main items are the screens
- * issue #10 named, and all three have a screen behind them. The links carry
- * fragments and the caller says which one is current.
- *
- * Aussortiert — the fourth screen, the discarded Applications (`A16`) — sits
- * in the sidebar's footer slot rather than among the three: it is where a
- * Staff member goes to undo something, not one of the places the work
- * happens, and keeping it out of the main list also keeps the one screen that
- * can erase an Application away from the three that cannot.
- *
- * It is also where the two things the whole dashboard says about itself sit:
- * whether the live stream is connected, and the last request that failed —
- * a write that was refused, or a refetch that left the list stale. Both are
- * above the screen rather than inside it, because neither belongs to any one
- * of the four, and the second must not replace them (issue #58).
- *
- * The shell is also where the live stream is opened, and the one place it can
- * be: it is mounted for as long as a Staff member is signed in, so switching
- * screens does not drop and reopen the connection, and it is not mounted at
- * all while the sign-in screen is up, when there is no Sign-in to
- * authenticate the stream with (ADR-0006).
- *
- * An expired Sign-in is the same case reached from the other side. The shell
- * stays mounted — that is what keeps the work alive under the cover
- * (`SignInCover`) — so `signInExpired` is what stands in for unmounting: the
- * stream is closed, because there is no Sign-in to authenticate it with, and
- * the shell is `inert`, because a dashboard that looks covered but still
- * answers a click would send writes that can only be refused.
- */
+/** Owns the live stream, so screen switches do not reconnect; inert while the Sign-in is expired. */
 
 import { Archive, BarChartSquare02, Inbox01, Tag01 } from '@untitledui/icons';
 import type { ReactNode } from 'react';
@@ -81,11 +49,8 @@ const footerNavItems: (NavItemType & { id: Screen })[] = [
 
 type AppShellProps = {
   current: Screen;
-  /** The signed-in Staff member, shown in the sidebar's account card. */
   account: StaffMember;
-  /** Ends the Sign-in; `App` then renders `LoginScreen` again. */
   onSignOut: () => void;
-  /** The Sign-in ran out and `App` has put the cover over this shell. */
   signInExpired?: boolean;
   children: ReactNode;
 };
@@ -112,37 +77,13 @@ export function AppShell({
         onSignOut={onSignOut}
       />
 
-      {/*
-        The inset is `SIDEBAR_GUTTER`, not a Tailwind step: the sidebar is
-        fixed at that gutter and the spacer reserves gutter + width, so this
-        padding is exactly the gap between the sidebar's right edge and the
-        content. `px-8` made it 32px.
-      */}
+      {/* The sidebar is fixed at SIDEBAR_GUTTER, so the padding must match it exactly. */}
       <main
         // eslint-disable-next-line no-restricted-syntax -- SIDEBAR_GUTTER is a JS value shared with the sidebar's position, so a class would duplicate it
         style={{ paddingInline: SIDEBAR_GUTTER }}
         className="bg-bg-canvas flex min-w-0 flex-1 flex-col gap-3 py-6"
       >
-        {/*
-         * The strip. Whatever is added here reads from the left and keeps
-         * `DRAWER_RESERVE` on its contents: `ApplicationDrawer` is an `aside`
-         * with no scrim, so it lies over the right end while blocking
-         * nothing, and a panel that blocks nothing may not eat a click on a
-         * control it covers, nor cut a sentence that has to be read
-         * (issue #64). A bordered box may still span the full width — only
-         * what is read or clicked has to stay out of that column.
-         *
-         * The strip is never told that a drawer is open. The reserve is
-         * unconditional, which is what keeps anything here from moving when
-         * one opens, and it costs nothing while none is there because
-         * everything is left-aligned.
-         *
-         * The rule stops at the modal overlays: `CategoryDialog`,
-         * `DiscardSelectedDialog` and `SignInCover` cover this strip on
-         * purpose. Below `sm` the drawer is `w-full` and no reserve reaches
-         * anything — a known hole, since at that width the drawer is a modal
-         * in all but the attribute.
-         */}
+        {/* Keeps out of the right end: the drawer has no scrim and lies over it. */}
         <StreamMarker connected={connected} />
         <RequestFailureNotice />
         {children}

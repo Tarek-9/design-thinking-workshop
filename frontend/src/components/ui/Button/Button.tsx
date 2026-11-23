@@ -21,16 +21,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   width?: ButtonWidth;
   isLoading?: boolean;
   loadingLabel?: string;
-  /** Renders a trailing arrow icon, for CTAs that lead away from the page. */
   showArrow?: boolean;
 }
 
-/**
- * Domain-free CTA matching the Figma Button component.
- *
- * Callers supply the final label and native button behaviour; the component
- * only owns its visual variants and loading affordance.
- */
 export function Button({
   'aria-label': ariaLabel,
   children,

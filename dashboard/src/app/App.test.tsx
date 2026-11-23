@@ -10,11 +10,6 @@ import { REFERENCE_DATE, stubApi } from '@/test/stubApi';
 
 import { DRAWER_RESERVE } from './strip';
 
-/**
- * The whole application against the stubbed backend: `fetch` answers from the
- * fixtures and the live stream stays inert unless a test drives it
- * (`src/test/stubApi.ts`).
- */
 describe('App', () => {
   let api: StubbedApi;
 
@@ -28,7 +23,6 @@ describe('App', () => {
     vi.restoreAllMocks();
   });
 
-  /** Which requests the application actually made, by method and path. */
   function calls(method: string, path: string) {
     return vi
       .mocked(fetch)
@@ -103,8 +97,7 @@ describe('App', () => {
       de.navigation.overview,
       de.navigation.applications,
       de.navigation.categories,
-      // The fourth screen is last, in the sidebar's footer slot rather than
-      // among the three the work happens on (`A16`).
+      // In the footer: the only screen that can erase.
       de.navigation.discarded,
     ]);
 
@@ -324,17 +317,8 @@ describe('App', () => {
       expect(screen.getByText('Jonas Krüger')).toBeInTheDocument(),
     );
   });
-  /**
-   * The writes, against the stubbed backend that really applies them
-   * (`src/test/stubApi.ts`). What is worth a test here rather than in a
-   * container is the pair of facts a screen cannot show on its own: that a
-   * request was sent at all, and what is left on screen when it fails.
-   */
-  /**
-   * The Documents an Applicant attached, in the drawer, each a link to its
-   * attachment download. The link is what carries the Sign-in: it is a plain
-   * navigation, not a request this application makes.
-   */
+
+  /** The link carries the Sign-in: a plain navigation, no request from this app. */
   describe('the documents of an Application', () => {
     const LEBENSLAUF = {
       id: 'b7e2c4d0-1a2b-4c3d-8e9f-0a1b2c3d4e5f',
@@ -419,11 +403,7 @@ describe('App', () => {
       );
     });
 
-    /**
-     * The one distinction the endpoint turns on: an absent `ownerId` leaves
-     * the Owner alone, an explicit `null` clears it (`API.md`). The selector's
-     * empty option is the only thing in the dashboard that means the second.
-     */
+    /** An absent `ownerId` leaves the Owner alone; only an explicit `null` clears it. */
     it('clears an Owner with an explicit null', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
@@ -477,11 +457,7 @@ describe('App', () => {
       ).toEqual(['{"discarded":true}', '{"discarded":true}']);
     });
 
-    /**
-     * The optimistic half is what a Staff member sees first, so the failure
-     * has to put the row back — and say so once, above the screens, since
-     * there is no panel to retry from the way a failed read has one.
-     */
+    /** The row comes back; the failure is worded once, above the screens, since a write has no retry panel. */
     it('rolls a failed discard back and words it once', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
@@ -560,11 +536,7 @@ describe('App', () => {
       );
     });
 
-    /**
-     * Kategorien awaits the server for every write, because the id and the
-     * name's uniqueness are the server's (`API.md`) — so the new row on screen
-     * is the refetched one, not an optimistic guess.
-     */
+    /** Waits for the server: it mints the id and owns name uniqueness, so the row is refetched. */
     it('creates a Category the server minted the id for', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
@@ -590,7 +562,7 @@ describe('App', () => {
       ).toBeDefined();
     });
 
-    /** The whole order, as ids — not a direction (`API.md`). */
+    /** The endpoint takes the whole order as ids, so every move sends all of them. */
     it('sends the whole order when a Category moves', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
@@ -615,20 +587,9 @@ describe('App', () => {
     });
   });
 
-  /**
-   * An expired Sign-in, which is the one failure the dashboard answers by
-   * covering itself rather than by wording something (`API.md`, "When a
-   * Sign-in expires"). What makes these tests worth running at the whole
-   * application is exactly what a component test cannot show: that nothing
-   * was unmounted, so the drawer, the filters and the typed note are still
-   * there when the Staff member signs in again.
-   */
+  /** The cover sits over the dashboard, so nothing may unmount: the drawer, filters and typed note survive the sign-in. */
   describe('an expired Sign-in', () => {
-    /**
-     * `base/input` keeps the required marker in the DOM, so the accessible
-     * label reads "Passwort *" under jsdom; `selector` also keeps the loose
-     * match off the password field's own visibility toggle.
-     */
+    /** The required marker is part of the label under jsdom, so match loosely. */
     function coverField(label: string): HTMLElement {
       return screen.getByLabelText(label, {
         exact: false,
@@ -636,7 +597,6 @@ describe('App', () => {
       });
     }
 
-    /** Opens Mara Weber's drawer and types a note the Sign-in then refuses. */
     async function typeANoteAndLetTheSignInExpire(
       user: ReturnType<typeof userEvent.setup>,
     ): Promise<void> {
@@ -666,7 +626,6 @@ describe('App', () => {
         await screen.findByRole('heading', { name: de.auth.expiredTitle }),
       ).toBeInTheDocument();
 
-      /** Everything below the cover is still mounted, note and all. */
       const shell = screen.getByRole('navigation', {
         name: de.navigation.label,
       });
@@ -690,7 +649,6 @@ describe('App', () => {
       await typeANoteAndLetTheSignInExpire(user);
       await screen.findByRole('heading', { name: de.auth.expiredTitle });
 
-      /** The address is filled in already: only the password is re-typed. */
       expect(coverField(de.auth.emailLabel)).toHaveValue(mockStaffMember.email);
       await user.type(coverField(de.auth.passwordLabel), 'geheim');
       await user.click(screen.getByRole('button', { name: de.auth.submit }));
@@ -709,12 +667,7 @@ describe('App', () => {
       ).not.toHaveAttribute('inert');
     });
 
-    /**
-     * The other half of the same rule. Somebody else at the same machine is
-     * not resuming that work — the cache holds Applicants' personal data and
-     * an unsent note in the drawer, so it goes, exactly as it goes on
-     * "Abmelden".
-     */
+    /** The cache holds Applicants' personal data and an unsent note, so another person starts clean. */
     it('drops the work when somebody else signs in at the cover', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
@@ -741,11 +694,7 @@ describe('App', () => {
       ).not.toBeInTheDocument();
     });
 
-    /**
-     * The stream's half. An `EventSource` reports `error` and nothing else, so
-     * repeated failures are a reason to ask `GET /me` rather than a verdict:
-     * only a `401` there puts the cover up.
-     */
+    /** An `EventSource` reports only `error`: repeated failures ask `GET /me`, and only a 401 there puts the cover up. */
     it('asks whether the Sign-in is still there after repeated stream failures', async () => {
       await renderSignedIn();
       const asked = calls('GET', '/me').length;
@@ -765,12 +714,7 @@ describe('App', () => {
       expect(api.stream()?.closed).toBe(true);
     });
 
-    /**
-     * The other failure. A response — nginx's `502` while the backend
-     * restarts, or the `401` once the Sign-in is gone — closes the source for
-     * good, so there is no run of retries to wait out: the question is asked
-     * on the first one.
-     */
+    /** A response (nginx's 502, or the 401) closes the source for good, so the question is asked at once. */
     it('asks at once when a response closed the stream for good', async () => {
       await renderSignedIn();
       const asked = calls('GET', '/me').length;
@@ -849,12 +793,7 @@ describe('App', () => {
       ).not.toBeInTheDocument();
     }, 8_000);
 
-    /**
-     * And when the Sign-in holds, the hook opens a stream itself. The browser
-     * will not: a closed `EventSource` stays closed, so without this a single
-     * `502` during a backend restart would leave the dashboard behind a red
-     * marker with a stale list for the rest of the day.
-     */
+    /** A closed `EventSource` stays closed, so the hook reopens it: one 502 during a restart would otherwise leave a stale list all day. */
     it('opens a fresh stream after the browser has closed one', async () => {
       await renderSignedIn();
       const dropped = api.stream();
@@ -899,12 +838,7 @@ describe('App', () => {
         screen.queryByRole('heading', { name: de.auth.expiredTitle }),
       ).not.toBeInTheDocument();
 
-      /**
-       * And it keeps asking while the failures keep coming: the answer that
-       * matters may arrive later than the first question, since a backend
-       * restart takes the Sign-ins with it (`A17`) and the first question is
-       * asked while the backend is still down.
-       */
+      /** Keeps asking while failures continue: the first question can land while the backend is still down. */
       api.signedIn = false;
 
       act(() => {
@@ -920,15 +854,8 @@ describe('App', () => {
     });
   });
 
-  /**
-   * A read that failed *after* the list had arrived — nginx's `502` while the
-   * backend restarts. Issue #58 decided that this is not the gate's panel, and
-   * what makes it worth running at the whole application is what a component
-   * test cannot show: the drawer and the note typed into it are still there,
-   * because the notice sits above the screens rather than in place of them.
-   */
+  /** A read that fails after the list arrived is shown as a notice, so the drawer and typed note stay mounted. */
   describe('a refetch that failed', () => {
-    /** Opens Mara Weber's drawer, types a note, then takes the backend away. */
     async function typeANoteAndRestartTheBackend(
       user: ReturnType<typeof userEvent.setup>,
     ): Promise<void> {
@@ -958,7 +885,6 @@ describe('App', () => {
       expect(screen.getByLabelText(de.detail.internalNotes)).toHaveValue(
         'Rückruf',
       );
-      /** Two of them: the row is still in the list, and the drawer is open. */
       expect(screen.getAllByText('Mara Weber')).toHaveLength(2);
 
       /** The panel's wording belongs to a dashboard with nothing to show. */
@@ -990,12 +916,7 @@ describe('App', () => {
       expect(calls('GET', '/staff/applications').length).toBeGreaterThan(asked);
     });
 
-    /**
-     * The double failure issue #58 opened with, from the other side: the
-     * `502` used to take the drawer with it and the `401` a moment later
-     * covered whatever was left. Now the restart is one dismissable sentence
-     * and the cover comes up over the same work.
-     */
+    /** The 502 is one sentence; the 401 that follows covers the work, which stays mounted. */
     it('lets the 401 behind it cover the same work', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
@@ -1003,7 +924,7 @@ describe('App', () => {
       await typeANoteAndRestartTheBackend(user);
       await screen.findByText(de.dashboard.updateFailed);
 
-      /** The backend is back, and the Sign-in did not survive it (`A17`). */
+      /** The backend is back, but the Sign-in did not survive the restart. */
       api.readFailure = null;
       api.signedIn = false;
 
@@ -1023,17 +944,7 @@ describe('App', () => {
     });
   });
 
-  /**
-   * The corner an open `ApplicationDrawer` lies over (issue #64). It is an
-   * `aside` with no scrim, so it blocks nothing and must not eat a click on a
-   * control it happens to cover — which the strip answers by keeping its right
-   * end clear rather than by learning that a drawer is open.
-   *
-   * jsdom lays nothing out, so these assert the mechanism and not two boxes
-   * that would both measure zero: nothing in the strip is placed at the right
-   * end, so the end the drawer covers holds nothing to reach. The geometry is
-   * a browser pass, at 1024px and 1280px with a drawer open.
-   */
+  /** jsdom has no layout, so these check the strip's classes only. */
   describe('the strip under an open drawer', () => {
     it("leaves the notice's retry clear of the drawer", async () => {
       const user = userEvent.setup();
@@ -1056,11 +967,7 @@ describe('App', () => {
         name: de.dashboard.dismissFailure,
       });
 
-      /**
-       * A second row beneath the sentence rather than two more items beside
-       * it, so the buttons' position stops depending on how long the sentence
-       * runs.
-       */
+      /* A row of its own, so the buttons do not move with the sentence's length. */
       const actions = retry.parentElement;
       expect(actions).toBe(dismiss.parentElement);
       expect(actions).not.toContainElement(sentence);
@@ -1068,18 +975,10 @@ describe('App', () => {
       expect(actions).not.toHaveClass('justify-end');
       expect(actions).not.toHaveClass('ml-auto');
 
-      /**
-       * And the two of them stack rather than overflow when what is left of
-       * the strip will not hold both — 1024px leaves 189px against the 322px
-       * they want side by side.
-       */
+      /* At 1024px the buttons stack: 189px is left where 322px are needed. */
       expect(actions).toHaveClass('flex-wrap');
 
-      /**
-       * The contents keep out of the drawer's column, the sentence included:
-       * left alignment alone let it keep its natural width and run under the
-       * drawer. The border does not — the box spans `main` on purpose.
-       */
+      /* Contents keep out of the drawer's column; the border spans main. */
       const contents = actions?.parentElement;
       expect(contents).toHaveClass('flex-col');
       expect(contents).toHaveClass('items-start');
@@ -1087,21 +986,16 @@ describe('App', () => {
       expect(contents?.parentElement?.className).not.toContain(DRAWER_RESERVE);
       expect(contents?.parentElement).toHaveClass('border');
 
-      /** The corner `XClose` is gone, so the label is read and not only announced. */
+      /** No icon in the button: its label is what gets read out. */
       expect(dismiss).toHaveTextContent(de.dashboard.dismissFailure);
       expect(dismiss.querySelector('svg')).toBeNull();
     });
 
-    /**
-     * The rule covers what has to be *read* as much as what can be clicked.
-     * "Nicht verbunden" is the only reason the marker exists, so the corner is
-     * the one place it may not sit.
-     */
+    /** The hint must be readable too: the marker exists for "Nicht verbunden". */
     it('reads the disconnected wording clear of the drawer', async () => {
       const user = userEvent.setup();
       await renderSignedIn();
 
-      /** Disconnected is where the marker starts, and the drawer goes over it. */
       await user.click(screen.getByText('Mara Weber'));
 
       const marker = screen
@@ -1113,18 +1007,13 @@ describe('App', () => {
       ).toBeInTheDocument();
       expect(marker).not.toBeNull();
       expect(marker).not.toHaveClass('justify-end');
-      /** The hint is the half that says what to do, so it wraps rather than hides. */
+      /** The hint says what to do, so it wraps. */
       expect(marker).toHaveClass('flex-wrap');
       expect(marker?.className).toContain(DRAWER_RESERVE);
     });
   });
 
-  /**
-   * The three stream behaviours the contract turns on: an event applies
-   * without a follow-up request, every `open` refetches because the server
-   * keeps no replay buffer, and the marker says whether any of that is
-   * happening (`API.md`, "The live stream").
-   */
+  /** Events apply without a request; every open refetches, since the server keeps no replay buffer. */
   describe('the live stream', () => {
     function submitted(name: string) {
       const at = REFERENCE_DATE.toISOString();

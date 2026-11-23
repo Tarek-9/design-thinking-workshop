@@ -1,9 +1,3 @@
-/**
- * Clone path: `components/application/table/table.tsx`. Kept as-is apart from
- * dropping `TableRowActionsDropdown`, which pulled in the clone's
- * `base/dropdown` for a row menu this dashboard does not show.
- */
-
 import {
   ArrowDown,
   ChevronSelectorVertical,
@@ -42,13 +36,6 @@ import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { Tooltip, TooltipTrigger } from '@/components/base/tooltip/tooltip';
 import { cx } from '@/utils/cx';
 
-/*
- * The clone's `TableRowActionsDropdown` — a three-item "Edit / Copy link /
- * Delete" menu — is not part of this copy: every screen renders its own
- * `rowActions` icon buttons instead, and keeping the dropdown here was what
- * pulled `base/dropdown` and `base/radio-buttons` into the application.
- */
-
 const TableContext = createContext<{ size: 'sm' | 'md' }>({ size: 'md' });
 
 const TableCardRoot = ({
@@ -73,15 +60,10 @@ const TableCardRoot = ({
 };
 
 interface TableCardHeaderProps {
-  /** The title of the table card header. */
   title: string;
-  /** The badge displayed next to the title. */
   badge?: ReactNode;
-  /** The description of the table card header. */
   description?: string;
-  /** The content displayed after the title and badge. */
   contentTrailing?: ReactNode;
-  /** The class name of the table card header. */
   className?: string;
 }
 
@@ -182,7 +164,7 @@ const TableHeader = <T extends object>({
           'bg-secondary relative',
           size === 'sm' ? 'h-9' : 'h-11',
 
-          // Row border—using an "after" pseudo-element to avoid the border taking up space.
+          // Row border as an "after" pseudo-element, so it takes no space.
           bordered &&
             '[&>tr>th]:after:bg-border-secondary [&>tr>th]:after:pointer-events-none [&>tr>th]:after:absolute [&>tr>th]:after:inset-x-0 [&>tr>th]:after:bottom-0 [&>tr>th]:after:h-px [&>tr>th]:focus-visible:after:bg-transparent',
 
@@ -317,7 +299,7 @@ const TableRow = <T extends object>({
           size === 'sm' ? 'h-13' : 'h-14',
           highlightSelectedRow && 'data-selected:bg-bg-selected',
 
-          // Row border—using an "after" pseudo-element to avoid the border taking up space.
+          // Row border as an "after" pseudo-element, so it takes no space.
           '[&>td]:after:bg-border-subtle [&>td]:after:absolute [&>td]:after:inset-x-0 [&>td]:after:bottom-0 [&>td]:after:h-px [&>td]:after:w-full last:[&>td]:after:hidden [&>td]:focus-visible:after:opacity-0 focus-visible:[&>td]:after:opacity-0',
 
           typeof className === 'function' ? className(state) : className,

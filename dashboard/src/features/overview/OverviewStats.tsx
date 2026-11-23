@@ -1,12 +1,3 @@
-/**
- * The three queues issue #15 asks Übersicht to surface. Each card's count and
- * its click-through both run through `filterApplications` with the same
- * filters, so the number a Staff member sees always matches the list a click
- * opens — "Ohne Zuständigkeit" and "Lange offen" reuse Anfragen's own
- * `unassigned`/`stale` views rather than inventing a second definition of
- * "done".
- */
-
 import { Clock, Inbox01, User01 } from '@untitledui/icons';
 import type { FC } from 'react';
 import { useMemo } from 'react';
@@ -29,38 +20,22 @@ import { MILLISECONDS_PER_DAY } from '@/utils/dates';
 import { applicationsAsOf } from './applicationsAsOf';
 
 type OverviewStatsProps = {
-  /**
-   * The same list Anfragen and the panel below read, so a card's count follows
-   * what a Staff member has done in the session rather than a set of its own.
-   */
   applications: readonly Application[];
-  /**
-   * The state history the trailing week is replayed from
-   * (`GET /applications/changes`). Empty is not a special case: with no rows
-   * the walk keeps every current value, which reads as "nothing changed this
-   * week" — the honest curve for a backend that has no history yet.
-   */
   stateChanges: readonly StateChange[];
-  /** The reference date "today" means for the counts and the trailing week. */
   now: Date;
 };
 
 const HISTORY_DAYS = 7;
-/**
- * The sparkline's stroke width, the same `1.75` the icons get in
- * `styles/globals.css` — one consistent weight across the surface.
- */
+// The same 1.75 as the icons, so the whole surface keeps one stroke weight.
 const SPARKLINE_STROKE_WIDTH = 1.75;
-/** `Date#getDay()` is 0-indexed on Sunday; these line up with that index. */
+// getDay() counts from Sunday, so the labels start there.
 const WEEKDAY_LABELS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
-/** One day of the trailing week, and the list as it stood on it. */
 type DayAsOf = {
   day: Date;
   applications: readonly Application[];
 };
 
-/** The trailing `HISTORY_DAYS` days ending at `referenceDate`, oldest first. */
 function trailingDays(referenceDate: Date, days: number): Date[] {
   return Array.from(
     { length: days },
@@ -71,13 +46,8 @@ function trailingDays(referenceDate: Date, days: number): Date[] {
   );
 }
 
-/**
- * The trailing week, reconstructed once for all three cards: the walk over
- * the state history is per day, not per card, and the last day is
- * `referenceDate` itself — where the walk finds nothing to undo and hands
- * back the current list, so a card's big number and the right-hand end of its
- * sparkline cannot disagree.
- */
+// Built once for all cards. The last day is referenceDate, where nothing is
+// undone, so a card's number and its sparkline end cannot disagree.
 function weekAsOf(
   applications: readonly Application[],
   stateChanges: readonly StateChange[],
@@ -89,13 +59,7 @@ function weekAsOf(
   }));
 }
 
-/**
- * A card's curve: the same filter run over each day's reconstructed list,
- * with that day as the reference date so "Lange offen" ages against the day
- * it is counting, not against today. This is what makes the trend real
- * instead of decorative — the same question asked of seven different lists,
- * not a curve shaped toward today's value.
- */
+// Each day is aged against its own date, so the trend is real.
 function historyFor(
   week: readonly DayAsOf[],
   filters: Partial<ApplicationFilters>,
@@ -134,11 +98,9 @@ type StatCard = {
   filters: Partial<ApplicationFilters>;
   chart: SparklineType;
   color: string;
-  /** The overdue queue, the one card that carries a semantic red. */
   alert: boolean;
 };
 
-/** Quiet neutral trends; only the overdue queue carries a semantic red. */
 const STAT_CARDS: readonly StatCard[] = [
   {
     title: de.overview.stats.new.title,

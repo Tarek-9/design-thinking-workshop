@@ -69,11 +69,6 @@ describe('request', () => {
     ).resolves.toBeUndefined();
   });
 
-  /**
-   * The decoding the whole error contract rests on: a `code` the dashboard
-   * words, the `errors` array read next to the fields it names, and
-   * `Retry-After` off the header rather than the body.
-   */
   it('throws the problem a failed response carries', async () => {
     fetchMock(
       respond(
@@ -128,11 +123,7 @@ describe('request', () => {
     expect(isUnauthenticated(failure)).toBe(true);
   });
 
-  /**
-   * A body that is not the JSON it claimed to be still has to reach the
-   * screen as a failure with a status, not as a syntax error — an nginx error
-   * page in front of a restarting backend is exactly this case.
-   */
+  /** An nginx error page in front of a restarting backend must still read as a failure. */
   it('keeps the status when the body is not the problem it promised', async () => {
     fetchMock(
       new Response('<html>502</html>', {

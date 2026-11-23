@@ -64,7 +64,7 @@ describe('the Sign-in', () => {
     expect(init?.method).toBe('POST');
   });
 
-  /** No avatar reaches the domain type: the wire carries none (`API.md`). */
+  /** Unknown wire fields must not leak into the Staff member. */
   it('keeps a field the contract does not name off the Staff member', async () => {
     stub(json({ ...staffMember, avatar: 'https://example.org/photo.webp' }));
 

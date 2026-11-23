@@ -130,7 +130,7 @@ class DocumentUploadTests {
         application = applications.save(application(socialMedia));
     }
 
-    /** Rows and files go before the Application they point at, so later runs start clean. */
+    // Rows and files go first, so later runs start clean.
     @AfterEach
     void clear() throws IOException {
         documents.deleteAll();
@@ -424,7 +424,7 @@ class DocumentUploadTests {
         assertThat(applications.findById(application.getId())).isEmpty();
     }
 
-    /** MockMvc bypasses multipart limits; {@link DocumentUploadLimitTests} pins the server path. */
+    // MockMvc bypasses the multipart limit, so DocumentUploadLimitTests covers the server.
     @Test
     void anOversizedRequestAnswersDocumentTooLargeOnFiles() {
         ResponseEntity<ProblemDetail> response = new ApiExceptionHandler()
@@ -580,7 +580,7 @@ class DocumentUploadTests {
                 .build();
     }
 
-    /** A file with a real signature at its start, so the bytes match the declared type. */
+    // A real signature at the start, so the bytes match the declared type.
     private record Sample(String name, String contentType, String head) {
 
         MockMultipartFile file() throws IOException {

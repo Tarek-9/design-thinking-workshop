@@ -1,17 +1,3 @@
-/**
- * Übersicht's "Offene Anfragen" block: lets a Staff member pick the next
- * Application and open it, right below the three metric cards
- * `OverviewStats` owns. The list itself is the same `ApplicationsList`
- * Anfragen renders, selection column and discard action included; what stays
- * on Anfragen is the full set — this panel only ever shows the five most
- * recent open Applications after search and filtering (`A13`), with a link
- * across for the rest.
- *
- * `applications` and `onEdit` are the same pair `App` hands Anfragen, so an
- * edit made from either screen is the same Application, not an independent
- * copy.
- */
-
 import { Archive, Inbox01 } from '@untitledui/icons';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
@@ -43,18 +29,13 @@ import {
 
 type OpenApplicationsPanelProps = {
   applications: readonly Application[];
-  /** Changes one field of one Application, the same handler Anfragen gets. */
   onEdit: (id: string, change: ApplicationEdit) => void;
-  /** Discards the named Applications (`A16`), the same handler Anfragen gets. */
   onDiscard: (ids: ReadonlySet<string>) => void;
-  /** Owned by Kategorien, so the filter and the rows read the edited list. */
+  // Owned by Kategorien, so the filter and the rows read the edited list.
   categories: readonly Category[];
   owners: readonly Owner[];
-  /** The reference date the rows' relative ages are read against. */
   now: Date;
-  /** The internal-notes draft, for the drawer this panel opens too. */
   notes: NotesField;
-  /** The drawer's Documents section, the same render function Anfragen gets. */
   renderDocuments: (applicationId: string) => ReactNode;
 };
 
@@ -125,11 +106,8 @@ export function OpenApplicationsPanel({
           <p className="text-text-tertiary mt-1 text-sm">{subtitle}</p>
         ) : null}
 
-        {/* A search field, two filters and a bulk action over a list that is
-            empty because the backend has no Applications at all offer to
-            narrow nothing (issue #53). They stay the moment there is one
-            open Application, even if a filter then hides it, so filtering
-            down to nothing cannot take away the control that undoes it. */}
+        {/* Shown while anything is open, not while a filter matches, so
+            filtering down to nothing cannot hide the controls. */}
         {anyOpen ? (
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
             <OpenApplicationsFilterBar
@@ -151,10 +129,7 @@ export function OpenApplicationsPanel({
                 </button>
               )}
 
-              {/*
-               * Same rule as on Anfragen: always on the bar, disabled while
-               * nothing is checked, so ticking a row never shifts the toolbar.
-               */}
+              {/* Always shown and disabled while nothing is checked, so ticking a row does not shift the bar. */}
               <Button
                 size="md"
                 color="secondary"

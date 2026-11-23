@@ -11,11 +11,10 @@ import lombok.Getter;
 @ConfigurationProperties(prefix = "resend")
 public class ResendProperties {
 
-    // From the Resend dashboard — never committed, set via RESEND_API_KEY (see .env.example)
+    // Set via RESEND_API_KEY, never committed.
     private String apiKey;
 
-    // Must stay onboarding@resend.dev until a domain is verified in Resend;
-    // a verified domain can then send to any address, not only our own.
+    // Stays onboarding@resend.dev until a domain is verified in Resend.
     private String from = "onboarding@resend.dev";
 
 
@@ -23,11 +22,7 @@ public class ResendProperties {
         this.apiKey = apiKey;
     }
 
-    // Docker Compose passes RESEND_FROM through as "" when it is set but
-    // empty in .env — a distinct case from unset, and one Spring's own
-    // property-placeholder default (${RESEND_FROM:onboarding@resend.dev})
-    // does not catch, since a present-but-empty value still counts as
-    // present. An explicit blank means "use the default", same as unset.
+    // An empty RESEND_FROM (set but blank in .env) must fall back to the default.
     public void setFrom(String from) {
         if (StringUtils.hasText(from)) {
             this.from = from;

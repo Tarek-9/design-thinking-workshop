@@ -20,7 +20,7 @@ public class UpdateCategoryRequest {
 
     private Boolean active;
 
-    /** Absent leaves the name alone; present and blank is a rejected rename. */
+    // Absent leaves the name alone; a blank name is rejected.
     @Pattern(regexp = ".*\\S.*", message = "CATEGORY_NAME_REQUIRED")
     @Size(max = FieldLimits.CATEGORY_NAME_MAX, message = "CATEGORY_NAME_TOO_LONG")
     public String getName() {

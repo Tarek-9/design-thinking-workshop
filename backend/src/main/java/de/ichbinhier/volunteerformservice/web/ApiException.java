@@ -7,17 +7,12 @@ import org.springframework.http.HttpStatus;
 
 import lombok.Getter;
 
-/**
- * A failure the dashboard words by its {@code code} rather than by a field —
- * the top-level codes in {@code dashboard/API.md} "Errors".
- */
 @Getter
 public class ApiException extends RuntimeException {
 
     private final HttpStatus status;
     private final String code;
 
-    /** Headers the failure itself carries, such as {@code Retry-After}. */
     private final HttpHeaders headers;
 
     public ApiException(HttpStatus status, String code) {
@@ -51,11 +46,7 @@ public class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.CONFLICT, "CATEGORY_IN_USE");
     }
 
-    /**
-     * Too many failed sign-ins from one address (`A20`). {@code Retry-After} is
-     * a courtesy for anything reading the API by hand — the dashboard shows one
-     * general message and leaves the action retryable.
-     */
+    // Retry-After is for clients reading the API by hand; the dashboard ignores it.
     public static ApiException rateLimited(Duration retryAfter) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.RETRY_AFTER, String.valueOf(Math.max(1, retryAfter.toSeconds())));

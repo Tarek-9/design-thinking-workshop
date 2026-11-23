@@ -17,13 +17,7 @@ const HEART_CLASSES = [
   styles.heart7,
 ];
 
-/**
- * Domain-free brand strip matching the Figma Hero Section (node 59:142).
- *
- * The frame keeps the Figma layout's 1413:482 aspect ratio and every child
- * is positioned as a percentage of that frame, so the composition scales as
- * one unit instead of drifting apart at other widths.
- */
+/** Children are percentages of the frame, so the composition scales as one unit. */
 export function HeroSection({ tagline }: HeroSectionProps) {
   return (
     <section className={styles.hero}>

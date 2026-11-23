@@ -1,11 +1,4 @@
-/**
- * Anfragen's container: the cache above, intent callbacks below (ADR-0006).
- *
- * It holds no data of its own. `ApplicationsScreen` stays testable through
- * fixtures and props, and this is the file that has a `QueryClient` in it —
- * which is why the optimistic rollback and the notes draft are tested here
- * and not there.
- */
+// Holds the QueryClient; ApplicationsScreen stays testable through fixtures and props.
 
 import { useApplications } from '@/queries/applications';
 import { useCategories } from '@/queries/categories';
@@ -17,9 +10,7 @@ import type { ApplicationFilters } from './filterApplications';
 import { useApplicationWrites } from './useApplicationWrites';
 
 type ApplicationsContainerProps = {
-  /** The reference date the relative ages and the "Lange offen" view are read against. */
   now: Date;
-  /** The view/status a Übersicht metric card linked in with, if any. */
   initialFilters?: Partial<ApplicationFilters>;
 };
 

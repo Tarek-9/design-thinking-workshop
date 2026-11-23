@@ -1,9 +1,3 @@
-/**
- * Übersicht: the greeting, the three queue cards, and the "Offene Anfragen"
- * panel under them. Assembled here rather than in `App`, so `App` routes
- * between screens and each screen owns its own layout.
- */
-
 import type { ReactNode } from 'react';
 
 import { PageHeader } from '@/components/shared/page-header';
@@ -21,19 +15,15 @@ import { OpenApplicationsPanel } from './OpenApplicationsPanel';
 import { OverviewStats } from './OverviewStats';
 
 type OverviewScreenProps = {
-  /** The signed-in Staff member's name, for the welcome headline. */
   staffName: string;
   applications: readonly Application[];
-  /** The state history behind the three cards' sparklines; only they read it. */
   stateChanges: readonly StateChange[];
   onEdit: (id: string, change: ApplicationEdit) => void;
   onDiscard: (ids: ReadonlySet<string>) => void;
   categories: readonly Category[];
   owners: readonly Owner[];
   now: Date;
-  /** The internal-notes draft, for the drawer the panel below opens. */
   notes: NotesField;
-  /** The drawer's Documents section, handed on to the panel below. */
   renderDocuments: (applicationId: string) => ReactNode;
 };
 

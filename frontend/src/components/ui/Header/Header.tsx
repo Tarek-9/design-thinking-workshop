@@ -26,27 +26,12 @@ interface HeaderProps {
   onLanguageChange: (language: Language) => void;
 }
 
-/** Scroll distance, in either direction, needed to flip the header state.
- * Below this, wheel/trackpad micro-jitter would flip `isScrolled` mid-
- * transition and fight the CSS animation instead of settling into it. */
+/** Smaller moves are wheel or trackpad jitter that would fight the CSS transition. */
 const SCROLL_DIRECTION_THRESHOLD = 24;
 
-/** Scroll position under which the header is always fully expanded. */
 const SCROLL_TOP_THRESHOLD = 10;
 
-/**
- * Tracks scroll direction so the header can shrink on the way down and
- * restore on the way up, matching the live site's fixed header. Always
- * expanded at the very top of the page, regardless of last direction.
- *
- * Flips state only once the scroll position has moved
- * `SCROLL_DIRECTION_THRESHOLD` away from where it last flipped — comparing
- * consecutive frames instead reacts to every sub-pixel wheel/trackpad
- * reversal, which fights the CSS transition and reads as jitter. The flip
- * commits immediately once that threshold is crossed; the CSS transition on
- * `--header-scroll-transition` is what makes the resulting resize read as
- * smooth rather than the timing of the state change.
- */
+/** Compares against the last flip, so per-frame sub-pixel jitter cannot toggle the state. */
 function useIsScrolled(): boolean {
   const [isScrolled, setIsScrolled] = useState(false);
   const lastFlipScrollY = useRef(0);
@@ -101,15 +86,7 @@ function useIsScrolled(): boolean {
   return isScrolled;
 }
 
-/**
- * Domain-free site header matching the Figma Header component.
- *
- * One markup tree for every breakpoint — the nav/actions row and menu button
- * toggle visibility at the content-driven header breakpoint rather than
- * swapping variants. The
- * fixed header may shrink on scroll-down, while its in-flow spacer keeps a
- * stable height so the animation cannot create synthetic scroll movement.
- */
+/** The in-flow spacer keeps the page height fixed, so shrinking the header cannot move scrollY. */
 export function Header({
   logoAlt,
   homeHref,

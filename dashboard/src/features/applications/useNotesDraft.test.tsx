@@ -5,11 +5,6 @@ import { NOTES_DEBOUNCE_MS } from '@/domain/application';
 
 import { useNotesDraft } from './useNotesDraft';
 
-/**
- * The draft is the reason the notes field is not a controlled copy of the
- * cache, so these are tests about time and about failure: when the request is
- * sent, and what is on screen after it does not arrive.
- */
 describe('useNotesDraft', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -19,7 +14,6 @@ describe('useNotesDraft', () => {
     vi.useRealTimers();
   });
 
-  /** Advances past the debounce and lets the save's promise settle. */
   async function pause(ms = NOTES_DEBOUNCE_MS) {
     await act(async () => {
       vi.advanceTimersByTime(ms);
@@ -43,7 +37,6 @@ describe('useNotesDraft', () => {
     expect(save).toHaveBeenCalledExactlyOnceWith('a1', 'Sch');
   });
 
-  /** The requirement `API.md` names: a burst is one request, not one per key. */
   it('sends one request for a burst of keystrokes', async () => {
     const save = vi.fn(() => Promise.resolve());
     const { result } = renderHook(() => useNotesDraft(save));
@@ -78,11 +71,7 @@ describe('useNotesDraft', () => {
     expect(result.current.draft).toBeNull();
   });
 
-  /**
-   * The rule the Staff member notices: a note that did not save is still on
-   * screen, where it can be read and copied out, rather than reverted to
-   * whatever the server last accepted.
-   */
+  // A note that failed to save stays on screen so it can be copied out.
   it('keeps the text when the save fails', async () => {
     const save = vi.fn(() => Promise.reject(new Error('offline')));
     const { result } = renderHook(() => useNotesDraft(save));
@@ -99,7 +88,6 @@ describe('useNotesDraft', () => {
     });
   });
 
-  /** Text typed while the request was in flight is not thrown away by its success. */
   it('holds on to a keystroke that landed after the request left', async () => {
     const save = vi.fn(() => Promise.resolve());
     const { result } = renderHook(() => useNotesDraft(save));
@@ -115,10 +103,7 @@ describe('useNotesDraft', () => {
     expect(result.current.draft?.text).toBe('Rückruf');
   });
 
-  /**
-   * One draft, because one drawer is open at a time — so opening another
-   * Application's notes has to flush the first rather than drop it.
-   */
+  // Only one draft exists, so switching Applications must flush the first.
   it('sends a pending note before starting one on another Application', () => {
     const save = vi.fn(() => Promise.resolve());
     const { result } = renderHook(() => useNotesDraft(save));

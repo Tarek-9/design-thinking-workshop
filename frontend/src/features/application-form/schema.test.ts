@@ -2,13 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { emptyFormValues, formSchema } from './schema';
 
-/**
- * Reference test. It exists to prove the test setup works and to show the
- * shape a test in this project takes; the ported form will bring its own.
- *
- * Note what is asserted: the error *code*, never the German text. Copy is
- * reviewed against DESIGN.md, not against test expectations.
- */
+/** Asserts error codes, never German text: copy is reviewed separately. */
 function codesFor(values: unknown): string[] {
   const result = formSchema.safeParse(values);
   return result.success

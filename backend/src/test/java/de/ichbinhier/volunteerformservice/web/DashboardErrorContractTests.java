@@ -34,10 +34,7 @@ import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.config.SignIns;
 
-/**
- * The dashboard words every failure by looking `code` up in `de.errors`, so
- * every failure has to carry one. See `dashboard/API.md` "Errors".
- */
+// The dashboard words every failure by its code, so every failure must carry one.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

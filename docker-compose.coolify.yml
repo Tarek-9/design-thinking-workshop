@@ -1,15 +1,5 @@
-# Deployment compose for Coolify/Traefik.
-#
-# Unlike docker-compose.yml (the local demo, which binds host ports
-# 127.0.0.1:8081 and 8082), this file exposes no host ports: Traefik routes
-# to frontend and dashboard over the Coolify network on TLS, so nothing is
-# reachable on plain 8081/8082 (see the vault runbook "Öffentliche Ports
-# 8081/8082 (ichbinhier-form)"). The dashboard Sign-in cookie is Secure, so
-# fronting via TLS is mandatory.
-#
-# Each Coolify environment (main/staging/develop) deploys this file with its
-# own Postgres service and volumes, so the three run side by side without
-# sharing data.
+# Coolify/Traefik deployment: no host ports, since Traefik serves both apps over TLS
+# (the dashboard sign-in cookie is Secure). Each environment has its own database.
 services:
   db:
     image: docker.io/library/postgres:17-alpine

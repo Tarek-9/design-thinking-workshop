@@ -7,11 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 
-/**
- * Builds the {@code application/problem+json} body the dashboard reads, with the
- * {@code code} it looks its German wording up by. The dashboard never reads a
- * message from here — see {@code dashboard/API.md} "Errors".
- */
+// The dashboard looks its wording up by code and never reads the message.
 public final class ApiProblem {
 
     private static final String TYPE_PREFIX = "https://ichbinhier.eu/problems/";
@@ -19,11 +15,7 @@ public final class ApiProblem {
     private ApiProblem() {
     }
 
-    /**
-     * The same body for the Spring Security filter chain, which answers before a
-     * controller advice can. Every value here is ASCII, so it needs no escaping
-     * and no Jackson mapper — the servlet API is all the filter chain has.
-     */
+    // The security filter chain answers before controller advice, so no Jackson here.
     public static String asJson(HttpStatusCode status, String code) {
         return """
                {"type":"%s","title":"%s","status":%d,"code":"%s"}"""
@@ -38,11 +30,7 @@ public final class ApiProblem {
         return problem;
     }
 
-    /**
-     * The code for a status nothing in the contract names — a `405`, a `415`, a
-     * Spring-raised `400`. An unknown code falls the dashboard back to its
-     * general message, which beats an empty body with a bare status.
-     */
+    // Unknown statuses map to a general code the dashboard can word.
     public static String codeFor(HttpStatusCode status) {
         if (status.is5xxServerError()) {
             return "INTERNAL_ERROR";
