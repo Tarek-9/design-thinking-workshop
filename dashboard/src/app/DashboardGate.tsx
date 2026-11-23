@@ -1,4 +1,4 @@
-/** Waits for all four reads, so no screen handles `undefined`; a 401 is left to the sign-in cover. */
+/** Waits for all four reads, so no screen handles `undefined`; a 403 is left to the sign-in cover. */
 
 import { useQueries } from '@tanstack/react-query';
 import type { ReactNode } from 'react';

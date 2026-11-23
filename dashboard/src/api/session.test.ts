@@ -39,8 +39,8 @@ describe('the Sign-in', () => {
   it('throws UNAUTHENTICATED when there is no Sign-in', async () => {
     stub(
       json(
-        { status: 401, code: 'UNAUTHENTICATED' },
-        401,
+        { status: 403, code: 'UNAUTHENTICATED' },
+        403,
         'application/problem+json',
       ),
     );

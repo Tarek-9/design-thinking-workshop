@@ -36,7 +36,7 @@ export type StreamConnection = {
 };
 
 export type ApplicationStreamOptions = {
-  /** False while the cover is up: no Sign-in to authenticate with, so it would only collect 401s. */
+  /** False while the cover is up: no Sign-in to authenticate with, so it would only collect 403s. */
   enabled?: boolean;
 };
 
@@ -66,7 +66,7 @@ export function useApplicationStream({
     }
 
     /**
-     * Not a query: it would overwrite the cover. Only a 401 says anything about the
+     * Not a query: it would overwrite the cover. Only a 403 says anything about the
      * Sign-in; a network failure says nothing.
      */
     async function askWhetherSignedIn(): Promise<boolean> {

@@ -3,7 +3,7 @@
 import type { StaffMember } from './staffMember';
 
 export type SignIn =
-  /** GET /me answered 401: the sign-in screen, nothing behind it. */
+  /** GET /me answered 403: the sign-in screen, nothing behind it. */
   | { kind: 'none' }
   | { kind: 'active'; staffMember: StaffMember }
   | { kind: 'expired'; staffMember: StaffMember };
@@ -14,7 +14,7 @@ export function activeSignIn(staffMember: StaffMember): SignIn {
   return { kind: 'active', staffMember };
 }
 
-/** Only an active Sign-in expires: a late 401, behind the cover or after sign-out, must not change what is shown. */
+/** Only an active Sign-in expires: a late 403, behind the cover or after sign-out, must not change what is shown. */
 export function expireSignIn(signIn: SignIn): SignIn {
   return signIn.kind === 'active'
     ? { kind: 'expired', staffMember: signIn.staffMember }
