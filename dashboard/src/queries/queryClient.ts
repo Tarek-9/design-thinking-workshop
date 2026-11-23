@@ -1,6 +1,6 @@
 /**
  * No timers and no focus refetch: the stream applies changes, and a refetch could
- * overwrite an optimistic write it has not yet echoed. Retries never repeat a 401.
+ * overwrite an optimistic write it has not yet echoed. Retries never repeat a 403.
  */
 
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';

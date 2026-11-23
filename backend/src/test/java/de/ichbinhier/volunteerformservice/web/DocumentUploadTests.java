@@ -365,11 +365,11 @@ class DocumentUploadTests {
         UUID document = documents.findAll().getFirst().getId();
 
         mvc.perform(get(STAFF_DOCUMENTS, application.getId()))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
 
         mvc.perform(get(STAFF_DOCUMENTS + "/{documentId}", application.getId(), document))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
     }
 

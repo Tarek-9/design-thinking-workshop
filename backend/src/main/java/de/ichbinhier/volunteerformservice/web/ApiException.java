@@ -30,12 +30,13 @@ public class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.NOT_FOUND, "NOT_FOUND");
     }
 
+    // 403, not 401: a 401 makes browsers drop cached Basic Auth credentials.
     public static ApiException unauthenticated() {
-        return new ApiException(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED");
+        return new ApiException(HttpStatus.FORBIDDEN, "UNAUTHENTICATED");
     }
 
     public static ApiException invalidCredentials() {
-        return new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS");
+        return new ApiException(HttpStatus.FORBIDDEN, "INVALID_CREDENTIALS");
     }
 
     public static ApiException notDiscarded() {
