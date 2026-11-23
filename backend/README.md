@@ -1,7 +1,7 @@
 # Backend
 
 Spring Boot service backing the applicant form and the staff dashboard. See
-[`../AGENTS.md`](../AGENTS.md) for repo-wide conventions.
+[`../docs/CODE_STANDARDS.md`](../docs/CODE_STANDARDS.md) for the code rules.
 
 The [refactoring pass](../docs/REFACTORING.md) records the method, implemented
 improvements, deferred candidates and verification limits for ticket #11.
@@ -11,7 +11,7 @@ improvements, deferred candidates and verification limits for ticket #11.
 The dashboard has no self-registration and no user administration, so
 `staff/StaffSeeder.java` is the only way an account comes into being: five of
 them, one per staff member (`A1`, `A17`), invented people at the association's
-domain. The addresses are sign-in identities and nothing else — no mail is ever
+domain. The addresses are sign-in identities and nothing else. No mail is ever
 sent to a staff member, so none of these mailboxes has to exist.
 
 **The five initial passwords come from the environment**, `STAFF_1_PASSWORD`
@@ -27,7 +27,7 @@ check, which decides two things worth knowing:
 
 - an **already-seeded** deployment starts without any of these variables, since
   it creates nothing;
-- a **missing** password is fatal only for an account that is actually absent —
+- a **missing** password is fatal only for an account that is actually absent:
   the backend refuses to start and names the variable, because a dashboard
   nobody can sign in to fails later and less clearly.
 
@@ -43,7 +43,7 @@ account, since five staff members with no administrator would stay locked
 `demo/DemoSeeder.java` seeds a week that reads like a real one: thirteen
 Applications across the four Categories and all six statuses, some owned and
 some not, six older than seven days, two discarded and one discarded and
-restored (`A21`). **It runs only under the `demo` profile** — the Categories and
+restored (`A21`). **It runs only under the `demo` profile**. The Categories and
 the staff accounts are platform data, while these Applications are a
 presentation artifact, so a database only gets applicant-shaped rows when
 somebody asks for it:
@@ -58,13 +58,13 @@ is skipped whole once there is any Application at all, so a restart mid-demo
 neither duplicates the week nor brings back a set somebody cleared.
 
 Every Application carries the **State changes that lead to it**, dated when they
-happened — that is what makes Übersicht's sparklines a real trend rather than
+happened, which is what makes Übersicht's sparklines a real trend rather than
 today's number repeated seven times (`dashboard/API.md`, "Which makes seeding
 part of this contract"). A seed declares only its timeline; the current Status,
 Owner and discarded state are folded out of it, so the two cannot disagree.
 
 The applicants are invented and their addresses sit at `example.org`, which
-[RFC 2606](https://www.rfc-editor.org/rfc/rfc2606) reserves — no mailbox can
+[RFC 2606](https://www.rfc-editor.org/rfc/rfc2606) reserves. No mailbox can
 exist there. That is the point: the consent text names the association as the
 party that stores an applicant's details, and on our own domain that is not who
 receives them, so nothing a real person wrote may end up in this database
@@ -115,7 +115,7 @@ point `DOCUMENT_UPLOAD_DIR` at any writable folder.
 The confirmation email an applicant gets on submit (`A8` in
 [`../docs/ASSUMPTIONS.md`](../docs/ASSUMPTIONS.md)) goes through
 [Resend](https://resend.com). `email/ResendEmailSender.java` calls their HTTP
-API directly — no SDK dependency, the API is one POST request.
+API directly: no SDK dependency, the API is one POST request.
 
 Every Status change sends the applicant one mail as well (`A24`): the German
 text per Status lives in `email/StatusChangeMailer.java`, it is sent after the
@@ -138,14 +138,14 @@ reach every applicant address, not just the account owner):
    address, not just the account's own inbox.
 3. Create an API key in the dashboard of type `sending_access` and restrict it
    to that domain. Set it as `RESEND_API_KEY` in the deployment environment
-   only (see `.env.example`) — never commit the key itself.
+   only (see `.env.example`). Never commit the key itself.
 4. Set `RESEND_FROM=noreply@tmp-ichbinhier.tarek.foo` in the deployment
    environment.
 
 The DNS records, the sending domain and the API key are set up separately as
 an operations step; the code and this document only prepare the configuration.
 Until that verification is done, fall back to `onboarding@resend.dev`, which
-sends only to the email address on the Resend account itself — enough to show
+sends only to the email address on the Resend account itself, enough to show
 the flow with your own inbox.
 
 Both `resend.api-key` and `resend.from` are read from environment variables in
