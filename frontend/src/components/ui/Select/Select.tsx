@@ -9,13 +9,6 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   children: ReactNode;
 }
 
-/**
- * Domain-free native select matching the Figma Select component.
- *
- * Field owns the label, hint, error text and ARIA relationship. Callers supply
- * options and native selection behaviour; this component only owns the
- * control surface and its indicator.
- */
 export function Select({ children, className, ...selectProps }: SelectProps) {
   const isInvalid = isAriaInvalid(selectProps['aria-invalid']);
   const classNames = cx(

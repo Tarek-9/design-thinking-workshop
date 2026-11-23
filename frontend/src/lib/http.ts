@@ -1,7 +1,5 @@
-/** Requests time out after this long by default; pass `timeoutMs` to override. */
 export const DEFAULT_TIMEOUT_MS = 15_000;
 
-/** Up to three files of 5 MB each (`API.md`, documents). */
 export const UPLOAD_TIMEOUT_MS = 60_000;
 
 interface PostJsonOptions {
@@ -9,7 +7,6 @@ interface PostJsonOptions {
   keepalive?: boolean;
 }
 
-/** POSTs a JSON body with the headers and timeout every endpoint needs. */
 export function postJson(
   url: string,
   body: unknown,
@@ -24,10 +21,7 @@ export function postJson(
   });
 }
 
-/**
- * POSTs multipart form data; no `Content-Type`, so the browser writes the
- * boundary. Uploads get a longer timeout than JSON.
- */
+/** No Content-Type header, so the browser can write the multipart boundary. */
 export function postMultipart(
   url: string,
   body: FormData,
@@ -45,7 +39,6 @@ interface GetJsonOptions {
   signal?: AbortSignal;
 }
 
-/** GETs a resource with the timeout every endpoint needs. */
 export function getJson(
   url: string,
   { timeoutMs = DEFAULT_TIMEOUT_MS, signal }: GetJsonOptions = {},

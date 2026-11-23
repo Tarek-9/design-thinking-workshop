@@ -1,41 +1,10 @@
-/**
- * The Applications list as it stood on a past day, reconstructed from the
- * state history (`API.md`, "State changes").
- *
- * Übersicht's three cards each draw a seven-day sparkline. The counts come
- * from the list, but the seven days cannot: an Application carries only its
- * current Status, Owner and Discarded flag, so replaying today's values
- * across the week draws a curve that is confidently wrong. `GET
- * /applications/changes` records what changed and when, and this walks
- * backwards over it.
- *
- * **Backwards from the current state, not forwards from submission.** For one
- * field, the value on `asOf` is: the current value when nothing changed after
- * `asOf`, otherwise the `to` of the last change at or before `asOf`, and only
- * where there is no such change the value the Application was submitted with
- * — `NEW`, no Owner, not discarded, which `API.md` calls a correct
- * reconstruction rather than a fallback.
- *
- * Starting from the current value is what keeps a truncated window honest.
- * The history is fetched for `STATE_CHANGE_WINDOW_DAYS` (30), so a change
- * older than that is not in it; a forwards replay would then read a field
- * with no rows as never-changed and answer `NEW` for an Application that has
- * been `ACTIVE` for two months. Walking backwards, no rows after `asOf` means
- * the field is unchanged since then, whatever it changed from before the
- * window opened.
- */
-
 import type { Application } from '@/domain/application';
 import { APPLICATION_STATUSES } from '@/domain/application';
 import type { StateChange, StateChangeField } from '@/domain/stateChange';
 
 type ChangesByField = ReadonlyMap<StateChangeField, readonly StateChange[]>;
 
-/**
- * The rows for one Application, split by field and oldest first. Grouping is
- * per call rather than cached: the window holds a few dozen rows and a cache
- * keyed on two arrays would cost more than the walk it saves.
- */
+// Grouped per call: a cache keyed on two arrays would cost more than it saves.
 function groupByApplication(
   stateChanges: readonly StateChange[],
 ): ReadonlyMap<string, ChangesByField> {
@@ -54,11 +23,6 @@ function groupByApplication(
   return byApplication;
 }
 
-/**
- * The last change at or before `asOf`, and whether any change came after it.
- * A `false` for `changedAfter` is what tells the caller the field is unchanged
- * since `asOf` and the Application's current value still stands.
- */
 function valueAt(
   changes: readonly StateChange[] | undefined,
   asOf: Date,
@@ -85,7 +49,6 @@ function isStatus(value: unknown): value is Application['status'] {
   );
 }
 
-/** One Application as it stood on `asOf`. */
 function applicationAsOf(
   application: Application,
   changes: ChangesByField | undefined,
@@ -95,25 +58,21 @@ function applicationAsOf(
   const owner = valueAt(changes?.get('OWNER'), asOf);
   const discarded = valueAt(changes?.get('DISCARDED'), asOf);
 
-  /** No `STATUS` row after `asOf` means it still holds today's; `NEW` is what it was submitted with. */
+  // Without a later row the current status still holds; NEW is the submitted one.
   const statusThen = !status.changedAfter
     ? application.status
     : isStatus(status.last?.to)
       ? status.last.to
       : 'NEW';
 
-  /** `to: null` is a cleared Owner, and no row at all means it never had one. */
+  // A null "to" means the Owner was cleared.
   const ownerIdThen = !owner.changedAfter
     ? application.ownerId
     : typeof owner.last?.to === 'string'
       ? owner.last.to
       : null;
 
-  /**
-   * The wire records `DISCARDED` as a boolean while the Application carries a
-   * timestamp, so a `true` is dated by the row that set it — the moment it
-   * was discarded, which is the only date that row can mean.
-   */
+  // The wire sends DISCARDED as a boolean, so a true is dated by the row that set it.
   const discardedAtThen = !discarded.changedAfter
     ? application.discardedAt
     : discarded.last !== undefined && discarded.last.to === true
@@ -128,13 +87,8 @@ function applicationAsOf(
   };
 }
 
-/**
- * Every Application that had been submitted by `asOf`, each with the Status,
- * Owner and Discarded state it held then. Applications submitted later are
- * left out rather than reconstructed: a card's count is of what had arrived,
- * and `filterApplications` reads `submittedAt` for the "Lange offen" view, so
- * the caller passes `asOf` as its reference date too.
- */
+// Walks backwards from the current values: the history covers only the last
+// STATE_CHANGE_WINDOW_DAYS, so a forwards replay would misread older fields.
 export function applicationsAsOf(
   applications: readonly Application[],
   stateChanges: readonly StateChange[],

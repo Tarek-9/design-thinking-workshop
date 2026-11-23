@@ -20,11 +20,7 @@ import de.ichbinhier.volunteerformservice.application.WeeklyTime;
 import de.ichbinhier.volunteerformservice.category.Category;
 import de.ichbinhier.volunteerformservice.category.CategoryRepository;
 
-/**
- * One account per Staff member, with initial passwords out of the environment
- * (`A1`, `A17`). The seeder is a {@code !test} bean, so it is built by hand here
- * rather than left to start with the context.
- */
+// The seeder is a !test bean, so it is built by hand here.
 @SpringBootTest
 @ActiveProfiles("test")
 class StaffSeederTests {
@@ -71,10 +67,6 @@ class StaffSeederTests {
         assertThat(passwordEncoder.matches("first pass", ashton.getPasswordHash())).isTrue();
     }
 
-    /**
-     * Hashes at bcrypt cost 12; the cost sits in the prefix, and
-     * {@code matches} still verifies a candidate against it.
-     */
     @Test
     void hashesWithBcryptAtCostTwelve() {
         String hash = passwordEncoder.encode("first pass");
@@ -84,10 +76,6 @@ class StaffSeederTests {
         assertThat(passwordEncoder.matches("wrong candidate", hash)).isFalse();
     }
 
-    /**
-     * A dashboard nobody can sign in to is worse than a backend that refuses to
-     * start, and the refusal has to name the variable a person must set.
-     */
     @Test
     void refusesToStartWhenAnInitialPasswordIsMissing() {
         List<String> missingTheLast =
@@ -98,11 +86,7 @@ class StaffSeederTests {
                 .hasMessageContaining("STAFF_5_PASSWORD");
     }
 
-    /**
-     * Seeded by address rather than behind one "is the table empty" check, so an
-     * already-seeded deployment keeps starting without the variables it no
-     * longer needs, and a partly-seeded one gets the rest.
-     */
+    // Seeded per address, so a partly seeded database gets the rest.
     @Test
     void fillsInTheMissingAccountsAndLeavesTheRestUntouched() {
         Staff alreadyThere = staffMembers.save(Staff.builder()
@@ -118,12 +102,7 @@ class StaffSeederTests {
                 .isEqualTo(alreadyThere.getPasswordHash());
     }
 
-    /**
-     * Earlier builds seeded one account whose password was a literal in the
-     * seeder, so it stays a working key to the dashboard on every machine that
-     * ran them. It may own Applications, so it is taken off those before the row
-     * goes.
-     */
+    // Earlier builds seeded a literal-password account, which must not stay a working key.
     @Test
     void retiresTheHardCodedAccountAndTakesItOffItsApplications() {
         staffMembers.save(Staff.builder()

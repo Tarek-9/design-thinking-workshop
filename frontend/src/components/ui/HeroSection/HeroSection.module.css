@@ -1,8 +1,4 @@
-/*
- * Every offset below is a percentage of the Figma frame (node 59:142,
- * 1413 x 482px) rather than a token — it is this illustration's one-off
- * composition math, not a reusable design value.
- */
+/* Offsets are percentages of the frame: one-off composition for this illustration. */
 
 .hero {
   display: flex;
@@ -65,9 +61,7 @@
   animation-fill-mode: both;
 }
 
-/* Delays follow the speaker's burst order (not DOM order): the first heart
-   appears as it rises, then the rest emerge in a measured sequence. This
-   keeps the entrance as one authored moment, not per-heart flair. */
+/* Delays follow the speaker's burst order. */
 @keyframes heart-pop-1 {
   from {
     opacity: 0;

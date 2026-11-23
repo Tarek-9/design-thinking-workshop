@@ -3,11 +3,8 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-/**
- * The backend on its default port. Development is same-origin because the
- * Sign-in cookie is `SameSite=Strict`: a request to another origin would not
- * carry it, so there is no `VITE_API_BASE_URL` to point anywhere else.
- */
+// Same-origin in development: the sign-in cookie is `SameSite=Strict` and would
+// not be sent to another origin.
 const API_TARGET = 'http://localhost:8080';
 
 const DEV_SERVER_PORT = 5174;
@@ -23,15 +20,11 @@ export default defineConfig({
   },
   server: {
     port: DEV_SERVER_PORT,
-    // Mirrors `nginx.conf` location for location, so a request behaves the
-    // same in development as in production. `changeOrigin` stays off on both
-    // entries: nginx passes the browser's `Host` through, and so does Vite by
-    // default.
+    // Same routes as nginx in production. `changeOrigin` stays off: nginx passes
+    // the browser's `Host` through, and so does Vite by default.
     proxy: {
-      // The live stream, matched before `/api` because Vite takes the first
-      // key whose prefix fits. `proxyTimeout` is nginx's `proxy_read_timeout`
-      // — an hour, so an idle stream is not cut. Nothing between Vite and the
-      // browser buffers, which is what `proxy_buffering off` buys in nginx.
+      // Listed before `/api`, since Vite takes the first matching key. The timeout
+      // matches nginx's `proxy_read_timeout` (one hour), so an idle stream is not cut.
       '/api/v1/staff/events': {
         target: API_TARGET,
         proxyTimeout: STREAM_PROXY_TIMEOUT_MS,

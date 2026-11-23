@@ -13,11 +13,7 @@ import org.springframework.stereotype.Component;
 
 import de.ichbinhier.volunteerformservice.web.ApiProblem;
 
-/**
- * A missing or expired Sign-in answers {@code 401 UNAUTHENTICATED} with a body.
- * The dashboard covers itself with the sign-in screen on that code and keeps the
- * staff member's unsent work, so the code has to arrive.
- */
+// The dashboard shows the sign-in screen on this code and keeps unsent work.
 @Component
 public class ProblemAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

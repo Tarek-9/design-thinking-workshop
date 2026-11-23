@@ -1,10 +1,3 @@
-/**
- * Clone path: `components/base/badges/badges.tsx`, reduced to the two badges
- * this dashboard renders — `Badge` in a table cell and `BadgeWithDot` for an
- * Application's Status. The clone's icon, flag, image, button and icon-only
- * variants are not part of this copy.
- */
-
 import type { ReactNode } from 'react';
 
 import { Dot } from '@/components/foundations/dot-icon';

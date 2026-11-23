@@ -9,17 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
-/**
- * The one cookie the dashboard carries. Server-side and opaque rather than a
- * bearer token, because an {@code EventSource} cannot set request headers and a
- * token would end up in the live stream's query string, where the proxy logs it
- * — see {@code dashboard/API.md}.
- *
- * <p>{@code Max-Age} matches the Sign-in's inactivity, and the cookie is written
- * again on every authenticated response: a {@code Max-Age} fixed once at
- * sign-in would expire twelve hours later whatever the Staff member did in
- * between, which is not the sliding window `A17` asks for.
- */
+// The cookie carries the token because EventSource cannot set headers, and a
+// token in the stream URL would reach proxy logs.
 @Component
 public class SignInCookie {
 
@@ -31,6 +22,7 @@ public class SignInCookie {
         this.maxAge = properties.getInactivity();
     }
 
+    // Re-sent on every response, so Max-Age slides with the Sign-in.
     public ResponseCookie carrying(String token) {
         return base(token).maxAge(maxAge).build();
     }

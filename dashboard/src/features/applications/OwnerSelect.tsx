@@ -1,20 +1,4 @@
-/**
- * Zuständigkeit as a listbox rather than a native `select`.
- *
- * The rest of the drawer's fields are native elements on purpose (see
- * `ApplicationDrawer.tsx`), and this one is the exception the content forces: a
- * Staff member is identified by their photo — or their initials when they have
- * none — the way the Zuständigkeit column already identifies them, and an
- * `option` element cannot hold an image. A native select could only ever show
- * one static glyph on the closed control and plain text in the open list.
- *
- * React Aria's `Select` keeps what the native element gave for free: the label
- * names the control, typing jumps to a name, arrow keys and Escape behave, and
- * the trigger announces the current value. Two consequences of the popover are
- * handled rather than accepted — it is portalled out of the drawer's scroll
- * container, so it needs a `z-index` above the drawer's own, and its Escape
- * must not also close the drawer (`ApplicationDrawer` ignores a handled one).
- */
+/** A listbox, since a native option cannot show a staff photo. The popover must not let Escape close the drawer. */
 
 import { Check, ChevronDown } from '@untitledui/icons';
 import {
@@ -34,35 +18,23 @@ import { initialsOf } from '@/utils/initials';
 
 import { CONTROL_CLASSNAME } from './controlStyles';
 
-/**
- * "Nicht zugewiesen" is a row in the list like any other, so it needs a key of
- * its own — a listbox has no equivalent of the native empty `option` value.
- */
+// A listbox row needs a key, unlike a native select's empty value.
 const UNASSIGNED_KEY = 'unassigned';
 
-/** How far the popover clears its trigger, in pixels. */
 const POPOVER_OFFSET = 4;
 
 type OwnerSelectProps = {
-  /** The Owner the Application currently carries, `null` when it has none. */
   ownerId: string | null;
   owners: readonly Owner[];
   onChange: (ownerId: string | null) => void;
 };
 
-/** What one row shows: an Owner, or the absence of one. */
 type OwnerOption = {
   key: string;
   name: string;
-  /** The empty row draws the empty-user glyph instead of initials. */
   isUnassigned: boolean;
 };
 
-/**
- * A Staff member's initials, and the empty-user glyph for "Nicht zugewiesen"
- * — the two states the Zuständigkeit column shows, so the drawer and the row
- * agree.
- */
 function OwnerAvatar({ option }: { option: OwnerOption }) {
   return (
     <Avatar
@@ -87,12 +59,7 @@ export function OwnerSelect({ ownerId, owners, onChange }: OwnerSelectProps) {
     })),
   ];
 
-  /**
-   * An `ownerId` the Owner list does not know — a Staff member who has left,
-   * until issue #16 supplies the real list — still names itself on the closed
-   * control rather than reading as unassigned, the same fallback the table
-   * makes.
-   */
+  // An unknown ownerId shows as itself, like the table.
   const selected =
     options.find((option) => option.key === (ownerId ?? UNASSIGNED_KEY)) ??
     ({
@@ -131,10 +98,7 @@ export function OwnerSelect({ ownerId, owners, onChange }: OwnerSelectProps) {
         />
       </AriaButton>
 
-      {/*
-        Above the drawer's own `z-30`: the popover is portalled to the document,
-        where the drawer's stacking context would otherwise paint over it.
-      */}
+      {/* Above the drawer's `z-30`, since the popover is portalled out of its stacking context. */}
       <AriaPopover
         offset={POPOVER_OFFSET}
         className="border-secondary bg-primary z-40 max-h-64 w-(--trigger-width) overflow-y-auto rounded-lg border p-1 shadow-lg outline-hidden"

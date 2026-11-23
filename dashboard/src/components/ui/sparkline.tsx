@@ -1,14 +1,3 @@
-/**
- * Small trend chart behind Übersicht's metric cards, so the three keep one
- * Recharts wiring instead of each repeating the area/bar switch.
- *
- * The themed container is shadcn/ui's `chart` primitive (registry
- * `new-york-v4`), reduced to the one wrapper this file needs — no legend, no
- * multi-theme support, since the dashboard is light-theme only, and no
- * `ChartTooltipContent`, which expects a multi-series `ChartConfig` where a
- * single-series trend point only needs its day label and its value.
- */
-
 import {
   Area,
   AreaChart,
@@ -41,7 +30,6 @@ export type SparklineType = 'area' | 'bar';
 
 type SparklinePoint = { index: number; value: number; label?: string };
 
-/** Hover/tap readout for a single point: its day label, when known, and its value. */
 function SparklineTooltipContent({
   active,
   payload,
@@ -74,23 +62,15 @@ function SparklineTooltipContent({
 }
 
 type SparklineProps = {
-  /** Identifier retained for callers and chart inspection. */
   id: string;
   type: SparklineType;
   color: string;
   data: readonly number[];
-  /**
-   * One label per `data` point (e.g. `Mo`, `Di`, …), shown in the hover
-   * tooltip and as a row under the chart. Omit entirely if the points have no
-   * meaningful label (the tooltip then shows just the value).
-   */
+  /** Shown in the tooltip and as a row under the chart. Omit if points have no label. */
   labels?: readonly string[];
   className?: string;
-  /** Tailwind height class for the chart itself. Defaults to the compact `h-16` used everywhere else. */
   chartClassName?: string;
-  /** Area stroke thickness in px. Defaults to `2`; bump alongside a bigger chart so the line doesn't read as thin. */
   strokeWidth?: number;
-  /** Tailwind text-size class for the weekday labels row. Defaults to `text-[10px]`. */
   labelClassName?: string;
 };
 
@@ -111,17 +91,7 @@ export function Sparkline({
     label: labels?.[index],
   }));
 
-  /**
-   * A week that never left zero is drawn as one muted baseline rather than
-   * handed to Recharts, because the two chart types disagree about it and
-   * neither reads as "flat": a bar chart draws nothing at all for zero-height
-   * bars, so the card looks like a chart that failed to load, and an area
-   * chart draws its line on the very bottom edge in the card's own colour —
-   * which on the overdue card is a semantic red, so the honest answer "nothing
-   * happened this week" reads as an alert. One rule in a neutral grey says the
-   * same thing on all three cards. This is the state the platform is in on the
-   * association's first day (issue #53).
-   */
+  /** Bars draw nothing at zero height, and an area line on the bottom edge reads as an alert. */
   const flat = data.every((value) => value === 0);
 
   return (

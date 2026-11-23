@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/base/tooltip/tooltip.tsx`, unchanged.
- */
-
 import type { ReactNode } from 'react';
 import type {
   ButtonProps as AriaButtonProps,
@@ -19,25 +15,9 @@ import { cx } from '@/utils/cx';
 
 interface TooltipProps
   extends AriaTooltipTriggerComponentProps, Omit<AriaTooltipProps, 'children'> {
-  /**
-   * The title of the tooltip.
-   */
   title: ReactNode;
-  /**
-   * The description of the tooltip.
-   */
   description?: ReactNode;
-  /**
-   * Whether to show the arrow on the tooltip.
-   *
-   * @default false
-   */
   arrow?: boolean;
-  /**
-   * Delay in milliseconds before the tooltip is shown.
-   *
-   * @default 300
-   */
   delay?: number;
 }
 

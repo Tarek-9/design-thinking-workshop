@@ -1,8 +1,4 @@
-/**
- * The Documents an Application carries (`API.md`). `documentPath` is a plain
- * link's `href`: the browser sends the Sign-in cookie, and the attachment
- * header makes it a save.
- */
+/** Plain link href: the browser sends the Sign-in cookie, and the attachment header makes it a download. */
 
 import type { ApplicationDocument } from '@/domain/applicationDocument';
 

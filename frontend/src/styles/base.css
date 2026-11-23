@@ -1,15 +1,6 @@
-/**
- * Reset and document defaults. Everything else lives in a component's own
- * CSS module — this file must not grow component classes.
- */
+/** Reset and document defaults. Component classes belong in their own CSS module. */
 
-/**
- * Brand face, served from our own origin.
- *
- * The file is provisioned outside the repository, so a checkout does not carry
- * it and CI does not build with it. Without the file the browser falls through
- * to Nunito below, which is the intended behaviour and not an error.
- */
+/** Provisioned outside the repo: without it, the Nunito fallback below applies. */
 @font-face {
   font-family: Akhand Soft;
   src: url('/fonts/brand-regular.woff2') format('woff2');
@@ -18,16 +9,7 @@
   font-display: swap;
 }
 
-/**
- * Nunito — the closest free substitute for Akhand Soft: the same geometric
- * sans skeleton with rounded terminals and a tall x-height. Served from our own
- * origin, so it cannot fail the way the face above can, and licensed under
- * SIL OFL (see public/fonts/OFL.txt).
- *
- * Only weight 400 exists here, matching the single confirmed Akhand Soft
- * weight (DESIGN.md section 5). Subsets carry their unicode-range from Google
- * Fonts, so a German page downloads the latin file alone.
- */
+/** Nunito stands in for Akhand Soft, served from our own origin so it cannot fail like the face above. */
 @font-face {
   font-family: Nunito;
   src: url('/fonts/nunito-latin-400.woff2') format('woff2');
@@ -86,9 +68,7 @@ a {
   text-underline-offset: 0.14em;
 }
 
-/* Only the Regular weight of Akhand Soft is confirmed to exist
-   (DESIGN.md section 5). Hierarchy comes from size, colour and spacing —
-   never from a bold weight the font file cannot provide. */
+/* Akhand Soft has only weight 400, so hierarchy comes from size and spacing. */
 h1,
 h2,
 h3 {

@@ -38,7 +38,6 @@ function application(overrides: Partial<Application> = {}): Application {
   };
 }
 
-/** Mirrors what the two containers hand down to the screens they wrap. */
 function Host({ initial }: { initial: Application[] }) {
   const [applications, setApplications] = useState(initial);
   const [draft, setDraft] = useState<NotesDraft | null>(null);
@@ -84,8 +83,7 @@ describe('OpenApplicationsPanel', () => {
   it('takes the search, the filters and the bulk action away while nothing is open', () => {
     render(<Host initial={[]} />);
 
-    // Controls over a list that is empty because the backend has none offer
-    // to narrow nothing (issue #53).
+    // With nothing open there is nothing to narrow, so the controls are hidden.
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', {

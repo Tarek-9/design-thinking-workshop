@@ -1,15 +1,12 @@
 /**
- * What a live-stream event does to the Applications list — as a pure
- * function, so the rules are tested without an `EventSource`, jsdom or a
- * timer (ADR-0006). `useApplicationStream` owns the connection and calls
- * this; nothing else knows the event names.
+ * Pure list rules for stream events, so they test without an EventSource.
+ * useApplicationStream owns the connection.
  */
 
 import type { ApplicationWire } from '@/api/applications';
 import { toApplication } from '@/api/applications';
 import type { Application } from '@/domain/application';
 
-/** The three the contract names (`API.md`, "The live stream"). */
 export const APPLICATION_EVENT_TYPES = [
   'application.created',
   'application.updated',
@@ -20,19 +17,13 @@ export type ApplicationEventType = (typeof APPLICATION_EVENT_TYPES)[number];
 
 export type ApplicationEvent = {
   type: ApplicationEventType;
-  /**
-   * The complete Application, in exactly the shape the list returns —
-   * including on `application.deleted`, because the dashboard may need to
-   * drop it from the fourth screen too.
-   */
+  /** Complete on every type, deleted included, so any screen can drop the row. */
   application: Application;
 };
 
 /**
- * Decodes one event's `data`. Returns `null` for a body that is not the JSON
- * it claimed to be: the stream keeps no replay buffer, so a dropped event
- * costs nothing a refetch does not repair, while throwing here would take the
- * connection down with it.
+ * A bad body yields null: a refetch repairs a dropped event, and a throw would
+ * take the connection down.
  */
 export function parseApplicationEvent(
   type: ApplicationEventType,
@@ -56,15 +47,8 @@ function withoutApplication(
 }
 
 /**
- * Puts one Application into the list, wherever it belongs: replacing the row
- * with its id, or going to the front when the list has not seen it.
- *
- * Exported because the stream is not the only thing that arrives holding a
- * complete, server-authored Application — a `PATCH` answers with one too, and
- * both have to land in the cache by the same rule.
- *
- * Newest-first is what the list arrives in, and `API.md` calls that order a
- * convenience rather than a contract — every screen sorts for itself.
+ * Exported for PATCH responses too: they carry a complete Application and must
+ * land in the cache by the same rule.
  */
 export function upsertApplication(
   applications: readonly Application[],
@@ -82,14 +66,8 @@ export function upsertApplication(
 }
 
 /**
- * The three rules, applied to the list the cache holds.
- *
- * `created` and `updated` share one branch on purpose. Both carry the whole
- * row, and either can arrive for an Application the list already has or has
- * not: the refetch on every `open` may already have picked up a creation, and
- * an update can be the first thing seen of an Application submitted while the
- * stream was down. Writing them as "add" and "replace" would leave both cases
- * to a guard at every call site; one idempotent upsert has neither case.
+ * created and updated share one idempotent upsert: either can arrive for a row
+ * the list has or has not seen, so no call site needs a guard.
  */
 export function applyApplicationEvent(
   applications: readonly Application[],

@@ -41,11 +41,8 @@ import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.config.SignIns;
 
-/**
- * On the PATCH path: a Status change mails the applicant once, a PATCH that
- * keeps the Status mails nothing, and a failing mail provider never fails
- * the change. See `dashboard/API.md`, "Status".
- */
+// A failing mail provider must never fail the change, and a PATCH that keeps the
+// Status mails nothing.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

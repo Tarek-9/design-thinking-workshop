@@ -18,7 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.jayway.jsonpath.JsonPath;
 
-/** MockMvc bypasses the container's multipart ceiling, so a real server pins the limit. */
+// MockMvc bypasses the container's multipart ceiling, so a real server pins it.
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "spring.servlet.multipart.max-file-size=1KB")

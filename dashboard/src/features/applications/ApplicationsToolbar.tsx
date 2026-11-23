@@ -1,10 +1,3 @@
-/**
- * `SearchField` + `FilterPopover`, rendered as the single compact row the
- * premium-SaaS reference uses: a search box with a ⌘K hint, one neutral
- * "Filter" button. The tab strip is a sibling, not a child — the named views
- * are tabs, not filters, and stay out of this component.
- */
-
 import { useRef } from 'react';
 
 import type { Category } from '@/domain/application';

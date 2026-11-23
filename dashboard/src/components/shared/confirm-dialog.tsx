@@ -1,28 +1,4 @@
-/**
- * The question a destructive action asks before it runs.
- *
- * It replaces `window.confirm`, which the four confirmations in the dashboard
- * used to go through. The browser dialog is the one surface in the application
- * that is not this application: it carries the browser's typography and the
- * operating system's button order, it renders the raw question with no room
- * for the consequence underneath it, and on the screen that erases what a
- * person wrote it looked like the least considered step of the flow. What is
- * gained here is the danger colour on the destructive button, a second line
- * for the consequence, and a wording that can name the action instead of
- * "OK".
- *
- * Assembled the way `CategoryDialog` is — React Aria owns the focus trap, the
- * Escape key and the modal semantics, the styling is this application's —
- * with three differences that follow from it asking rather than collecting:
- *
- * - `role="alertdialog"`, so a screen reader announces the question on open
- *   instead of waiting for the focused control to be read;
- * - focus lands on the dialog itself rather than on a button, which is React
- *   Aria's own behaviour for a dialog whose children do not ask for it: no
- *   answer is armed, so a stray Enter on the way here confirms nothing;
- * - Escape and a click on the backdrop cancel, which is the same escape route
- *   the browser dialog offered.
- */
+/** Replaces window.confirm, which cannot show the consequence. Focus starts on the dialog, so a stray Enter confirms nothing. */
 
 import { AlertTriangle } from '@untitledui/icons';
 import type { FC } from 'react';
@@ -38,25 +14,14 @@ import { de } from '@/content/de';
 import { cx } from '@/utils/cx';
 
 type ConfirmDialogProps = {
-  /** The question, as a question. Becomes the dialog's accessible name. */
   title: string;
-  /**
-   * What the action does once confirmed — the sentence the browser dialog had
-   * nowhere to put. Omitted where the title already says everything.
-   */
   description?: string;
-  /** Names the action, never "OK": the button says what the click does. */
+  /** Names the action, never "OK". */
   confirmLabel: string;
-  /**
-   * Renders the confirming button in the danger colour and the header glyph
-   * in the error tint. On by default: every confirmation in the dashboard is
-   * asked because something is about to be taken away.
-   */
+  /** On by default: every confirmation is about something taken away. */
   destructive?: boolean;
-  /** Overrides the warning glyph where another one says more. */
   icon?: FC<{ className?: string }>;
   onConfirm: () => void;
-  /** Escape, the backdrop and "Abbrechen" all arrive here. */
   onCancel: () => void;
 };
 
@@ -117,17 +82,9 @@ export function ConfirmDialog({
             </div>
           </div>
 
-          {/*
-           * Column-reverse on a phone — `CategoryDialog`'s own order — puts
-           * the answer that deletes at the top of the stack and "Abbrechen"
-           * nearest the thumb, so the reachable button is the harmless one.
-           */}
+          {/* Column-reverse on a phone keeps the harmless answer nearest the thumb. */}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            {/*
-             * Cancel first in the DOM, so it is also the first stop for Tab:
-             * the way out of a question about deleting something is reached
-             * before the answer that deletes.
-             */}
+            {/* Cancel comes first in the DOM, so Tab reaches it before the destructive answer. */}
             <Button size="md" color="secondary" onClick={onCancel}>
               {de.confirm.cancel}
             </Button>

@@ -1,10 +1,3 @@
-/**
- * Registry path: `registry/new-york-v4/ui/select.tsx` (shadcn/ui). Wired to
- * this application's `cx` helper in place of shadcn's `cn`, and to
- * `@untitledui/icons` in place of `lucide-react`, so the dashboard carries one
- * icon set.
- */
-
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ChevronUp } from '@untitledui/icons';
 import * as React from 'react';

@@ -16,13 +16,7 @@ public class EventStreamController {
 
     private final ApplicationEventStream stream;
 
-    /**
-     * {@code X-Accel-Buffering: no} is sent by the backend as well as
-     * configured on the proxy, because a buffering proxy delivers the events in
-     * batches and "the Application appears while you watch" — the moment the
-     * demo is built around — then does not happen. Saying it here means the
-     * behaviour survives a proxy configuration nobody remembered to change.
-     */
+    // Set here too: a buffering proxy would batch the events and hide live updates.
     @GetMapping(path = "/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     ResponseEntity<SseEmitter> events() {
         return ResponseEntity.ok()

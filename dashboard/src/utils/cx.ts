@@ -1,7 +1,3 @@
-/**
- * Clone path: `utils/cx.ts`, unchanged.
- */
-
 import { extendTailwindMerge } from 'tailwind-merge';
 
 const twMerge = extendTailwindMerge({
@@ -19,17 +15,9 @@ const twMerge = extendTailwindMerge({
   },
 });
 
-/**
- * This function is a wrapper around the twMerge function.
- * It is used to merge the classes inside style objects.
- */
 export const cx = twMerge;
 
-/**
- * This function does nothing besides helping us to be able to
- * sort the classes inside style objects which is not supported
- * by the Tailwind IntelliSense by default.
- */
+/** Identity, only so Tailwind IntelliSense sorts classes in style objects. */
 export function sortCx<
   T extends Record<
     string,

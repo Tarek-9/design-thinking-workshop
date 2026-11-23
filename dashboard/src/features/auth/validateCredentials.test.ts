@@ -33,11 +33,7 @@ describe('validateCredentials', () => {
     });
   });
 
-  /**
-   * The one thing it deliberately does not do. Whether an address has an
-   * account is the backend's answer and it refuses to give it (`API.md`,
-   * "Errors"), so nothing here may look like it knows.
-   */
+  // Whether an address has an account is the backend's answer, never this check's.
   it('accepts an address no Staff member has', () => {
     expect(validateCredentials('someone@example.org', 'geheim').ok).toBe(true);
   });

@@ -1,9 +1,4 @@
-/**
- * The drawer's Documents section: reads one Application's files and hands the
- * state down to `ApplicationDocuments`. It sits in the drawer's slot, which the
- * screens above it receive as a render function, so the screens never touch
- * the cache (ADR-0006).
- */
+// Lives in the drawer slot so the screens above never touch the query cache.
 
 import { documentPath } from '@/api/documents';
 import { useApplicationDocuments } from '@/queries/documents';
@@ -19,10 +14,8 @@ export function ApplicationDocumentsContainer({
 }: ApplicationDocumentsContainerProps) {
   const query = useApplicationDocuments(applicationId);
 
-  /**
-   * A refetch that fails after a list has loaded keeps the list on screen:
-   * "failed" is only what a Staff member sees when there is nothing to show.
-   */
+  // A failed refetch keeps a loaded list on screen; "failed" shows only when
+  // there is nothing to show.
   const status = query.data ? 'loaded' : query.isError ? 'failed' : 'loading';
 
   return (

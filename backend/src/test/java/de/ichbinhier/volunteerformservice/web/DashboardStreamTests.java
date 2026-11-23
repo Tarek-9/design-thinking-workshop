@@ -43,11 +43,7 @@ import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 import de.ichbinhier.volunteerformservice.web.config.SignIns;
 
-/**
- * What an open dashboard actually receives. Without these three events the
- * stream carries nothing but heartbeats and "the Application appears while you
- * watch" does not happen. See `dashboard/API.md`, "The live stream".
- */
+// Without these events the stream carries only heartbeats.
 @SpringBootTest
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @ActiveProfiles("test")
@@ -90,7 +86,7 @@ class DashboardStreamTests {
         signIn = new Cookie("ibh_session", signIns.open(ashton));
     }
 
-    /** A stream left open would keep receiving the next test class's events. */
+    // An open stream would keep receiving the next test class's events.
     @AfterEach
     void closeStreams() {
         openStreams.forEach(stream -> stream.getRequest().getAsyncContext().complete());
@@ -159,11 +155,7 @@ class DashboardStreamTests {
         assertThat(dataOf(events.get(1))).isEqualTo(onlyApplicationOnTheList());
     }
 
-    /**
-     * The erased Application arrives whole, in the same shape as the others,
-     * because the dashboard holds it on the Verworfen screen too and needs the
-     * row to know what to drop.
-     */
+    // The erased Application arrives whole, because the dashboard drops it by its row.
     @Test
     void announcesAPermanentEraseWithTheApplicationItErased() throws Exception {
         Application onFile = applications.save(application());
@@ -240,11 +232,6 @@ class DashboardStreamTests {
         return listed.get(0);
     }
 
-    /**
-     * The heartbeat comments are skipped; what is left is the {@code id},
-     * {@code event} and {@code data} of each event, in the order the stream
-     * sent them.
-     */
     private static List<StreamEvent> eventsOn(MvcResult stream) throws Exception {
         List<StreamEvent> events = new ArrayList<>();
         long id = 0;
@@ -266,11 +253,7 @@ class DashboardStreamTests {
         return events;
     }
 
-    /**
-     * MockMvc does not deterministically flush an async SSE response before the
-     * next read, so the event a write just caused may still be in flight. Re-read
-     * until {@code expectedCount} events are present or the deadline passes.
-     */
+    // MockMvc does not flush an async SSE response deterministically, so re-read until the deadline.
     private static List<StreamEvent> awaitEvents(MvcResult stream, int expectedCount) throws Exception {
         long deadline = System.nanoTime() + Duration.ofSeconds(2).toNanos();
         List<StreamEvent> events = eventsOn(stream);

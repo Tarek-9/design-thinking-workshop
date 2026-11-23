@@ -1,23 +1,6 @@
-/**
- * The error `code`s the backend sends (`API.md`, "Errors"). Every failure
- * arrives as `application/problem+json` with a `code`; the backend never sends
- * German, so the code is what the dashboard words — once, in
- * `src/content/de.ts`, looked up through `src/content/errorMessage.ts`.
- *
- * The two lists exist so that a code added to the contract without a wording
- * fails `npm run typecheck` rather than reaching a Staff member as the general
- * fallback. They are not exhaustive of what can arrive: a status the contract
- * does not name carries the status's own name as its `code`
- * (`METHOD_NOT_ALLOWED`, `UNSUPPORTED_MEDIA_TYPE`, `BAD_REQUEST`), and every
- * one of those is a caller defect a Staff member cannot act on — the lookup
- * answers those with the general wording on purpose.
- */
+/** Each code needs wording, enforced by typecheck. Unknown codes fall back to general. */
 
-/**
- * Codes that describe the request as a whole. `NOT_DISCARDED` sits here rather
- * than among the field codes: nothing in the request is wrong, the Application
- * is simply not on the fourth screen yet (`API.md`).
- */
+/** NOT_DISCARDED is not a field error: nothing in the request is wrong. */
 export const TOP_LEVEL_ERROR_CODES = [
   'VALIDATION_FAILED',
   'NOT_DISCARDED',
@@ -31,7 +14,6 @@ export const TOP_LEVEL_ERROR_CODES = [
 
 export type TopLevelErrorCode = (typeof TOP_LEVEL_ERROR_CODES)[number];
 
-/** Codes that name one field, carried in the problem's `errors` array. */
 export const FIELD_ERROR_CODES = [
   'STATUS_UNKNOWN',
   'OWNER_UNKNOWN',

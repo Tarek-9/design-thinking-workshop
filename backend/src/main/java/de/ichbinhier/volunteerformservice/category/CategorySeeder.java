@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
 
-/** First of the seeders: an Application cannot exist without a Category. */
 @Component
 @Profile("!test")
 @Order(1)

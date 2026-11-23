@@ -1,25 +1,3 @@
-/**
- * The column an open `ApplicationDrawer` occupies, kept clear of the strip
- * `AppShell` renders above the screens (issue #64).
- *
- * The drawer is an `aside` with no scrim: it blocks nothing, so it may not eat
- * a click on a control it lies over, nor cover a sentence that has to be read.
- * The strip answers that by never putting anything in the drawer's column —
- * and it does so *unconditionally*, which is the point. The strip is never
- * told that a drawer is open, so nothing in it moves when one opens or closes,
- * and the list behind it holds still. Everything in the strip reads from the
- * left, so the reserved column is invisible while no drawer is there.
- *
- * It is padding rather than a width, so a bordered box — the failure notice —
- * keeps the full width of `main` and lets its right end run under the drawer,
- * which is what issue #64 asks for: a border that stops short reads as broken
- * off, while one that continues reads as continuing.
- *
- * The widths read the same token as `ApplicationDrawer`'s own `sm:w-` classes
- * (`--drawer-width-sm/lg` in `styles/globals.css`), so a width change happens
- * in one place. Below `sm` the drawer is `w-full` and no reserve would help,
- * which issue #64 records as a known hole: at that width the drawer is a
- * modal in all but the attribute.
- */
+/** Always reserved, so nothing moves when the drawer opens; padding lets a bordered box run under it. */
 export const DRAWER_RESERVE =
   'sm:pr-(--drawer-width-sm) lg:pr-(--drawer-width-lg)';

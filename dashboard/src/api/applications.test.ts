@@ -57,11 +57,7 @@ describe('fetchApplications', () => {
     expect(mock.mock.calls[0]?.[0]).toBe('/api/v1/staff/applications');
   });
 
-  /**
-   * `about` is `null` when the applicant wrote nothing, and `internalNotes` is
-   * `""` when no Staff member has — two absences the backend really tells
-   * apart (issue #33), so the mapping may not collapse them.
-   */
+  /** The backend tells "no text" (null) from "no note" (""), so the mapping keeps both. */
   it('keeps a null about apart from an empty note', async () => {
     answer({
       applications: [{ ...wire, about: null, internalNotes: '' }],
@@ -158,12 +154,7 @@ describe('patchApplication', () => {
     expect(init?.body).toBe(JSON.stringify({ status: 'IN_REVIEW' }));
   });
 
-  /**
-   * The distinction the whole endpoint turns on (`API.md`): an absent
-   * `ownerId` leaves the Owner alone, an explicit `null` clears it. A body
-   * built by spreading, or one serialised through a mapping that drops nulls,
-   * would send the first where the drawer meant the second.
-   */
+  /** A spread body or a mapping that drops nulls would send an absent key where null was meant. */
   it('sends an explicit null to clear the Owner', async () => {
     const mock = answer({ ...wire, ownerId: null });
 

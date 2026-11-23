@@ -1,15 +1,4 @@
-/**
- * The moves Anfragen and Übersicht's "Offene Anfragen" panel both make on the
- * one Applications list: open a row in the drawer, tick rows, edit the open
- * Application, and discard one row or every ticked one (`A16`).
- *
- * Both screens held this state and these four functions verbatim — the second
- * copy is how the bulk confirmation and the "forget ids that just left"
- * bookkeeping could drift apart. The list itself stays where it was: this hook
- * owns no Applications and builds none — it names an intent through the
- * callbacks the screen was handed, and `update` is `onEdit` with the drawer's
- * Application already resolved.
- */
+// Shared by both screens, so the bulk confirmation and selection cannot drift apart.
 
 import { useState } from 'react';
 
@@ -17,9 +6,8 @@ import type { Application, ApplicationEdit } from '@/domain/application';
 
 type UseApplicationActionsOptions = {
   applications: readonly Application[];
-  /** Changes one field of one Application; owned by `App`, which is what a `PATCH` is built from. */
   onEdit: (id: string, change: ApplicationEdit) => void;
-  /** Discards the named Applications; owned by `App`, since `discardedAt` is a field on the one list every screen reads. */
+  // Owned by App: discardedAt is a field on the one list every screen reads.
   onDiscard: (ids: ReadonlySet<string>) => void;
 };
 
@@ -28,18 +16,11 @@ export function useApplicationActions({
   onEdit,
   onDiscard,
 }: UseApplicationActionsOptions) {
-  /** The Application the drawer shows, or `null` while it is closed. */
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  /** The checkbox selection the bulk buttons act on, tracked across pages. */
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
     new Set(),
   );
-  /**
-   * Whether the bulk discard is waiting on its confirmation. The question is
-   * asked in a dialog the screen renders, so this hook no longer decides
-   * inside one function call whether the action runs: it opens the question
-   * and waits to be told.
-   */
+  // The bulk discard waits here while the screen's dialog asks the question.
   const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
 
   const selected =
@@ -49,16 +30,10 @@ export function useApplicationActions({
     setSelectedId(null);
   }
 
-  /**
-   * The row is the drawer's toggle: clicking the open row again closes it, so
-   * the way out sits where the way in was. Clicking a different row swaps the
-   * drawer's contents rather than closing it.
-   */
   function toggle(id: string): void {
     setSelectedId((current) => (current === id ? null : id));
   }
 
-  /** Ids that just left the list cannot be acted on any more. */
   function forget(ids: ReadonlySet<string>): void {
     setSelectedIds((current) => {
       const next = new Set(current);
@@ -77,11 +52,7 @@ export function useApplicationActions({
     forget(ids);
   }
 
-  /**
-   * Only the bulk action asks. A single row is one click from being back — the
-   * fourth screen is the undo — while ticking rows and hitting the bar moves
-   * several at once.
-   */
+  // Only bulk discard asks; a single row is undone from the fourth screen.
   function discardSelected(): void {
     if (selectedIds.size > 0) {
       setDiscardConfirmOpen(true);
@@ -105,12 +76,9 @@ export function useApplicationActions({
     open: setSelectedId,
     toggle,
     close,
-    /** The drawer's edits, straight through — this hook has nothing to add. */
     update: onEdit,
     discard,
-    /** Opens the question; `confirmDiscardSelected` is what discards. */
     discardSelected,
-    /** True while the dialog the screen renders is up. */
     discardConfirmOpen,
     confirmDiscardSelected,
     cancelDiscardSelected,

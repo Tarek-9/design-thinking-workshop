@@ -1,8 +1,3 @@
-/**
- * Clone path: `components/base/avatar/base-components/verified-tick.tsx`,
- * unchanged.
- */
-
 import { cx } from '@/utils/cx';
 
 const sizes = {

@@ -10,16 +10,8 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-// Talks to the Resend HTTP API directly — resend.com has no official Java
-// SDK, and the API is one POST request, so a client library would be more
-// code than it saves. Active only when resend.api-key is set to a non-blank
-// value; otherwise NoopEmailSender takes over (see its class comment).
-//
-// Both this class and NoopEmailSender evaluate resend.api-key directly
-// (negations of each other) rather than one depending on "is the other bean
-// present" — @ConditionalOnMissingBean on plain @Component classes has no
-// guaranteed evaluation order, which is exactly the kind of bug that is
-// silent until the day it flips.
+// Calls the Resend HTTP API directly: one POST, so an SDK would add more than it saves.
+// Not @ConditionalOnMissingBean: plain @Component classes have no guaranteed order.
 @Component
 @Conditional(HasResendApiKey.class)
 public class ResendEmailSender implements EmailSender {
@@ -28,9 +20,7 @@ public class ResendEmailSender implements EmailSender {
     private final String fromAddress;
 
 
-    // nginx answers the API host with 504 after 30s and the change is
-    // already stored, so timeouts stay far below that: a saved change must
-    // not become an error.
+    // The change is already stored, so the timeouts must stay far below any gateway limit.
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
 

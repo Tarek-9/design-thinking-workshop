@@ -1,7 +1,3 @@
-/**
- * Clone path: `components/base/checkbox/checkbox.tsx`, unchanged.
- */
-
 import type { ReactNode, Ref } from 'react';
 import {
   Checkbox as AriaCheckbox,
@@ -32,8 +28,7 @@ export const CheckboxBase = ({
       className={cx(
         'bg-primary ring-primary relative flex size-4 shrink-0 cursor-pointer appearance-none items-center justify-center rounded ring-1 ring-inset',
         size === 'md' && 'size-5 rounded-md',
-        // Checked reads as a white tick on a lilac fill. The ring goes
-        // transparent rather than away so the box keeps its size.
+        // A transparent ring keeps the box at its size when checked.
         (isSelected || isIndeterminate) && 'bg-brand-solid ring-transparent',
         isDisabled && 'cursor-not-allowed opacity-50',
         isDisabled && !(isSelected || isIndeterminate) && 'bg-tertiary',

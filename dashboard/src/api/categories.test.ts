@@ -77,12 +77,7 @@ describe('the Category writes', () => {
     expect(mock.mock.calls[0]?.[1]?.method).toBe('DELETE');
   });
 
-  /**
-   * `409 CATEGORY_IN_USE` is the answer Kategorien's disabled delete button
-   * also guards against, and the wording tells the Staff member to deactivate
-   * instead (`A15`). It has to arrive as a code, not as a rejected promise
-   * with nothing on it.
-   */
+  /** Must arrive as a code, so the screen can name the deactivate fallback. */
   it('throws the in-use code rather than a bare failure', async () => {
     answer({ status: 409, code: 'CATEGORY_IN_USE' }, 409);
 
@@ -92,7 +87,6 @@ describe('the Category writes', () => {
     });
   });
 
-  /** The whole order, as ids, and the reordered list back (`API.md`). */
   it('puts the order as ids and takes the list back', async () => {
     const second = { ...wire, id: 'a1f0', name: 'Rechtliches' };
     const mock = answer({ categories: [second, wire] });

@@ -30,16 +30,8 @@ import de.ichbinhier.volunteerformservice.category.CategoryRepository;
 import de.ichbinhier.volunteerformservice.staff.Staff;
 import de.ichbinhier.volunteerformservice.staff.StaffRepository;
 
-/**
- * The demo week and the State changes that lead to it. What is worth testing is
- * not the thirteen texts but the contract `dashboard/API.md` puts on any seed:
- * the state an Application is in has to be reconstructible from its rows, and
- * the trailing week has to hold enough movement for Übersicht's three cards.
- *
- * <p>The seeder is a {@code demo} bean, so it is built by hand here — the suite
- * runs under {@code test}. The class is transactional because the backdating of
- * {@code submittedAt} is a native statement and needs one.
- */
+// The seeder is a demo bean, so it is built by hand here; the suite runs under test.
+// Transactional because the backdate is a native statement and needs one.
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -95,7 +87,7 @@ class DemoSeederTests {
                 .hasSizeGreaterThanOrEqualTo(2);
     }
 
-    /** Every Category is used, so Anfragen's Category filter has something to do. */
+    // Every Category is used, so the Anfragen filter has something to filter.
     @Test
     void spreadsTheWeekAcrossAllFourCategories() {
         List<Application> seeded = seed();
@@ -106,12 +98,8 @@ class DemoSeederTests {
                         .toList());
     }
 
-    /**
-     * The rule the whole seed exists for (`dashboard/API.md`, "Which makes
-     * seeding part of this contract"): replaying an Application's rows in order
-     * has to arrive at exactly the state it is in — no row means NEW, unowned
-     * and in the working list.
-     */
+    // Replaying an Application's rows in order must reproduce its current state.
+    // No row means NEW, unowned and in the working list.
     @Test
     void everyStateIsReconstructibleFromTheChangesThatLeadToIt() {
         for (Application application : seed()) {
@@ -141,7 +129,6 @@ class DemoSeederTests {
         }
     }
 
-    /** A change to an Application that had not arrived yet is not a history. */
     @Test
     void noChangePredatesItsApplicationOrLiesInTheFuture() {
         for (Application application : seed()) {
@@ -152,12 +139,7 @@ class DemoSeederTests {
         }
     }
 
-    /**
-     * {@code submittedAt} carries {@code @CreationTimestamp} and a column that is
-     * not updatable, so this is the assertion that the native backdate actually
-     * lands: without it every Application arrived at start-up and the week is one
-     * spike.
-     */
+    // Without the backdate every Application arrived at start-up, a single spike.
     @Test
     void backdatesTheApplicationsAcrossTwoWeeksRatherThanStartUp() {
         List<Instant> arrivals = seed().stream().map(Application::getSubmittedAt).toList();
@@ -171,11 +153,7 @@ class DemoSeederTests {
                 .isNotEmpty();
     }
 
-    /**
-     * Each of Übersicht's three cards reads one of the three fields, and a card
-     * whose field never changes inside the trailing seven days shows a flat line
-     * however honest the replay is.
-     */
+    // A card whose field never changes in the week shows a flat line, however honest the replay.
     @Test
     void movesAllThreeFieldsInsideTheTrailingWeek() {
         seed();
@@ -187,7 +165,6 @@ class DemoSeederTests {
                 .containsAll(List.of(StateChangeField.values()));
     }
 
-    /** The one move that has to be a row with no value: an Owner handed back. */
     @Test
     void clearsAnOwnerAtLeastOnce() {
         seed();
@@ -197,7 +174,6 @@ class DemoSeederTests {
                 .anyMatch(change -> change.getToValue() == null);
     }
 
-    /** An Application crossing the seven-day line during the week is what makes that card rise. */
     @Test
     void letsSomeApplicationsCrossTheSevenDayLineDuringTheWeek() {
         assertThat(seed())
@@ -208,10 +184,7 @@ class DemoSeederTests {
                 .isNotEmpty();
     }
 
-    /**
-     * All-or-nothing: a restart mid-demo must not duplicate the week, and must
-     * not bring back a set somebody cleared on purpose.
-     */
+    // A restart mid-demo must not duplicate the week or revive a cleared set.
     @Test
     void leavesADatabaseThatAlreadyHasApplicationsAlone() {
         seed();
@@ -224,11 +197,7 @@ class DemoSeederTests {
         assertThat(stateChanges.count()).isEqualTo(changesAfterTheFirstRun);
     }
 
-    /**
-     * Runs the seeder and re-reads: the backdate is a native statement, so the
-     * entities left in the persistence context still carry the start-up
-     * timestamp the insert minted.
-     */
+    // The backdate is native SQL, so the entities are re-read to see it.
     private List<Application> seed() {
         startedAt = Instant.now();
         new DemoSeeder(applications, stateChanges, categories, staffMembers, entityManager)

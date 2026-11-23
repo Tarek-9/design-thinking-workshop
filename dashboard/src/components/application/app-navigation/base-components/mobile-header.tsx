@@ -12,15 +12,6 @@ import { AssociationWordmark } from '@/components/foundations/logo/association-w
 import { de } from '@/content/de';
 import { cx } from '@/utils/cx';
 
-/**
- * Copied from the Untitled UI clone
- * (`components/application/app-navigation/base-components/mobile-header.tsx`).
- *
- * Changed: the association wordmark stands in for `UntitledLogo`, the labels
- * come from `content/de.ts`, and the overlay fades with plain Tailwind classes
- * rather than the `tailwindcss-animate` plugin, which this application does
- * not carry.
- */
 export const MobileNavigationHeader = ({ children }: PropsWithChildren) => {
   return (
     <AriaDialogTrigger>

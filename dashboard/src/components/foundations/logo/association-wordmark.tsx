@@ -2,15 +2,11 @@ import { de } from '@/content/de';
 import ibhLogo from '@/images/ibh-logo.png';
 import { cx } from '@/utils/cx';
 
-/**
- * Stands in for the clone's `UntitledLogo` in the copied navigation.
- */
 export const AssociationWordmark = ({
   className,
   isCollapsed = false,
 }: {
   className?: string;
-  /** Whether to show the compact association mark. */
   isCollapsed?: boolean;
 }) => (
   <span

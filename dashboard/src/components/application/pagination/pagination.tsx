@@ -1,16 +1,3 @@
-/**
- * Clone path: `components/application/pagination/pagination.tsx`. The clone
- * ships seven pager variants; only the card pager under `ApplicationTable` is
- * used here, so this copy keeps `PaginationCardDefault` and drops the other
- * six. That is what took the clone's `base/select`, `base/button-group` and
- * `hooks/use-resize-observer` out of this application — none of them was
- * reachable from the variant we render.
- *
- * The clone's labels are English literals in the component; this copy reads
- * them from `content/de.ts` instead, since a Staff member sees them and the
- * dashboard UI is German (`A6`).
- */
-
 import { ArrowLeft, ArrowRight } from '@untitledui/icons';
 
 import { Button } from '@/components/base/buttons/button';
@@ -24,14 +11,9 @@ import { Pagination } from './pagination-base';
 interface PaginationProps extends Partial<
   Omit<PaginationRootProps, 'children'>
 > {
-  /** Whether the pagination buttons are rounded. */
   rounded?: boolean;
 }
 
-/**
- * `de.pagination.position` with its two placeholders filled and both numbers
- * set in medium weight, the emphasis the clone's English markup carried.
- */
 const PageCounter = ({
   currentPage,
   total,

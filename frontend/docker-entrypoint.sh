@@ -1,12 +1,8 @@
 #!/bin/sh
 set -e
 
-# HTTP basic auth is opt-in. When BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD
-# are both set, we generate an htpasswd file and the nginx server block (which
-# includes /etc/nginx/conf.d/auth.d/auth.conf) protects every request. When
-# they are unset, the auth snippet stays empty and the app serves anonymously,
-# so the local demo keeps working unchanged. Credentials never enter the image
-# or the repository; the password is hashed here at container start.
+# Basic auth is opt-in: with BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD both set,
+# every request needs it. The password is hashed here, never stored in the image.
 
 AUTH_DIR=/etc/nginx/conf.d/auth.d
 AUTH_FILE="$AUTH_DIR/auth.conf"

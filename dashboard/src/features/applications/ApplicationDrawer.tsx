@@ -1,36 +1,3 @@
-/**
- * The full Application. Everything the list does not show lives here: the
- * about text, internal notes, consent metadata, the owner, and the Status
- * change.
- *
- * There is no email composer — issue #10 rules one out. The drawer offers a
- * mail link and a copy action; automated replies stay backend-owned. The link
- * is a plain `mailto:` with no subject, so it opens whichever client the Staff
- * member's machine has configured and invents no wording of its own.
- *
- * Shape: a fixed-height flex column, so the identity block and the action bar
- * are pinned by the layout itself and only the content between them scrolls —
- * "E-Mail schreiben" is reachable from any scroll position. Order of the body
- * follows how an Application is worked: decide (Workflow), read (Nachricht),
- * record (Interne Notizen), verify (Einwilligung).
- *
- * Status stays a native `select`, restyled with `appearance-none` down to a
- * chevron we draw ourselves. A native select is keyboard- and
- * screen-reader-correct on every platform for free, opens the platform's own
- * picker on touch, and — unlike a popover listbox — cannot escape the drawer's
- * scroll container. What made the old panel look unfinished was the default
- * chrome, not the element. Its options are words plus one coloured dot, and the
- * dot sits on the control, not in the list, so nothing is lost.
- *
- * Zuständigkeit cannot keep that element: its options are people, identified by
- * a photo or their initials, and an `option` holds text only. It is
- * `OwnerSelect`, a React Aria listbox, and that file carries the trade-off.
- *
- * There is deliberately no previous/next pair in the header: the table sorts
- * its own rows, so a "next" here would step through a different order than the
- * one on screen.
- */
-
 import {
   Check,
   ChevronDown,
@@ -68,27 +35,15 @@ type ApplicationDrawerProps = {
   categories: readonly Category[];
   owners: readonly Owner[];
   onClose: () => void;
-  /**
-   * Status and Zuständigkeit: one callback for both, because both are one
-   * click and travel as the same `PATCH`.
-   */
+  // Status and owner share one callback: both are one click and one PATCH.
   onChange: (change: ApplicationEdit) => void;
-  /**
-   * What the notes field shows. Not `application.internalNotes`: while a note
-   * is unsent the container's draft is the truth, and the cache holds the echo
-   * of the last note that landed (`useNotesDraft`).
-   */
+  // Not application.internalNotes: an unsent note lives in the draft.
   notesValue: string;
   onNotesChange: (text: string) => void;
-  /**
-   * The Application's Documents section, rendered by a container the screen
-   * was handed (`ApplicationDocumentsContainer`). A slot rather than a list,
-   * so the drawer itself never reads the cache.
-   */
+  // A slot, so the drawer itself never reads the cache.
   documents: ReactNode;
 };
 
-/** How long "Kopiert" stays on the copy button before it reverts. */
 const COPY_FEEDBACK_MS = 1800;
 
 const SELECT_CLASSNAME = cx(
@@ -96,10 +51,6 @@ const SELECT_CLASSNAME = cx(
   'h-control cursor-pointer appearance-none py-0 pr-9 pl-9 font-medium',
 );
 
-/**
- * The eyebrow the page header already uses, reused so a section label inside
- * the drawer reads as the same rank of heading as everywhere else.
- */
 function SectionLabel({
   children,
   icon: Icon,
@@ -107,7 +58,6 @@ function SectionLabel({
 }: {
   children: ReactNode;
   icon?: typeof ShieldTick;
-  /** Given when the section *is* a field, so the label names the control. */
   htmlFor?: string;
 }) {
   const className =
@@ -128,7 +78,6 @@ function SectionLabel({
   );
 }
 
-/** Status, Kategorie and Verfügbarkeit as one neutral strip; only the dot carries colour. */
 function MetaChip({
   children,
   title,
@@ -161,10 +110,8 @@ export function ApplicationDrawer({
   onNotesChange,
   documents,
 }: ApplicationDrawerProps) {
-  /**
-   * The address that was copied, not a flag: opening another Application then
-   * shows the plain label again without an effect that resets it.
-   */
+  // Stores the copied address, so another Application shows the plain label
+  // without a reset effect.
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
   const copied = copiedEmail === application.email;
   const panelRef = useRef<HTMLElement>(null);
@@ -175,11 +122,7 @@ export function ApplicationDrawer({
   const notesId = `application-notes-${application.id}`;
   const notesHintId = `${notesId}-hint`;
 
-  /**
-   * A drawer that opens over the list closes on Escape wherever focus sits —
-   * unless something inside it has already answered that Escape. `OwnerSelect`
-   * closes its own popover with it, and one key press should dismiss one layer.
-   */
+  // Ignores an Escape that an inner layer (OwnerSelect's popover) already took.
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent): void {
       if (event.key === 'Escape' && !event.defaultPrevented) {
@@ -193,12 +136,10 @@ export function ApplicationDrawer({
     };
   }, [onClose]);
 
-  /** Moves the reading position into the panel when another row is opened. */
   useEffect(() => {
     panelRef.current?.focus({ preventScroll: true });
   }, [application.id]);
 
-  /** The copy confirmation reverts on its own, and never outlives the panel. */
   useEffect(() => {
     if (!copied) {
       return;
@@ -237,8 +178,7 @@ export function ApplicationDrawer({
               className="text-tertiary hover:text-secondary outline-focus-ring mt-0.5 flex max-w-full cursor-pointer items-center gap-1.5 rounded text-[13px] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <span className="truncate">{application.email}</span>
-              {/* Same state the footer button reads, so a click here confirms
-                  itself where the eye already is. */}
+              {/* Same state as the footer button, so the click confirms itself here. */}
               {copied ? (
                 <Check
                   aria-hidden="true"
@@ -290,8 +230,7 @@ export function ApplicationDrawer({
                 {de.detail.status}
               </span>
               <span className="relative block">
-                {/* Boxed to the icon's 16px so both controls' leading glyph
-                    and their text start on the same two verticals. */}
+                {/* Boxed to 16px so both controls' leading glyphs and text start at the same x. */}
                 <span
                   aria-hidden="true"
                   className="pointer-events-none absolute top-1/2 left-3 flex size-4 -translate-y-1/2 items-center justify-center"
@@ -335,8 +274,7 @@ export function ApplicationDrawer({
 
         <section className="mt-7">
           <SectionLabel>{de.detail.about}</SectionLabel>
-          {/* Content, not a field: a reading surface, and the drawer — not an
-              inner box — is what scrolls when the message runs long. */}
+          {/* Read-only: the drawer scrolls when the message is long. */}
           <div className="border-secondary bg-secondary text-primary mt-2.5 rounded-[10px] border px-4 py-3.5 text-sm leading-relaxed break-words whitespace-pre-line">
             {application.about}
           </div>
@@ -362,13 +300,11 @@ export function ApplicationDrawer({
             }}
             className={cx(
               CONTROL_CLASSNAME,
-              // `text-quaternary`, not the reference Input's `text-placeholder`:
-              // the theme defines the former and never defined the latter.
+              // text-quaternary: the theme defines it, text-placeholder is not defined.
               'placeholder:text-quaternary mt-2.5 min-h-28 resize-y px-3 py-2.5 leading-relaxed',
             )}
           />
-          {/* The hint and the countdown are one description, so the field
-              names its limit to a screen reader as well as on screen. */}
+          {/* One description for screen readers: the limit is announced too. */}
           <div
             id={notesHintId}
             className="text-tertiary mt-1 flex justify-between gap-3 text-xs"
