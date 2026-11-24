@@ -23,7 +23,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loadingLabel?: string;
   showArrow?: boolean;
 }
-
 export function Button({
   'aria-label': ariaLabel,
   children,
